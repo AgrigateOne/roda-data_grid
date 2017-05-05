@@ -1,8 +1,6 @@
 # Roda::DataGrid
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/roda/data_grid`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+A Roda plugin for rendering data grids using crossbeams-dataminer and crossbeams-layout.
 
 ## Installation
 
@@ -22,7 +20,68 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Configure the plugin
+
+In the Roda app configure the plugin:
+
+```ruby
+  plugin :data_grid, path: File.dirname(__FILE__),
+                     list_url: '/list/%s/grid',
+                     search_url: '/search/%s/grid',
+                     filter_url: '/search/%s',
+                     run_search_url: '/search/%s/run',
+                     run_to_excel_url: '/search/%s/xls'
+```
+
+YAML files defining dataminer queries must be stored in `grid_definitions/dataminer_queries` relative to the `path` option.
+List definition files and search definition files must be in the relevant directories as shown here:
+
+    ├── grid_definitions
+    │   ├── dataminer_queries
+    │   ├── lists
+    │   └── searches
+
+The various paths for lists and searches must include `%s` where the list or search filename will be substituted.
+
+### Set up routes
+
+```ruby
+    # Generic grid lists.
+    r.on 'list' do
+      r.on :id do |id|
+        r.is do
+          show_page { render_data_grid_page(id) }
+        end
+
+        r.on 'grid' do
+          response['Content-Type'] = 'application/json'
+          render_data_grid_rows(id)
+        end
+      end
+    end
+
+    # Generic code for grid searches.
+    r.on 'search' do
+      r.on :id do |id|
+        r.is do
+          render_search_filter(id, params)
+        end
+
+        r.on 'run' do
+          show_page { render_search_grid_page(id, params) }
+        end
+
+        r.on 'grid' do
+          response['Content-Type'] = 'application/json'
+          render_search_grid_rows(id, params)
+        end
+
+        r.on 'xls' do
+          'Write code here to export to Excel'
+        end
+      end
+    end
+```
 
 ## Development
 
