@@ -1,6 +1,10 @@
 require 'roda/data_grid/version'
+require 'roda/data_grid/dataminer_control'
 
-module Roda
+require 'crossbeams/dataminer'
+require 'crossbeams/layout'
+
+class Roda
   module DataGrid
     # Your code goes here...
   end

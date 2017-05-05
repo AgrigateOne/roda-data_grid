@@ -27,3 +27,7 @@ Metrics/BlockLength:
 
 Layout/SpaceAroundOperators:
   AllowForAlignment: true
+
+# This gem needs to load YAML files that contain Symbol keys.
+Security/YAMLLoad:
+  Enabled: false

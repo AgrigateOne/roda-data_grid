@@ -3,30 +3,25 @@
 class Roda
   module RodaPlugins
     module DataGrid
-
       def self.configure(app, opts = {})
         app.opts[:data_grid] = opts.dup
-
-        opts = app.opts[:data_grid]
-        # opts[:renderer] ||= ::Roda::WillPaginate::LinkRenderer
-        #
-        # if opts[:renderer].is_a?(Symbol)
-        #   c_name = "Roda::WillPaginate::#{opts[:renderer].to_s.capitalize}PaginationRenderer"
-        #   opts[:renderer] = const_get(c_name)
-        # end
       end
 
       module InstanceMethods
-        # include ::WillPaginate::ViewHelpers
-        #
-        # def will_paginate(collection, options = {}) #:nodoc:
-        #   super(collection, opts[:will_paginate].merge(options))
-        # end
-        def render_list_page
-          "RENDER LIST: #{opts[:data_grid][:path]}"
+        def render_data_grid_page(id)
+          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
+
+          layout = Crossbeams::Layout::Page.new form_object: dmc.report
+          layout.build do |page, page_config|
+            page.add_grid('grd1', opts[:data_grid][:list_url].sub('{id}', id),
+                          caption: page_config.form_object.caption)
+          end
+          layout
         end
-        def render_list_grid
-          "RENDER LIST GRID: #{opts[:data_grid][:path]}"
+
+        def render_data_grid_rows(id)
+          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
+          dmc.list_rows(params)
         end
       end
     end
