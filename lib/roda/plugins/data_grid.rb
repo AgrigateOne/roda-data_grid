@@ -1,4 +1,5 @@
-# require 'roda/data_grid/list_renderer'
+require 'roda/data_grid/dataminer_control'
+require 'roda/data_grid/data_grid_helpers'
 
 class Roda
   module RodaPlugins
@@ -8,6 +9,8 @@ class Roda
       end
 
       module InstanceMethods
+        include Roda::DataGrid::DataGridHelpers
+
         def render_data_grid_page(id)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
 
@@ -21,7 +24,7 @@ class Roda
 
         def render_data_grid_rows(id)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
-          dmc.list_rows(params)
+          dmc.list_rows
         end
 
         def render_search_filter(id, params)
@@ -58,6 +61,11 @@ class Roda
         def render_search_grid_rows(id, params)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], search_file: id)
           dmc.search_rows(params)
+        end
+
+        def render_excel_rows(id, params)
+          dmc = DataminerControl.new(path: opts[:data_grid][:path], search_file: id)
+          return dmc.report.caption, dmc.excel_rows(params)
         end
       end
     end

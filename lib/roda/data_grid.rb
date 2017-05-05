@@ -3,6 +3,7 @@ require 'roda/data_grid/dataminer_control'
 
 require 'crossbeams/dataminer'
 require 'crossbeams/layout'
+require 'axlsx'
 
 class Roda
   module DataGrid

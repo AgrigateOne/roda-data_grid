@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'roda', '~> 2.5'
   spec.add_dependency 'crossbeams-dataminer'
   spec.add_dependency 'crossbeams-layout'
+  spec.add_dependency 'axlsx'
 
   spec.add_development_dependency 'bundler', '~> 1.14'
   spec.add_development_dependency 'rake', '~> 10.0'
