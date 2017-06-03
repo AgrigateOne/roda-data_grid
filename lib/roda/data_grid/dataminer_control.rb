@@ -200,6 +200,8 @@ class DataminerControl
       hs[:enableValue]    = true if %i[integer number].include?(col.data_type)
       hs[:enableRowGroup] = true unless hs[:enableValue] && !col.groupable
       hs[:enablePivot]    = true unless hs[:enableValue] && !col.groupable
+      hs[:rowGroupIndex]  = col.group_by_seq if col.group_by_seq
+
       if %i[integer number].include?(col.data_type)
         hs[:cellClass] = 'grid-number-column'
         hs[:width]     = 100 if col.width.nil? && col.data_type == :integer
