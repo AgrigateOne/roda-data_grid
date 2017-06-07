@@ -173,25 +173,36 @@ class DataminerControl
 
     # Actions
     # TODO:
-    #       1. Combine into action collection column.
+    #       x. Combine into action collection column.
     #       2. Bring user permissions in to play.
     if options[:actions]
-      options[:actions].each_with_index do |action, index|
-        renderer = action[:is_delete] ? 'crossbeamsGridFormatters.hrefPromptFormatter' : 'crossbeamsGridFormatters.hrefSimpleFormatter'
-        suffix   = "|#{action[:text] || 'link'}"
-        suffix << '|Are you sure?' if action[:is_delete]
-        link = "'#{action[:url].gsub('{:id}', "'+data.id+'")}#{suffix}'"
-
-        hs = { headerName: '',
-               width: action[:width] || 60,
-               suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
-               suppressFilter: true, enableRowGroup: false,   enablePivot: false,
-               enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
-               valueGetter: link,
-               colId: "link_#{index}",
-               cellRenderer: renderer }
-        col_defs << hs
+      this_col = []
+      options[:actions].each do |action|
+        keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
+        url  = action[:url]
+        keys.each_with_index { |key, index| url.gsub!("$#{key}$", "$col#{index}$") }
+        link_h = {
+          text: action[:text] || 'link',
+          url: url
+        }
+        keys.each_with_index { |key, index| link_h["col#{index}".to_sym] = key.sub(':', '') }
+        if action[:is_delete]
+          link_h[:prompt] = 'Are you sure?'
+          link_h[:method] = 'delete'
+        end
+        link_h[:prompt] = action[:prompt] if action[:prompt]
+        link_h[:title] = action[:title] if action[:title]
+        this_col << link_h
       end
+      hs = { headerName: '',
+             width: 60,
+             suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
+             suppressFilter: true, enableRowGroup: false,   enablePivot: false,
+             enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
+             valueGetter: this_col.to_json.to_s,
+             colId: "action_links",
+             cellRenderer: 'crossbeamsGridFormatters.menuActionsRenderer' }
+      col_defs << hs
     end
 
     report.ordered_columns.each do |col|
