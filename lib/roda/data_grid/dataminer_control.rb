@@ -51,39 +51,43 @@ class DataminerControl
   def excel_rows(params)
     apply_params(params)
 
-    xls_possible_types = {string: :string, integer: :integer, date: :string,
-                          datetime: :time, time: :time, boolean: :boolean, number: :float}
+    xls_possible_types = { string: :string, integer: :integer, date: :string,
+                           datetime: :time, time: :time, boolean: :boolean, number: :float }
     heads     = []
     fields    = []
     xls_types = []
     x_styles  = []
     res       = nil
-    Axlsx::Package.new do | p |
-      p.workbook do | wb |
+    Axlsx::Package.new do |p|
+      p.workbook do |wb|
         styles     = wb.styles
-        tbl_header = styles.add_style :b => true, :font_name => 'arial', :alignment => {:horizontal => :center}
-        # red_negative = styles.add_style :num_fmt => 8
-        delim4 = styles.add_style(:format_code=>"#,##0.0000;[Red]-#,##0.0000")
-        delim2 = styles.add_style(:format_code=>"#,##0.00;[Red]-#,##0.00")
-        and_styles = {delimited_1000_4: delim4, delimited_1000: delim2}
-        report.ordered_columns.each do | col|
+        tbl_header = styles.add_style b: true, font_name: 'arial', alignment: { horizontal: :center }
+        # red_negative = styles.add_style num_fmt: 8
+        delim4 = styles.add_style(format_code: '#,##0.0000;[Red]-#,##0.0000')
+        delim2 = styles.add_style(format_code: '#,##0.00;[Red]-#,##0.00')
+        and_styles = { delimited_1000_4: delim4, delimited_1000: delim2 }
+        report.ordered_columns.each do |col|
           xls_types << xls_possible_types[col.data_type] || :string # BOOLEAN == 0,1 ... need to change this to Y/N...or use format TRUE|FALSE...
           heads << col.caption
           fields << col.name
-          # x_styles << (col.format == :delimited_1000_4 ? delim4 : :delimited_1000 ? delim2 : nil) # :num_fmt => Axlsx::NUM_FMT_YYYYMMDDHHMMSS / Axlsx::NUM_FMT_PERCENT
+          # x_styles << (col.format == :delimited_1000_4 ? delim4 : :delimited_1000 ? delim2 : nil)
+          # # num_fmt: Axlsx::NUM_FMT_YYYYMMDDHHMMSS / Axlsx::NUM_FMT_PERCENT
           x_styles << and_styles[col.format]
         end
         puts x_styles.inspect
-        wb.add_worksheet do | sheet |
-          sheet.add_row heads, :style => tbl_header
-          #Crossbeams::DataminerInterface::DB[@rpt.runnable_sql].each do |row|
+        wb.add_worksheet do |sheet|
+          sheet.add_row heads, style: tbl_header
+          # Crossbeams::DataminerInterface::DB[@rpt.runnable_sql].each do |row|
           DB.base[report.runnable_sql].each do |row|
-            sheet.add_row(fields.map {|f| v = row[f.to_sym]; v.is_a?(BigDecimal) ? v.to_f : v }, :types => xls_types, :style => x_styles)
+            sheet.add_row(fields.map do |f|
+              v = row[f.to_sym]
+              v.is_a?(BigDecimal) ? v.to_f : v
+            end, types: xls_types, style: x_styles)
           end
         end
       end
       # response.headers['content_type'] = "application/vnd.ms-excel"
-      # response.headers['Content-Disposition'] = "attachment; filename=\"#{@rpt.caption.strip.gsub(/[\/:*?"\\<>\|\r\n]/i, '-') + '.xls'}\""
+      # response.headers['Content-Disposition'] = "attachment; filename=\"#{ @rpt.caption.strip.gsub(/[\/:*?"\\<>\|\r\n]/i, '-') + '.xls' }\""
       # response.write(p.to_stream.read) # NOTE: could this streaming to start downloading quicker?
       res = p.to_stream.read
     end
@@ -99,7 +103,7 @@ class DataminerControl
   end
 
   def apply_params(params)
-    # {"col"=>"users.department_id", "op"=>"=", "opText"=>"is", "val"=>"17", "text"=>"Finance", "caption"=>"Department"}
+    # { "col"=>"users.department_id", "op"=>"=", "opText"=>"is", "val"=>"17", "text"=>"Finance", "caption"=>"Department" }
     input_parameters = ::JSON.parse(params[:json_var]) || []
     parms = []
     # Check if this should become an IN parmeter (list of equal checks for a column.
@@ -118,11 +122,16 @@ class DataminerControl
         next
       end
       param_def = report.parameter_definition(col)
-      if 'between' == in_param['op']
-        parms << Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], [in_param['val'], in_param['val_to']], param_def.data_type))
-      else
-        parms << Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], in_param['val'], param_def.data_type))
-      end
+      parms << if in_param['op'] == 'between'
+                 Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], [in_param['val'], in_param['val_to']], param_def.data_type))
+               else
+                 Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], in_param['val'], param_def.data_type))
+               end
+      # if 'between' == in_param['op']
+      #   parms << Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], [in_param['val'], in_param['val_to']], param_def.data_type))
+      # else
+      #   parms << Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], in_param['val'], param_def.data_type))
+      # end
     end
     in_sets.each do |col, vals|
       param_def = report.parameter_definition(col)
@@ -200,7 +209,7 @@ class DataminerControl
              suppressFilter: true, enableRowGroup: false,   enablePivot: false,
              enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
              valueGetter: this_col.to_json.to_s,
-             colId: "action_links",
+             colId: 'action_links',
              cellRenderer: 'crossbeamsGridFormatters.menuActionsRenderer' }
       col_defs << hs
     end
@@ -230,7 +239,7 @@ class DataminerControl
         hs[:width]        = 100 if col.width.nil?
       end
 
-      # hs[:cellClassRules] = {"grid-row-red": "x === 'Fred'"} if col.name == 'author'
+      # hs[:cellClassRules] = { "grid-row-red": "x === 'Fred'" } if col.name == 'author'
 
       col_defs << hs
     end
