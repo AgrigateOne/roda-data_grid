@@ -23,6 +23,13 @@ class DataminerControl
     end
   end
 
+  def is_nested_grid?
+    search_def && search_def[:nesting] || list_def && list_def[:nesting]
+  end
+
+  # Column and row definitions for a search grid.
+  #
+  # @return [JSON] - a Hash containing row and column definitions.
   def search_rows(params)
     apply_params(params)
 
@@ -35,6 +42,9 @@ class DataminerControl
     }.to_json
   end
 
+  # Column and row definitions for a list grid.
+  #
+  # @return [JSON] - a Hash containing row and column definitions.
   def list_rows
     n_params = { json_var: list_def[:conditions].to_json }
     apply_params(n_params) unless n_params.nil? || n_params.empty?
@@ -45,6 +55,28 @@ class DataminerControl
     {
       columnDefs: col_defs,
       rowDefs:    dataminer_query(report.runnable_sql)
+    }.to_json
+  end
+
+  # Column and row definitions for a nested list grid.
+  #
+  # @return [JSON] - a Hash containing row and column definitions.
+  def list_nested_rows
+    n_params = { json_var: list_def[:conditions].to_json }
+    apply_params(n_params) unless n_params.nil? || n_params.empty?
+
+    nested_defs = {}
+    list_def[:nesting][:columns].each do |level, cols|
+      actions = list_def[:nesting][:actions][level]
+      column_set = cols.map { |c| report.column(c.to_s) }
+      level_expander = list_def[:nesting][:expand_columns][level].to_s
+      col_defs = column_definitions(report, actions: actions, column_set: column_set, expands_nested_grid: level_expander)
+      nested_defs[level] = col_defs
+    end
+
+    {
+      nestedColumnDefs: nested_defs,
+      rowDefs:    dataminer_nested_query(report.runnable_sql)
     }.to_json
   end
 
@@ -88,18 +120,10 @@ class DataminerControl
       end
       # response.headers['content_type'] = "application/vnd.ms-excel"
       # response.headers['Content-Disposition'] = "attachment; filename=\"#{ @rpt.caption.strip.gsub(/[\/:*?"\\<>\|\r\n]/i, '-') + '.xls' }\""
-      # response.write(p.to_stream.read) # NOTE: could this streaming to start downloading quicker?
+      # response.write(p.to_stream.read) # NOTE: could this use streaming to start downloading quicker?
       res = p.to_stream.read
     end
     res
-
-    # actions  = search_def[:actions]
-    # col_defs = column_definitions(report, actions: actions)
-    #
-    # {
-    #   columnDefs: col_defs,
-    #   rowDefs:    dataminer_query(report.runnable_sql)
-    # }.to_json
   end
 
   def apply_params(params)
@@ -160,6 +184,58 @@ class DataminerControl
     end
   end
 
+  # TODO: Hard-coded to 3 levels. Needs to be dynamic...
+  def dataminer_nested_query(sql)
+    column_levels = {}
+    detail_level = 0
+    prev_keys = {}
+    level_hash = {}
+    key_columns = list_def[:nesting][:keys]
+    list_def[:nesting][:columns].each do |k,v|
+      detail_level += 1
+      prev_keys[k] = -1
+      v.each { |col| column_levels[col] = k }
+      level_hash[k] = {}
+    end
+    new_set = []
+    new_rec = {}
+    # FIXME: chunks of func 1 program in func2 - which has no programs......
+    DB.base[sql].to_a.each do |rec|
+      # puts ">>> #{rec[key_columns[1]]}"
+      if rec[key_columns[1]] != prev_keys[1]
+        new_set << new_rec unless new_rec.empty?
+        new_rec = {}
+        list_def[:nesting][:columns][1].each do |col|
+          new_rec[col] = rec[col].is_a?(BigDecimal) ? rec[col].to_f : rec[col]
+        end
+        new_rec[:level2] = []
+        prev_keys[1] = rec[key_columns[1]]
+      end
+      if rec[key_columns[2]] != prev_keys[2] # might be nil...
+        new_rec[:level2] << level_hash[2] unless level_hash[2].empty?
+        unless rec[key_columns[2]].nil?
+          level_hash[2] = {}
+          list_def[:nesting][:columns][2].each do |col|
+            level_hash[2][col] = rec[col].is_a?(BigDecimal) ? rec[col].to_f : rec[col]
+          end
+          level_hash[2][:level3] = []
+        end
+        prev_keys[2] = rec[key_columns[2]]
+      end
+
+      level_hash[3] = {}
+      unless rec[key_columns[3]].nil?
+        list_def[:nesting][:columns][3].each do |col|
+          level_hash[3][col] = rec[col].is_a?(BigDecimal) ? rec[col].to_f : rec[col]
+        end
+        level_hash[2][:level3] << level_hash[3]
+      end
+    end
+    new_rec[:level2] << level_hash[2] unless level_hash[2].empty?
+    new_set << new_rec unless new_rec.empty?
+    new_set
+  end
+
   def load_search_definition(file_name)
     path = File.join(@root, 'grid_definitions', 'searches', file_name.sub('.yml', '') << '.yml')
     YAML.load(File.read(path))
@@ -186,7 +262,13 @@ class DataminerControl
     #       2. Bring user permissions in to play.
     if options[:actions]
       this_col = []
+      cnt = 0
       options[:actions].each do |action|
+        if action[:separator]
+          cnt += 1
+          this_col << {text: "sep#{cnt}", is_separator: true}
+          next
+        end
         keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
         url  = action[:url]
         keys.each_with_index { |key, index| url.gsub!("$#{key}$", "$col#{index}$") }
@@ -201,6 +283,7 @@ class DataminerControl
         end
         link_h[:prompt] = action[:prompt] if action[:prompt]
         link_h[:title] = action[:title] if action[:title]
+        link_h[:hide_if_null] = action[:hide_if_null] if action[:hide_if_null]
         this_col << link_h
       end
       hs = { headerName: '',
@@ -214,7 +297,7 @@ class DataminerControl
       col_defs << hs
     end
 
-    report.ordered_columns.each do |col|
+    (options[:column_set] || report.ordered_columns).each do |col|
       hs                  = { headerName: col.caption, field: col.name, hide: col.hide, headerTooltip: col.caption }
       hs[:width]          = col.width unless col.width.nil?
       hs[:enableValue]    = true if %i[integer number].include?(col.data_type)
@@ -237,6 +320,13 @@ class DataminerControl
         hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
         hs[:cellClass]    = 'grid-boolean-column'
         hs[:width]        = 100 if col.width.nil?
+      end
+
+      if options[:expands_nested_grid] && options[:expands_nested_grid] == col.name
+        hs[:cellRenderer]       = 'group' # This column will have the expand/contract controls.
+        hs[:cellRendererParams] = { suppressCount: true } # There is always one child (a sub-grid), so hide the count.
+        hs.delete(:enableRowGroup) # ... see if this helps?????
+        hs.delete(:enablePivot) # ... see if this helps?????
       end
 
       # hs[:cellClassRules] = { "grid-row-red": "x === 'Fred'" } if col.name == 'author'

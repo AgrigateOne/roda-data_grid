@@ -13,11 +13,12 @@ class Roda
 
         def render_data_grid_page(id)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
+          grid_path = dmc.is_nested_grid? ? opts[:data_grid][:list_nested_url] : opts[:data_grid][:list_url]
 
           layout = Crossbeams::Layout::Page.new form_object: dmc.report
           layout.build do |page, page_config|
-            page.add_grid("grid_#{id}", opts[:data_grid][:list_url].%(id),
-                          caption: page_config.form_object.caption)
+            page.add_grid("grid_#{id}", grid_path.%(id),
+                          caption: page_config.form_object.caption, is_nested: dmc.is_nested_grid?)
           end
           layout
         end
@@ -25,6 +26,11 @@ class Roda
         def render_data_grid_rows(id)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
           dmc.list_rows
+        end
+
+        def render_data_grid_nested_rows(id)
+          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
+          dmc.list_nested_rows
         end
 
         def render_search_filter(id, params)
