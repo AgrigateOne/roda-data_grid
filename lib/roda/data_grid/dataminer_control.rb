@@ -23,8 +23,20 @@ class DataminerControl
     end
   end
 
+  # Does this search or list grid need to be rendered as a nested grid.
+  #
+  # @return [boolean] - true if nested, otherwise false.
   def is_nested_grid?
     search_def && search_def[:nesting] || list_def && list_def[:nesting]
+  end
+
+  # Get the rules for which (if any) controls to display on the page.
+  #
+  # @return [Array] - the control definitions. Could be empty.
+  def page_controls
+    pc = search_def[:page_controls] if search_def
+    pc = list_def[:page_controls] if list_def
+    pc || []
   end
 
   # Column and row definitions for a search grid.
@@ -281,9 +293,11 @@ class DataminerControl
           link_h[:prompt] = 'Are you sure?'
           link_h[:method] = 'delete'
         end
+        link_h[:icon] = action[:icon] if action[:icon]
         link_h[:prompt] = action[:prompt] if action[:prompt]
         link_h[:title] = action[:title] if action[:title]
         link_h[:hide_if_null] = action[:hide_if_null] if action[:hide_if_null]
+        link_h[:hide_if_present] = action[:hide_if_present] if action[:hide_if_present]
         this_col << link_h
       end
       hs = { headerName: '',
