@@ -1,0 +1,15 @@
+<form action='<%= run_search_url %>' id="rp_form" method=post class="crossbeams-form">
+  <input type="hidden" name="id" value="<%=presenter.rpt_id%>">
+  <input id="limit" type="hidden" name='limit' value="<%= presenter.rpt.limit %>" />
+  <input id="offset" type="hidden" name='offset' value="<%= presenter.rpt.offset %>" />
+  <%= csrf_tag %>
+  <div id="select_param"></div>
+  <div id="param_display" style="display:none"></div>
+</form>
+
+<% content_for :late_javascript do %>
+<script>
+  crossbeamsDataMinerParams.init('rp_form', '<%= presenter.rpt_id %>', '');
+  crossbeamsDataMinerParams.runWithCurrentParams();
+</script>
+<% end %>

@@ -43,11 +43,17 @@ class Roda
 
         def render_search_filter(id, params)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], search_file: id)
+          for_rerun = params[:rerun] && params[:rerun] == 'y'
           presenter = OpenStruct.new(rpt: dmc.report,
                                      qps: dmc.report.query_parameter_definitions,
                                      rpt_id: id,
-                                     load_params: (params[:back] && params[:back] == 'y'))
-          fp = File.expand_path('../../data_grid/search_filter.erb', __FILE__)
+                                     load_params: (params[:back] && params[:back] == 'y'),
+                                     rerun: for_rerun)
+          if for_rerun
+            fp = File.expand_path('../../data_grid/search_rerun.erb', __FILE__)
+          else
+            fp = File.expand_path('../../data_grid/search_filter.erb', __FILE__)
+          end
           view(path: fp,
                locals: { presenter: presenter,
                          run_search_url: opts[:data_grid][:run_search_url] % id,
