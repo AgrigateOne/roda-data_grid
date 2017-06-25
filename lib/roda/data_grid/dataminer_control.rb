@@ -265,6 +265,42 @@ class DataminerControl
     Crossbeams::Dataminer::Report.load(rpt_hash)
   end
 
+  # Build action column items recursively.
+  def make_subitems(actions, level = 0)
+    this_col = []
+    cnt = 0
+    actions.each do |action|
+      if action[:separator]
+        cnt += 1
+        this_col << {text: "sep#{level}#{cnt}", is_separator: true}
+        next
+      end
+      if action[:submenu]
+        this_col << {text: action[:submenu][:text], is_submenu: true, items: make_subitems(action[:submenu][:items], level+1)}
+        next
+      end
+      keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
+      url  = action[:url]
+      keys.each_with_index { |key, index| url.gsub!("$#{key}$", "$col#{index}$") }
+      link_h = {
+        text: action[:text] || 'link',
+        url: url
+      }
+      keys.each_with_index { |key, index| link_h["col#{index}".to_sym] = key.sub(':', '') }
+      if action[:is_delete]
+        link_h[:prompt] = 'Are you sure?'
+        link_h[:method] = 'delete'
+      end
+      link_h[:icon] = action[:icon] if action[:icon]
+      link_h[:prompt] = action[:prompt] if action[:prompt]
+      link_h[:title] = action[:title] if action[:title]
+      link_h[:hide_if_null] = action[:hide_if_null] if action[:hide_if_null]
+      link_h[:hide_if_present] = action[:hide_if_present] if action[:hide_if_present]
+      this_col << link_h
+    end
+    this_col
+  end
+
   def column_definitions(report, options = {})
     col_defs = []
 
@@ -273,33 +309,7 @@ class DataminerControl
     #       x. Combine into action collection column.
     #       2. Bring user permissions in to play.
     if options[:actions]
-      this_col = []
-      cnt = 0
-      options[:actions].each do |action|
-        if action[:separator]
-          cnt += 1
-          this_col << {text: "sep#{cnt}", is_separator: true}
-          next
-        end
-        keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
-        url  = action[:url]
-        keys.each_with_index { |key, index| url.gsub!("$#{key}$", "$col#{index}$") }
-        link_h = {
-          text: action[:text] || 'link',
-          url: url
-        }
-        keys.each_with_index { |key, index| link_h["col#{index}".to_sym] = key.sub(':', '') }
-        if action[:is_delete]
-          link_h[:prompt] = 'Are you sure?'
-          link_h[:method] = 'delete'
-        end
-        link_h[:icon] = action[:icon] if action[:icon]
-        link_h[:prompt] = action[:prompt] if action[:prompt]
-        link_h[:title] = action[:title] if action[:title]
-        link_h[:hide_if_null] = action[:hide_if_null] if action[:hide_if_null]
-        link_h[:hide_if_present] = action[:hide_if_present] if action[:hide_if_present]
-        this_col << link_h
-      end
+      this_col = make_subitems(options[:actions])
       hs = { headerName: '',
              width: 60,
              suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
