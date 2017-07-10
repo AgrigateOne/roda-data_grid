@@ -1,3 +1,4 @@
+require 'axlsx'
 require 'roda/data_grid/dataminer_control'
 require 'roda/data_grid/data_grid_helpers'
 

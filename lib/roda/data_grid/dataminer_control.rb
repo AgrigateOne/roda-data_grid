@@ -294,6 +294,8 @@ class DataminerControl
       link_h[:icon] = action[:icon] if action[:icon]
       link_h[:prompt] = action[:prompt] if action[:prompt]
       link_h[:title] = action[:title] if action[:title]
+      link_h[:title_field] = action[:title_field] if action[:title_field]
+      link_h[:popup] = action[:popup] if action[:popup]
       link_h[:hide_if_null] = action[:hide_if_null] if action[:hide_if_null]
       link_h[:hide_if_present] = action[:hide_if_present] if action[:hide_if_present]
       this_col << link_h
