@@ -9,9 +9,6 @@ Documentation:
 LineLength:
   Enabled: false
 
-FrozenStringLiteralComment:
-  Enabled: false
-
 MethodLength:
   Enabled: false
 

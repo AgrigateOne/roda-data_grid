@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DataminerControl
   attr_reader :report, :search_def, :list_def
 
@@ -173,9 +175,8 @@ class DataminerControl
       param_def = report.parameter_definition(col)
       parms << Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new('in', vals, param_def.data_type))
     end
-
-    report.limit  = params[:limit].to_i  if params[:limit] != ''
-    report.offset = params[:offset].to_i if params[:offset] != ''
+    report.limit  = params[:limit].to_i  unless params[:limit].nil? || params[:limit] != ''
+    report.offset = params[:offset].to_i unless params[:offset].nil? || params[:offset] != ''
     begin
       report.apply_params(parms)
     rescue StandardError => e
@@ -203,7 +204,7 @@ class DataminerControl
     prev_keys = {}
     level_hash = {}
     key_columns = list_def[:nesting][:keys]
-    list_def[:nesting][:columns].each do |k,v|
+    list_def[:nesting][:columns].each do |k, v|
       detail_level += 1
       prev_keys[k] = -1
       v.each { |col| column_levels[col] = k }
@@ -236,12 +237,12 @@ class DataminerControl
       end
 
       level_hash[3] = {}
-      unless rec[key_columns[3]].nil?
-        list_def[:nesting][:columns][3].each do |col|
-          level_hash[3][col] = rec[col].is_a?(BigDecimal) ? rec[col].to_f : rec[col]
-        end
-        level_hash[2][:level3] << level_hash[3]
+      next if rec[key_columns[3]].nil?
+
+      list_def[:nesting][:columns][3].each do |col|
+        level_hash[3][col] = rec[col].is_a?(BigDecimal) ? rec[col].to_f : rec[col]
       end
+      level_hash[2][:level3] << level_hash[3]
     end
     new_rec[:level2] << level_hash[2] unless level_hash[2].empty?
     new_set << new_rec unless new_rec.empty?
@@ -272,11 +273,11 @@ class DataminerControl
     actions.each do |action|
       if action[:separator]
         cnt += 1
-        this_col << {text: "sep#{level}#{cnt}", is_separator: true}
+        this_col << { text: "sep#{level}#{cnt}", is_separator: true }
         next
       end
       if action[:submenu]
-        this_col << {text: action[:submenu][:text], is_submenu: true, items: make_subitems(action[:submenu][:items], level+1)}
+        this_col << { text: action[:submenu][:text], is_submenu: true, items: make_subitems(action[:submenu][:items], level+1) }
         next
       end
       keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
@@ -330,6 +331,8 @@ class DataminerControl
       hs[:enableRowGroup] = true unless hs[:enableValue] && !col.groupable
       hs[:enablePivot]    = true unless hs[:enableValue] && !col.groupable
       hs[:rowGroupIndex]  = col.group_by_seq if col.group_by_seq
+      hs[:rowGroup]       = true if col.group_by_seq
+      hs[:valueGetter]    = 'blankWhenNull'
 
       if %i[integer number].include?(col.data_type)
         hs[:cellClass] = 'grid-number-column'
