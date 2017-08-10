@@ -51,7 +51,7 @@ class Roda
             hs[:list_values] = if query_param.includes_list_options?
                                  query_param.build_list.list_values
                                else
-                                 query_param.build_list { |sql| DB.base[sql].map(&:values) }.list_values
+                                 query_param.build_list { |sql| DB[sql].map(&:values) }.list_values
                                end
             # if query_param.includes_list_options?
             #   hs[:list_values] = query_param.build_list.list_values
@@ -61,7 +61,7 @@ class Roda
             #### this_db = Sequel.connect('postgres://postgres:postgres@localhost:5432/bookshelf_development')
             # hs[:list_values] = query_param.build_list {|sql| BookRepository.new.raw_query(sql).map {|r| r.values } }.list_values
             ### hs[:list_values] = query_param.build_list {|sql| this_db[sql].map {|r| r.values } }.list_values
-            # hs[:list_values] = query_param.build_list { |sql| DB.base[sql].map(&:values) }.list_values
+            # hs[:list_values] = query_param.build_list { |sql| DB[sql].map(&:values) }.list_values
             # This needs to use repository...
             # end
           elsif query_param.control_type == :daterange

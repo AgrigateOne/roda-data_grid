@@ -124,7 +124,7 @@ class DataminerControl
         wb.add_worksheet do |sheet|
           sheet.add_row heads, style: tbl_header
           # Crossbeams::DataminerInterface::DB[@rpt.runnable_sql].each do |row|
-          DB.base[report.runnable_sql].each do |row|
+          DB[report.runnable_sql].each do |row|
             sheet.add_row(fields.map do |f|
               v = row[f.to_sym]
               v.is_a?(BigDecimal) ? v.to_f : v
@@ -189,7 +189,7 @@ class DataminerControl
   def dataminer_query(sql)
     # Need to convert all BigDecimal to float for JSON (otherwise the aggregations don't work because amounts are returned as 0.1126673E5)
     # - Need to do some checking that the resulting float is an accurate representation of the decimal...
-    DB.base[sql].to_a.map do |rec|
+    DB[sql].to_a.map do |rec|
       rec.keys.each do |key|
         rec[key] = rec[key].to_f if rec[key].is_a?(BigDecimal)
       end
@@ -213,7 +213,7 @@ class DataminerControl
     new_set = []
     new_rec = {}
     # FIXME: chunks of func 1 program in func2 - which has no programs......
-    DB.base[sql].to_a.each do |rec|
+    DB[sql].to_a.each do |rec|
       # puts ">>> #{rec[key_columns[1]]}"
       if rec[key_columns[1]] != prev_keys[1]
         new_set << new_rec unless new_rec.empty?
