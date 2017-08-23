@@ -34,8 +34,8 @@ class Roda
           layout
         end
 
-        def render_data_grid_rows(id)
-          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
+        def render_data_grid_rows(id, deny_access = nil)
+          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id, deny_access: deny_access)
           dmc.list_rows
         end
 
@@ -81,8 +81,8 @@ class Roda
           layout
         end
 
-        def render_search_grid_rows(id, params)
-          dmc = DataminerControl.new(path: opts[:data_grid][:path], search_file: id)
+        def render_search_grid_rows(id, params, deny_access = nil)
+          dmc = DataminerControl.new(path: opts[:data_grid][:path], search_file: id, deny_access: deny_access)
           dmc.search_rows(params)
         end
 

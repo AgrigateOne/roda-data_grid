@@ -13,6 +13,7 @@ class DataminerControl
 
   def initialize(options)
     @root = options[:path]
+    @deny_access = options[:deny_access] || lambda { |programs, permission| false }
 
     if options[:search_file]
       @search_def = load_search_definition(options[:search_file])
@@ -280,6 +281,10 @@ class DataminerControl
         this_col << { text: action[:submenu][:text], is_submenu: true, items: make_subitems(action[:submenu][:items], level+1) }
         next
       end
+
+      # Check if user is authorised for this action:
+      next if action[:auth] && @deny_access.call(action[:auth][:program], action[:auth][:permission])
+
       keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
       url  = action[:url]
       keys.each_with_index { |key, index| url.gsub!("$#{key}$", "$col#{index}$") }
