@@ -319,7 +319,7 @@ class DataminerControl
     #       2. Bring user permissions in to play.
     if options[:actions]
       this_col = make_subitems(options[:actions])
-      hs = { headerName: '',
+      hs = { headerName: '', pinned: 'left',
              width: 60,
              suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
              suppressFilter: true, enableRowGroup: false,   enablePivot: false,
@@ -337,6 +337,7 @@ class DataminerControl
       hs[:enableRowGroup] = true unless hs[:enableValue] && !col.groupable
       hs[:enablePivot]    = true unless hs[:enableValue] && !col.groupable
       hs[:rowGroupIndex]  = col.group_by_seq if col.group_by_seq
+      # hs[:pinned]         = 'left' if col.group_by_seq # if col.pinned || col.group_by_seq
       hs[:rowGroup]       = true if col.group_by_seq
       hs[:valueGetter]    = 'blankWhenNull'
 
