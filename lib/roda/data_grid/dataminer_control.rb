@@ -15,6 +15,7 @@ class DataminerControl
     @root = options[:path]
     @deny_access = options[:deny_access] || lambda { |programs, permission| false }
 
+    @multiselect_options = options[:multiselect_options]
     if options[:search_file]
       @search_def = load_search_definition(options[:search_file])
       @report     = get_report(@search_def[:dataminer_definition])
@@ -33,6 +34,20 @@ class DataminerControl
     search_def && search_def[:nesting] || list_def && list_def[:nesting]
   end
 
+  # Does this search or list grid need to be rendered as a multiselect grid.
+  #
+  # @return [boolean] - true if multiselect, otherwise false.
+  def is_multiselect?
+    !@multiselect_options.nil?
+  end
+
+  def multiselect_url
+    # test on list_def for now...
+    details = @list_def[:multiselect][@multiselect_options[:key].to_sym]
+    raise ArgumentError, 'incorrect arguments for multiselect parameters' if details.nil?
+    details[:url].sub('$:id$', @multiselect_options[:id]) # TODO: apply params...
+  end
+
   # Get the rules for which (if any) controls to display on the page.
   #
   # @return [Array] - the control definitions. Could be empty.
@@ -48,8 +63,9 @@ class DataminerControl
   def search_rows(params)
     apply_params(params)
 
-    actions  = search_def[:actions]
-    col_defs = column_definitions(report, actions: actions)
+    actions     = search_def[:actions]
+    multiselect = search_def[:multiselect]
+    col_defs    = column_definitions(report, actions: actions, multiselect: multiselect)
 
     {
       columnDefs: col_defs,
@@ -64,8 +80,9 @@ class DataminerControl
     n_params = { json_var: list_def[:conditions].to_json }
     apply_params(n_params) unless n_params.nil? || n_params.empty?
 
-    actions  = list_def[:actions]
-    col_defs = column_definitions(report, actions: actions)
+    actions     = list_def[:actions]
+    multiselect = list_def[:multiselect]
+    col_defs    = column_definitions(report, actions: actions, multiselect: multiselect)
 
     {
       columnDefs: col_defs,
@@ -312,6 +329,23 @@ class DataminerControl
 
   def column_definitions(report, options = {})
     col_defs = []
+
+    # TEST: multiselect
+    if options[:multiselect]
+      hs = {
+        headerName: '',
+        colId: 'theSelector',
+        pinned: 'left',
+        width: 30,
+        headerCheckboxSelection: true,
+        headerCheckboxSelectionFilteredOnly: true,
+        checkboxSelection: true,
+        suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
+        suppressFilter: true, enableRowGroup: false,   enablePivot: false,
+        enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
+      }
+      col_defs << hs
+    end
 
     # Actions
     # TODO:

@@ -28,7 +28,30 @@ class Roda
             end
             page.section do |section|
               section.add_grid("grid_#{id}", grid_path.%(id),
-                            caption: page_config.form_object.caption, is_nested: dmc.is_nested_grid?)
+                               caption: page_config.form_object.caption, is_nested: dmc.is_nested_grid?)
+            end
+          end
+          layout
+        end
+
+        def render_data_grid_page_multiselect(id, multiselect_options)
+          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id, multiselect_options: multiselect_options)
+          grid_path = dmc.is_nested_grid? ? opts[:data_grid][:list_nested_url] : opts[:data_grid][:list_url]
+          page_controls = dmc.page_controls
+
+          layout = Crossbeams::Layout::Page.new form_object: dmc.report
+          layout.build do |page, page_config|
+            page.section do |section|
+              page_controls.each do |page_control_def|
+                section.add_control(page_control_def)
+              end
+            end
+            page.section do |section|
+              section.add_grid("grid_#{id}", grid_path.%(id),
+                               caption: page_config.form_object.caption,
+                               is_nested: dmc.is_nested_grid?,
+                               is_multiselect: dmc.is_multiselect?,
+                               multiselect_url: dmc.multiselect_url)
             end
           end
           layout
