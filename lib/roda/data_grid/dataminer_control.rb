@@ -41,11 +41,14 @@ class DataminerControl
     !@multiselect_options.nil?
   end
 
+  # The URL that a multiselect grid's selection should be saved to.
+  #
+  # @return [String] - the URL.
   def multiselect_url
     # test on list_def for now...
     details = @list_def[:multiselect][@multiselect_options[:key].to_sym]
     raise ArgumentError, 'incorrect arguments for multiselect parameters' if details.nil?
-    details[:url].sub('$:id$', @multiselect_options[:id]) # TODO: apply params...
+    details[:url].sub('$:id$', @multiselect_options[:id])
   end
 
   # Get the rules for which (if any) controls to display on the page.
@@ -83,8 +86,10 @@ class DataminerControl
     actions     = list_def[:actions]
     multiselect = list_def[:multiselect]
     col_defs    = column_definitions(report, actions: actions, multiselect: multiselect)
+    multiselect_ids = list_def[:multiselect].nil? ? [] : preselect_ids(list_def[:multiselect][@multiselect_options[:key].to_sym])
 
     {
+      multiselect_ids: multiselect_ids,
       columnDefs: col_defs,
       rowDefs:    dataminer_query(report.runnable_sql)
     }.to_json
@@ -404,5 +409,15 @@ class DataminerControl
       col_defs << hs
     end
     col_defs
+  end
+
+  # For multiselect grids, get the ids that should be preselected in the grid.
+  #
+  # @return [Array] - a list of ids (can be empty)
+  def preselect_ids(options)
+    return [] if options.nil?
+    sql = options[:preselect]
+    @multiselect_options[:params].each { |k,v| sql.gsub!("$:#{k}$", v) }
+    DB[sql].map { |r| r.values.first }
   end
 end

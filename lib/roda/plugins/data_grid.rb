@@ -37,7 +37,10 @@ class Roda
         def render_data_grid_page_multiselect(id, multiselect_options)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id, multiselect_options: multiselect_options)
           grid_path = dmc.is_nested_grid? ? opts[:data_grid][:list_nested_url] : opts[:data_grid][:list_url]
+          grid_path = opts[:data_grid][:list_multi_url] if multiselect_options
           page_controls = dmc.page_controls
+
+          parms = multiselect_options
 
           layout = Crossbeams::Layout::Page.new form_object: dmc.report
           layout.build do |page, page_config|
@@ -51,7 +54,9 @@ class Roda
                                caption: page_config.form_object.caption,
                                is_nested: dmc.is_nested_grid?,
                                is_multiselect: dmc.is_multiselect?,
-                               multiselect_url: dmc.multiselect_url)
+                               multiselect_url: dmc.multiselect_url,
+                               multiselect_key: multiselect_options[:key],
+                               multiselect_params: parms)
             end
           end
           layout
@@ -59,6 +64,12 @@ class Roda
 
         def render_data_grid_rows(id, deny_access = nil)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id, deny_access: deny_access)
+          dmc.list_rows
+        end
+
+        def render_data_grid_multiselect_rows(id, deny_access = nil, multi_key = nil, params)
+          mult = multi_key.nil? ? nil : { key: multi_key, params: params }
+          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id, deny_access: deny_access, multiselect_options: mult)
           dmc.list_rows
         end
 
