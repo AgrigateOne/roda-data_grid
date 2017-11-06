@@ -16,6 +16,7 @@ class DataminerControl
     @deny_access = options[:deny_access] || lambda { |programs, permission| false }
 
     @multiselect_options = options[:multiselect_options]
+    @grid_params = options[:grid_params]
     if options[:search_file]
       @search_def = load_search_definition(options[:search_file])
       @report     = get_report(@search_def[:dataminer_definition])
@@ -80,7 +81,8 @@ class DataminerControl
   #
   # @return [JSON] - a Hash containing row and column definitions.
   def list_rows
-    n_params = { json_var: list_def[:conditions].to_json }
+    conditions = @grid_params.nil? ? nil : conditions_from(list_def)
+    n_params = { json_var: conditions.to_json }
     apply_params(n_params) unless n_params.nil? || n_params.empty?
 
     actions     = list_def[:actions]
@@ -419,5 +421,24 @@ class DataminerControl
     sql = options[:preselect]
     @multiselect_options[:params].each { |k,v| sql.gsub!("$:#{k}$", v) }
     DB[sql].map { |r| r.values.first }
+  end
+
+  def parameterize_value(condition)
+    val = condition[:val]
+    @grid_params.each { |k,v| val.gsub!("$:#{k}$", v) }
+    condition[:val] = val
+    condition
+  end
+
+  def conditions_from(list_or_search_def)
+    conditions = list_or_search_def[:conditions][@grid_params[:key].to_sym]
+    conditions.map! do |condition|
+      if condition[:val].include?('$')
+        parameterize_value(condition)
+      else
+        condition
+      end
+    end
+    conditions
   end
 end

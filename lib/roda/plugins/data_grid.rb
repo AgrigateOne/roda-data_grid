@@ -14,7 +14,7 @@ class Roda
       module InstanceMethods
         include Roda::DataGrid::DataGridHelpers
 
-        def render_data_grid_page(id)
+        def render_data_grid_page(id, params = nil)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
           grid_path = dmc.is_nested_grid? ? opts[:data_grid][:list_nested_url] : opts[:data_grid][:list_url]
           page_controls = dmc.page_controls
@@ -28,7 +28,9 @@ class Roda
             end
             page.section do |section|
               section.add_grid("grid_#{id}", grid_path.%(id),
-                               caption: page_config.form_object.caption, is_nested: dmc.is_nested_grid?)
+                               caption: page_config.form_object.caption,
+                               is_nested: dmc.is_nested_grid?,
+                               grid_params: params)
             end
           end
           layout
@@ -62,8 +64,12 @@ class Roda
           layout
         end
 
-        def render_data_grid_rows(id, deny_access = nil)
-          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id, deny_access: deny_access)
+        def render_data_grid_rows(id, deny_access = nil, params = nil)
+          dmc = if params.nil?
+                  DataminerControl.new(path: opts[:data_grid][:path], list_file: id, deny_access: deny_access)
+                else
+                  DataminerControl.new(path: opts[:data_grid][:path], list_file: id, deny_access: deny_access, grid_params: params)
+                end
           dmc.list_rows
         end
 
