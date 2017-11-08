@@ -52,13 +52,16 @@ class Roda
               end
             end
             page.section do |section|
+              section.caption = dmc.multi_grid_caption
+              section.hide_caption = dmc.multi_grid_caption.nil?
               section.add_grid("grid_#{id}", grid_path.%(id),
                                caption: page_config.form_object.caption,
                                is_nested: dmc.is_nested_grid?,
                                is_multiselect: dmc.is_multiselect?,
                                multiselect_url: dmc.multiselect_url,
                                multiselect_key: multiselect_options[:key],
-                               multiselect_params: parms)
+                               multiselect_params: parms,
+                               can_be_cleared: dmc.multiselect_can_be_cleared)
             end
           end
           layout

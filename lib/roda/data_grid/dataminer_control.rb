@@ -52,6 +52,19 @@ class DataminerControl
     details[:url].sub('$:id$', @multiselect_options[:id])
   end
 
+  def multi_grid_caption
+    return nil unless @multiselect_options
+    caption = @list_def[:multiselect][@multiselect_options[:key].to_sym][:section_caption]
+    return nil if caption.nil?
+    return caption unless caption.match(/SELECT/i)
+    DB[caption.sub('$:id$', @multiselect_options[:id])].first.values.first
+  end
+
+  def multiselect_can_be_cleared
+    return nil unless @multiselect_options
+    @list_def[:multiselect][@multiselect_options[:key].to_sym][:can_be_cleared]
+  end
+
   # Get the rules for which (if any) controls to display on the page.
   #
   # @return [Array] - the control definitions. Could be empty.
