@@ -94,7 +94,7 @@ class DataminerControl
   #
   # @return [JSON] - a Hash containing row and column definitions.
   def list_rows
-    conditions = list_def[:conditions].nil? || @grid_params.nil? ? nil : conditions_from(list_def)
+    conditions = list_def[:conditions].nil? || @grid_params.nil? || @grid_params.empty? ? nil : conditions_from(list_def)
     n_params = { json_var: conditions.to_json }
     apply_params(n_params) unless n_params.nil? || n_params.empty?
 
