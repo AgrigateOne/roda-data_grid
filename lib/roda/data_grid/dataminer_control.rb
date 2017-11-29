@@ -342,6 +342,7 @@ class DataminerControl
       link_h[:hide_if_null] = action[:hide_if_null] if action[:hide_if_null]
       link_h[:hide_if_present] = action[:hide_if_present] if action[:hide_if_present]
       link_h[:hide_if_true] = action[:hide_if_true] if action[:hide_if_true]
+      link_h[:hide_if_false] = action[:hide_if_false] if action[:hide_if_false]
       this_col << link_h
     end
     this_col
