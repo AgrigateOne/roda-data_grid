@@ -101,7 +101,7 @@ class DataminerControl
     actions     = list_def[:actions]
     multiselect = list_def[:multiselect]
     col_defs    = column_definitions(report, actions: actions, multiselect: multiselect)
-    multiselect_ids = list_def[:multiselect].nil? ? [] : preselect_ids(list_def[:multiselect][@multiselect_options[:key].to_sym])
+    multiselect_ids = list_def[:multiselect].nil? || @multiselect_options.nil? ? [] : preselect_ids(list_def[:multiselect][@multiselect_options[:key].to_sym])
 
     {
       multiselect_ids: multiselect_ids,
