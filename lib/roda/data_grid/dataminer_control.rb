@@ -81,10 +81,12 @@ class DataminerControl
     apply_params(params)
 
     actions     = search_def[:actions]
-    multiselect = search_def[:multiselect]
+    multiselect = @multiselect_options.nil? ? nil : search_def[:multiselect]
     col_defs    = column_definitions(report, actions: actions, multiselect: multiselect)
+    multiselect_ids = search_def[:multiselect].nil? || @multiselect_options.nil? ? [] : preselect_ids(search_def[:multiselect][@multiselect_options[:key].to_sym])
 
     {
+      multiselect_ids: multiselect_ids,
       columnDefs: col_defs,
       rowDefs:    dataminer_query(report.runnable_sql)
     }.to_json
@@ -99,7 +101,7 @@ class DataminerControl
     apply_params(n_params) unless n_params.nil? || n_params.empty?
 
     actions     = list_def[:actions]
-    multiselect = list_def[:multiselect]
+    multiselect = @multiselect_options.nil? ? nil : list_def[:multiselect]
     col_defs    = column_definitions(report, actions: actions, multiselect: multiselect)
     multiselect_ids = list_def[:multiselect].nil? || @multiselect_options.nil? ? [] : preselect_ids(list_def[:multiselect][@multiselect_options[:key].to_sym])
 
