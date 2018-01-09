@@ -61,7 +61,8 @@ class Roda
                                multiselect_url: dmc.multiselect_url,
                                multiselect_key: multiselect_options[:key],
                                multiselect_params: parms,
-                               can_be_cleared: dmc.multiselect_can_be_cleared)
+                               can_be_cleared: dmc.multiselect_can_be_cleared,
+                               multiselect_save_remote: dmc.multiselect_save_remote)
             end
           end
           layout
