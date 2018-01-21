@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'roda/data_grid/version'
 require 'roda/data_grid/dataminer_control'
 

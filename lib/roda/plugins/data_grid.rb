@@ -7,6 +7,8 @@ require 'roda/data_grid/data_grid_helpers'
 class Roda
   module RodaPlugins
     module DataGrid
+      class Error < StandardError; end
+
       def self.configure(app, opts = {})
         app.opts[:data_grid] = opts.dup
       end

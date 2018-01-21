@@ -16,7 +16,7 @@ class DataminerControl
     @deny_access = options[:deny_access] || lambda { |programs, permission| false }
 
     @multiselect_options = options[:multiselect_options]
-    @grid_params = options[:grid_params]
+    @grid_params = options[:grid_params] || @multiselect_options && @multiselect_options[:params]
     if options[:search_file]
       @search_def = load_search_definition(options[:search_file])
       @report     = get_report(@search_def[:dataminer_definition])
@@ -101,12 +101,16 @@ class DataminerControl
   #
   # @return [JSON] - a Hash containing row and column definitions.
   def list_rows
+    multiselect = @multiselect_options.nil? ? nil : list_def[:multiselect]
+    if multiselect && @multiselect_options[:key]
+      @grid_params ||= {}
+      @grid_params[:key] = multiselect[@multiselect_options[:key].to_sym][:conditions]
+    end
     conditions = list_def[:conditions].nil? || @grid_params.nil? || @grid_params.empty? ? nil : conditions_from(list_def)
     n_params = { json_var: conditions.to_json }
     apply_params(n_params) unless n_params.nil? || n_params.empty?
 
     actions     = list_def[:actions]
-    multiselect = @multiselect_options.nil? ? nil : list_def[:multiselect]
     col_defs    = column_definitions(report, actions: actions, multiselect: multiselect)
     multiselect_ids = list_def[:multiselect].nil? || @multiselect_options.nil? ? [] : preselect_ids(list_def[:multiselect][@multiselect_options[:key].to_sym])
 
@@ -205,16 +209,13 @@ class DataminerControl
         next
       end
       param_def = report.parameter_definition(col)
-      parms << if in_param['op'] == 'between'
-                 Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], [in_param['val'], in_param['val_to']], param_def.data_type))
-               else
-                 Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], in_param['val'], param_def.data_type))
-               end
-      # if 'between' == in_param['op']
-      #   parms << Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], [in_param['val'], in_param['val_to']], param_def.data_type))
-      # else
-      #   parms << Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], in_param['val'], param_def.data_type))
-      # end
+      raise Roda::RodaPlugins::DataGrid::Error, "There is no parameter for this grid query named \"#{col}\"" if param_def.nil?
+      val = if in_param['op'] == 'between'
+              [in_param['val'], in_param['val_to']]
+            else
+              in_param['val']
+            end
+      parms << Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], val, param_def.data_type))
     end
     in_sets.each do |col, vals|
       param_def = report.parameter_definition(col)
@@ -440,13 +441,13 @@ class DataminerControl
   def preselect_ids(options)
     return [] if options.nil?
     sql = options[:preselect]
-    @multiselect_options[:params].each { |k,v| sql.gsub!("$:#{k}$", v) }
+    @multiselect_options[:params].each { |k, v| sql.gsub!("$:#{k}$", v) }
     DB[sql].map { |r| r.values.first }
   end
 
   def parameterize_value(condition)
     val = condition[:val]
-    @grid_params.each { |k,v| val.gsub!("$:#{k}$", v) }
+    @grid_params.each { |k, v| val.gsub!("$:#{k}$", v) }
     condition[:val] = val
     condition
   end
@@ -454,7 +455,7 @@ class DataminerControl
   def conditions_from(list_or_search_def)
     conditions = list_or_search_def[:conditions][@grid_params[:key].to_sym]
     conditions.map! do |condition|
-      if condition[:val].include?('$')
+      if condition[:val].to_s.include?('$')
         parameterize_value(condition)
       else
         condition
