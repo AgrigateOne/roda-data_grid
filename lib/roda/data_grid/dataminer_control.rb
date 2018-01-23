@@ -16,7 +16,7 @@ class DataminerControl
     @deny_access = options[:deny_access] || lambda { |programs, permission| false }
 
     @multiselect_options = options[:multiselect_options]
-    @grid_params = options[:grid_params] || @multiselect_options && @multiselect_options[:params]
+    @grid_params = options[:grid_params] || @multiselect_options && @multiselect_options[:params].dup
     if options[:search_file]
       @search_def = load_search_definition(options[:search_file])
       @report     = get_report(@search_def[:dataminer_definition])
@@ -440,7 +440,10 @@ class DataminerControl
   # @return [Array] - a list of ids (can be empty)
   def preselect_ids(options)
     return [] if options.nil?
+    p options
     sql = options[:preselect]
+    p sql
+    p @multiselect_options[:params]
     @multiselect_options[:params].each { |k, v| sql.gsub!("$:#{k}$", v) }
     DB[sql].map { |r| r.values.first }
   end
