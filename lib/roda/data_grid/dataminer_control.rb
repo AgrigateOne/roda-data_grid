@@ -440,10 +440,7 @@ class DataminerControl
   # @return [Array] - a list of ids (can be empty)
   def preselect_ids(options)
     return [] if options.nil?
-    p options
     sql = options[:preselect]
-    p sql
-    p @multiselect_options[:params]
     @multiselect_options[:params].each { |k, v| sql.gsub!("$:#{k}$", v) }
     DB[sql].map { |r| r.values.first }
   end
