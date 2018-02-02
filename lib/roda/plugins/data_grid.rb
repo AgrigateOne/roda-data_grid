@@ -16,6 +16,14 @@ class Roda
       module InstanceMethods
         include Roda::DataGrid::DataGridHelpers
 
+        # Modify the url by applying querystring parameters.
+        def configure_page_control(page_control_def, params)
+          qs_params = Rack::Utils.parse_nested_query(params[:query_string])
+          url = page_control_def[:url]
+          qs_params.each { |k, v| url.gsub!("$:#{k}$", v) }
+          page_control_def
+        end
+
         def render_data_grid_page(id, params = nil)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
           grid_path = dmc.is_nested_grid? ? opts[:data_grid][:list_nested_url] : opts[:data_grid][:list_url]
@@ -25,7 +33,7 @@ class Roda
           layout.build do |page, page_config|
             page.section do |section|
               page_controls.each do |page_control_def|
-                section.add_control(page_control_def)
+                section.add_control(configure_page_control(page_control_def, params))
               end
             end
             page.section do |section|
@@ -50,7 +58,7 @@ class Roda
           layout.build do |page, page_config|
             page.section do |section|
               page_controls.each do |page_control_def|
-                section.add_control(page_control_def)
+                section.add_control(configure_page_control(page_control_def, params))
               end
             end
             page.section do |section|
