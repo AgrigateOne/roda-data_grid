@@ -18,6 +18,7 @@ class Roda
 
         # Modify the url by applying querystring parameters.
         def configure_page_control(page_control_def, params)
+          return page_control_def if params.nil? || params[:query_string].nil?
           qs_params = Rack::Utils.parse_nested_query(params[:query_string])
           url = page_control_def[:url]
           qs_params.each { |k, v| url.gsub!("$:#{k}$", v) }
