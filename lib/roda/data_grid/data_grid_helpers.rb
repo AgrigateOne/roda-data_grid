@@ -21,7 +21,7 @@ class Roda
       #
       # @param query_params [Array<Crossbeams::Dataminer::QueryParameterDefinition>] the parameter definitions.
       # @return [JSON] a hash of config for the parameters defined for a report.
-      def make_query_param_json(query_params)
+      def make_query_param_json(query_params, connection = DB)
         common_ops = [
           ['is', '='],
           ['is not', '<>'],
@@ -51,7 +51,7 @@ class Roda
             hs[:list_values] = if query_param.includes_list_options?
                                  query_param.build_list.list_values
                                else
-                                 query_param.build_list { |sql| DB[sql].map(&:values) }.list_values
+                                 query_param.build_list { |sql| connection[sql].map(&:values) }.list_values
                                end
             # if query_param.includes_list_options?
             #   hs[:list_values] = query_param.build_list.list_values
