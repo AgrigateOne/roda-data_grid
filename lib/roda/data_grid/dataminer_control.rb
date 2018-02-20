@@ -449,7 +449,16 @@ class DataminerControl
     val = condition[:val]
     @grid_params.each { |k, v| val.gsub!("$:#{k}$", v) }
     condition[:val] = val
+    if condition[:op].match?(/in/i)
+      condition[:val] = condition_value_as_array(val)
+    end
     condition
+  end
+
+  def condition_value_as_array(val)
+    return val if val.is_a?(Array)
+    return Array(val) unless val.is_a?(String)
+    val.sub('[', '').sub(']', '').split(',').map(&:strip)
   end
 
   def conditions_from(list_or_search_def)
