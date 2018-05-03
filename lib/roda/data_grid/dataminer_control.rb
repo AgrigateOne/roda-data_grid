@@ -13,7 +13,7 @@ class DataminerControl
 
   def initialize(options)
     @root = options[:path]
-    @deny_access = options[:deny_access] || lambda { |programs, permission| false }
+    @deny_access = options[:deny_access] || ->(_, _, _) { false }
 
     @multiselect_options = options[:multiselect_options]
     @grid_params = options[:grid_params] || @multiselect_options && @multiselect_options[:params].dup
@@ -328,7 +328,7 @@ class DataminerControl
       end
 
       # Check if user is authorised for this action:
-      next if action[:auth] && @deny_access.call(action[:auth][:program], action[:auth][:permission])
+      next if action[:auth] && @deny_access.call(action[:auth][:function], action[:auth][:program], action[:auth][:permission])
 
       keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
       url  = action[:url]
