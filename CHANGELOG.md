@@ -10,6 +10,10 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 
+## [0.1.3] - 2018-05-03
+### Changed
+- The deny authorization call requires a third parameter [functional area name]. This is a backwards-incompatible change.
+
 ## [0.1.2] - 2018-02-20
 ### Added
 - This changelog.
