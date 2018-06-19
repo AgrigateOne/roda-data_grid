@@ -323,7 +323,7 @@ class DataminerControl
         next
       end
       if action[:submenu]
-        this_col << { text: action[:submenu][:text], is_submenu: true, items: make_subitems(action[:submenu][:items], level+1) }
+        this_col << { text: action[:submenu][:text], is_submenu: true, items: make_subitems(action[:submenu][:items], level + 1) }
         next
       end
 
@@ -402,7 +402,7 @@ class DataminerControl
       hs[:rowGroupIndex]  = col.group_by_seq if col.group_by_seq
       # hs[:pinned]         = 'left' if col.group_by_seq # if col.pinned || col.group_by_seq
       hs[:rowGroup]       = true if col.group_by_seq
-      hs[:valueGetter]    = 'blankWhenNull'
+      # hs[:valueGetter]    = 'blankWhenNull'
 
       if %i[integer number].include?(col.data_type)
         hs[:cellClass] = 'grid-number-column'
