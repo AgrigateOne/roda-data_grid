@@ -207,10 +207,10 @@ module Crossbeams
           hs[:width]     = 120 if options[:width].nil? && options[:data_type] == :number
         end
         if options[:format] == :delimited_1000
-          hs[:cellRenderer] = 'crossbeamsGridFormatters.numberWithCommas2'
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2'
         end
         if options[:format] == :delimited_1000_4
-          hs[:cellRenderer] = 'crossbeamsGridFormatters.numberWithCommas4'
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4'
         end
         if options[:data_type] == :boolean
           hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'

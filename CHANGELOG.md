@@ -9,6 +9,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 ### Changed
 ### Fixed
+- Formatters for numeric columns use valueFormatter instead of cellRenderer. This allows aggregates to work properly.
 
 ## [0.1.4] - 2018-06-19
 ### Added

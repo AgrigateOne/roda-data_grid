@@ -77,7 +77,7 @@ class ColumnDefinerTest < Minitest::Test
     assert_equal col[:field], 'afield'
     assert_equal col[:cellClass], 'grid-number-column'
     assert_equal col[:width], 120
-    assert_equal col[:cellRenderer], 'crossbeamsGridFormatters.numberWithCommas2'
+    assert_equal col[:valueFormatter], 'crossbeamsGridFormatters.numberWithCommas2'
   end
 
   def test_numeric_with_overrides
