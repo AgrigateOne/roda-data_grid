@@ -126,7 +126,7 @@ class Roda
           layout.build do |page, page_config|
             page.row do |row|
               row.column do |col|
-                col.add_text "<a href='#{opts[:data_grid][:filter_url].%(id)}?back=y'>Back</a>"
+                col.add_text "<a href='#{opts[:data_grid][:filter_url].%(id)}?back=y' class='near-white bg-dark-blue br2 dim pa2 mr4 ba b--near-white no-underline'>Back</a>"
               end
             end
             page.add_grid("search_grid_#{id}", "#{opts[:data_grid][:search_url].%(id)}?json_var=#{CGI.escape(params[:json_var])}" \
