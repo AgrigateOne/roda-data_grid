@@ -128,7 +128,7 @@ class Roda
           layout.build do |page, page_config|
             page.row do |row|
               row.column do |col|
-                col.add_text "<a href='#{opts[:data_grid][:filter_url].%(id)}?back=y' class='near-white bg-dark-blue br2 dim pa2 mr4 ba b--near-white no-underline'>Back</a>"
+                col.add_text "<a href='#{opts[:data_grid][:filter_url].%(id)}?back=y' class='f6 link dim br2 ph3 pv2 mr4 dib white bg-dark-blue'><i class='fa fa-arrow-left'></i> Back</a>"
               end
             end
             page.section do |section|
