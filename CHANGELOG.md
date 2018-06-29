@@ -9,6 +9,12 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 ### Changed
 ### Fixed
+
+## [0.1.5] - 2018-06-29
+### Changed
+- Enhanced the styling of the "Back" button.
+- Make list and search grids fit the available height.
+### Fixed
 - Formatters for numeric columns use valueFormatter instead of cellRenderer. This allows aggregates to work properly.
 
 ## [0.1.4] - 2018-06-19
