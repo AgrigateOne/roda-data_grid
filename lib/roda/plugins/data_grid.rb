@@ -38,6 +38,7 @@ class Roda
               end
             end
             page.section do |section|
+              section.fit_height!
               section.add_grid("grid_#{id}", grid_path.%(id),
                                caption: page_config.form_object.caption,
                                is_nested: dmc.is_nested_grid?,
@@ -63,6 +64,7 @@ class Roda
               end
             end
             page.section do |section|
+              section.fit_height!
               section.caption = dmc.multi_grid_caption
               section.hide_caption = dmc.multi_grid_caption.nil?
               section.add_grid("grid_#{id}", grid_path.%(id),
@@ -126,12 +128,15 @@ class Roda
           layout.build do |page, page_config|
             page.row do |row|
               row.column do |col|
-                col.add_text "<a href='#{opts[:data_grid][:filter_url].%(id)}?back=y' class='near-white bg-dark-blue br2 dim pa2 mr4 ba b--near-white no-underline'>Back</a>"
+                col.add_text "<a href='#{opts[:data_grid][:filter_url].%(id)}?back=y' class='f6 link dim br2 ph3 pv2 mr4 dib white bg-dark-blue'><i class='fa fa-arrow-left'></i> Back</a>"
               end
             end
-            page.add_grid("search_grid_#{id}", "#{opts[:data_grid][:search_url].%(id)}?json_var=#{CGI.escape(params[:json_var])}" \
+            page.section do |section|
+              section.fit_height!
+              section.add_grid("search_grid_#{id}", "#{opts[:data_grid][:search_url].%(id)}?json_var=#{CGI.escape(params[:json_var])}" \
                                   "&limit=#{params[:limit]}&offset=#{params[:offset]}",
-                          caption: page_config.form_object.caption)
+                               caption: page_config.form_object.caption)
+            end
           end
           layout
         end
