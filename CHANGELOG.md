@@ -9,6 +9,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 ### Changed
 ### Fixed
+- Make fit-height optional. Grids do not render well inside modal dialog when fit-height is set.
 
 ## [0.1.5] - 2018-06-29
 ### Changed

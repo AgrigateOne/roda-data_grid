@@ -26,6 +26,7 @@ class Roda
         end
 
         def render_data_grid_page(id, params = nil)
+          fit_height = params&.delete(:fit_height)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
           grid_path = dmc.is_nested_grid? ? opts[:data_grid][:list_nested_url] : opts[:data_grid][:list_url]
           page_controls = dmc.page_controls
@@ -38,7 +39,7 @@ class Roda
               end
             end
             page.section do |section|
-              section.fit_height!
+              section.fit_height! if fit_height
               section.add_grid("grid_#{id}", grid_path.%(id),
                                caption: page_config.form_object.caption,
                                is_nested: dmc.is_nested_grid?,
@@ -49,6 +50,7 @@ class Roda
         end
 
         def render_data_grid_page_multiselect(id, multiselect_options)
+          fit_height = multiselect_options&.delete(:fit_height)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id, multiselect_options: multiselect_options)
           grid_path = dmc.is_nested_grid? ? opts[:data_grid][:list_nested_url] : opts[:data_grid][:list_url]
           grid_path = opts[:data_grid][:list_multi_url] if multiselect_options
@@ -64,7 +66,7 @@ class Roda
               end
             end
             page.section do |section|
-              section.fit_height!
+              section.fit_height! if fit_height
               section.caption = dmc.multi_grid_caption
               section.hide_caption = dmc.multi_grid_caption.nil?
               section.add_grid("grid_#{id}", grid_path.%(id),
@@ -121,6 +123,7 @@ class Roda
         end
 
         def render_search_grid_page(id, params)
+          fit_height = params&.delete(:fit_height)
           dmc = DataminerControl.new(path: opts[:data_grid][:path], search_file: id)
           dmc.apply_params(params)
 
@@ -132,7 +135,7 @@ class Roda
               end
             end
             page.section do |section|
-              section.fit_height!
+              section.fit_height! if fit_height
               section.add_grid("search_grid_#{id}", "#{opts[:data_grid][:search_url].%(id)}?json_var=#{CGI.escape(params[:json_var])}" \
                                   "&limit=#{params[:limit]}&offset=#{params[:offset]}",
                                caption: page_config.form_object.caption)
