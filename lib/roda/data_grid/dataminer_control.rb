@@ -65,9 +65,9 @@ class DataminerControl
     @list_def[:multiselect][@multiselect_options[:key].to_sym][:can_be_cleared]
   end
 
-  def multiselect_save_remote
+  def multiselect_save_method
     return nil unless @multiselect_options
-    @list_def[:multiselect][@multiselect_options[:key].to_sym][:multiselect_save_remote]
+    @list_def[:multiselect][@multiselect_options[:key].to_sym][:multiselect_save_method]
   end
 
   # Get the rules for which (if any) controls to display on the page.
@@ -104,9 +104,16 @@ class DataminerControl
     multiselect = @multiselect_options.nil? ? nil : list_def[:multiselect]
     if multiselect && @multiselect_options[:key]
       @grid_params ||= {}
-      @grid_params[:key] = multiselect[@multiselect_options[:key].to_sym][:conditions]
+      conditions = Array(multiselect[@multiselect_options[:key].to_sym][:conditions]).map do |condition|
+        if condition[:val].to_s.include?('$')
+          parameterize_value(condition)
+        else
+          condition
+        end
+      end
+    else
+      conditions = list_def[:conditions].nil? || @grid_params.nil? || @grid_params.empty? ? nil : conditions_from(list_def)
     end
-    conditions = list_def[:conditions].nil? || @grid_params.nil? || @grid_params.empty? ? nil : conditions_from(list_def)
     n_params = { json_var: conditions.to_json }
     apply_params(n_params) unless n_params.nil? || n_params.empty?
 
@@ -306,7 +313,7 @@ class DataminerControl
   end
 
   # Load a YML report.
-  def get_report(file_name) # TODO:  'bookshelf' should be variable...
+  def get_report(file_name)
     path     = File.join(@root, 'grid_definitions', 'dataminer_queries', file_name.sub('.yml', '') << '.yml')
     rpt_hash = Crossbeams::Dataminer::YamlPersistor.new(path)
     Crossbeams::Dataminer::Report.load(rpt_hash)
@@ -365,13 +372,13 @@ class DataminerControl
         headerName: '',
         colId: 'theSelector',
         pinned: 'left',
-        width: 30,
+        width: 45,
         headerCheckboxSelection: true,
         headerCheckboxSelectionFilteredOnly: true,
         checkboxSelection: true,
         suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
         suppressFilter: true, enableRowGroup: false,   enablePivot: false,
-        enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
+        enableValue: false,   suppressCsvExport: true, suppressToolPanel: true
       }
       col_defs << hs
     end
@@ -439,7 +446,7 @@ class DataminerControl
   #
   # @return [Array] - a list of ids (can be empty)
   def preselect_ids(options)
-    return [] if options.nil?
+    return [] if options.nil? || options[:preselect].nil?
     sql = options[:preselect]
     @multiselect_options[:params].each { |k, v| sql.gsub!("$:#{k}$", v) }
     DB[sql].map { |r| r.values.first }
@@ -462,6 +469,8 @@ class DataminerControl
   end
 
   def conditions_from(list_or_search_def)
+    return nil unless @grid_params[:key]
+    return nil unless list_or_search_def[:conditions][@grid_params[:key].to_sym]
     conditions = list_or_search_def[:conditions][@grid_params[:key].to_sym]
     conditions.map! do |condition|
       if condition[:val].to_s.include?('$')
