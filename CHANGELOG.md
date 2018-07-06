@@ -8,6 +8,10 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 ### Changed
+### Fixed
+
+## [0.1.6] - 2018-07-06
+### Changed
 - `multiselect_save_remote` renamed to `multiselect_save_method` and changed from a boolean to a string which can be 'http' (default), 'remote' or 'dialog'. `http` will post selected ids. `remote` will post selected ids using a `fetch` request. `dialog` will bring up a dialog and send a GET request with the selected ids to render in the dialog.
 ### Fixed
 - Make fit-height optional. Grids do not render well inside modal dialog when fit-height is set.
