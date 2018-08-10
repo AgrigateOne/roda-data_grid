@@ -117,35 +117,35 @@ module Crossbeams
       # @param [Hash] options.
       # @option options [String] :text ('view') the text to be displayed in the link.
       # @option options [String] :title ('View') the text to be displayed in the link.
-      # @option options [String] :icon ('fa-eye') the favicon to be displayed next to the link.
+      # @option options [String] :icon ('view_show') the favicon to be displayed next to the link.
       # @return [void]
       def popup_view_link(url, options = {})
-        soft_opts = { text: 'view', icon: 'fa-eye', title: 'View' }
+        soft_opts = { text: 'view', icon: 'view_show', title: 'View' }
         @actions << soft_opts.merge(options).merge(url: url, popup: true)
       end
 
       def view_link(url, options = {})
-        soft_opts = { text: 'view', icon: 'fa-eye' }
+        soft_opts = { text: 'view', icon: 'view_show' }
         @actions << soft_opts.merge(options).merge(url: url)
       end
 
       def popup_new_link(url, options = {})
-        soft_opts = { text: 'new', icon: 'fa-plus-circle', title: 'New' }
+        soft_opts = { text: 'new', icon: 'add-solid', title: 'New' }
         @actions << soft_opts.merge(options).merge(url: url, popup: true)
       end
 
       def new_link(url, options = {})
-        soft_opts = { text: 'new', icon: 'fa-plus-circle' }
+        soft_opts = { text: 'new', icon: 'add-solid' }
         @actions << soft_opts.merge(options).merge(url: url)
       end
 
       def popup_edit_link(url, options = {})
-        soft_opts = { text: 'edit', icon: 'fa-edit', title: 'New' }
+        soft_opts = { text: 'edit', icon: 'edit', title: 'New' }
         @actions << soft_opts.merge(options).merge(url: url, popup: true)
       end
 
       def edit_link(url, options = {})
-        soft_opts = { text: 'edit', icon: 'fa-edit' }
+        soft_opts = { text: 'edit', icon: 'edit' }
         @actions << soft_opts.merge(options).merge(url: url)
       end
 
@@ -153,7 +153,7 @@ module Crossbeams
         soft_opts = { text: 'delete',
                       prompt: 'Are you sure?',
                       method: 'delete',
-                      icon: 'fa-remove' }
+                      icon: 'delete' }
         @actions << soft_opts.merge(options).merge(url: url, popup: true)
       end
 
@@ -161,7 +161,7 @@ module Crossbeams
         soft_opts = { text: 'delete',
                       prompt: 'Are you sure?',
                       method: 'delete',
-                      icon: 'fa-remove' }
+                      icon: 'delete' }
         @actions << soft_opts.merge(options).merge(url: url)
       end
 

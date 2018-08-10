@@ -131,7 +131,7 @@ class Roda
           layout.build do |page, page_config|
             page.row do |row|
               row.column do |col|
-                col.add_text "<a href='#{opts[:data_grid][:filter_url].%(id)}?back=y' class='f6 link dim br2 ph3 pv2 mr4 dib white bg-dark-blue'><i class='fa fa-arrow-left'></i> Back</a>"
+                col.add_control control_type: :link, text: 'Back', url: "#{opts[:data_grid][:filter_url].%(id)}?back=y", style: :back_button
               end
             end
             page.section do |section|
