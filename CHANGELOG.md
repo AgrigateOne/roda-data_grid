@@ -8,6 +8,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 ### Changed
+- All icon usage changed from using FontAwesome to using embedded SVG icons.
 ### Fixed
 
 ## [0.1.6] - 2018-07-06
