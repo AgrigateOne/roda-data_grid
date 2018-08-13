@@ -33,8 +33,8 @@ class Roda
           ['is NOT blank', 'not_null']
         ]
         text_ops = [
-          %w[starts with starts_with],
-          %w[ends with ends_with],
+          [['starts with'], ['starts_with']],
+          [['ends with'], ['ends_with']],
           %w[contains contains]
         ]
         date_ops = [
