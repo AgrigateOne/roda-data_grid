@@ -35,7 +35,11 @@ class Roda
           layout.build do |page, page_config|
             page.section do |section|
               page_controls.each do |page_control_def|
-                section.add_control(configure_page_control(page_control_def, params))
+                if page_control_def[:hide_if_sql_returns_true]
+                  section.add_control(configure_page_control(page_control_def, params)) unless dmc.hide_control_by_sql(page_control_def)
+                else
+                  section.add_control(configure_page_control(page_control_def, params))
+                end
               end
             end
             page.section do |section|
@@ -43,6 +47,7 @@ class Roda
               section.add_grid("grid_#{id}", grid_path.%(id),
                                caption: page_config.form_object.caption,
                                is_nested: dmc.is_nested_grid?,
+                               tree: dmc.tree_def,
                                grid_params: params)
             end
           end
@@ -72,6 +77,7 @@ class Roda
               section.add_grid("grid_#{id}", grid_path.%(id),
                                caption: page_config.form_object.caption,
                                is_nested: dmc.is_nested_grid?,
+                               tree: dmc.tree_def,
                                is_multiselect: dmc.is_multiselect?,
                                multiselect_url: dmc.multiselect_url,
                                multiselect_key: multiselect_options[:key],
@@ -138,6 +144,7 @@ class Roda
               section.fit_height! if fit_height
               section.add_grid("search_grid_#{id}", "#{opts[:data_grid][:search_url].%(id)}?json_var=#{CGI.escape(params[:json_var])}" \
                                   "&limit=#{params[:limit]}&offset=#{params[:offset]}",
+                               tree: dmc.tree_def,
                                caption: page_config.form_object.caption)
             end
           end
