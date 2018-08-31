@@ -10,6 +10,12 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 
+## [0.1.8] - 2018-08-31
+### Added
+- Grid can render as a tree.
+### Changed
+- A page control can be hidden based on the result of running the SQL in `hide_if_sql_returns_true`.
+
 ## [0.1.7] - 2018-08-10
 ### Changed
 - All icon usage changed from using FontAwesome to using embedded SVG icons.

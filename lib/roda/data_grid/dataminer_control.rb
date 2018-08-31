@@ -42,6 +42,21 @@ class DataminerControl
     !@multiselect_options.nil?
   end
 
+  # Parameters to use if this search or list grid needs to be rendered as a tree grid.
+  #
+  # @return [nil, Hash] - Config for tree.
+  def tree_def
+    search_def && search_def[:tree] || list_def && list_def[:tree]
+  end
+
+  # Run the given SQL to see if a page control should be hidden.
+  #
+  # @return [boolean] - Hide or do not hide the control.
+  def hide_control_by_sql(page_control_def)
+    sql = page_control_def[:hide_if_sql_returns_true]
+    DB[sql].get
+  end
+
   # The URL that a multiselect grid's selection should be saved to.
   #
   # @return [String] - the URL.
@@ -123,6 +138,7 @@ class DataminerControl
 
     {
       multiselect_ids: multiselect_ids,
+      tree: list_def[:tree],
       columnDefs: col_defs,
       rowDefs:    dataminer_query(report.runnable_sql)
     }.to_json
@@ -404,8 +420,8 @@ class DataminerControl
       hs                  = { headerName: col.caption, field: col.name, hide: col.hide, headerTooltip: col.caption }
       hs[:width]          = col.width unless col.width.nil?
       hs[:enableValue]    = true if %i[integer number].include?(col.data_type)
-      hs[:enableRowGroup] = true unless hs[:enableValue] && !col.groupable
-      hs[:enablePivot]    = true unless hs[:enableValue] && !col.groupable
+      hs[:enableRowGroup] = true unless tree_def || hs[:enableValue] && !col.groupable
+      hs[:enablePivot]    = true unless tree_def || hs[:enableValue] && !col.groupable
       hs[:rowGroupIndex]  = col.group_by_seq if col.group_by_seq
       # hs[:pinned]         = 'left' if col.group_by_seq # if col.pinned || col.group_by_seq
       hs[:rowGroup]       = true if col.group_by_seq
