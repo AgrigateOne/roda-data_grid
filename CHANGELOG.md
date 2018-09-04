@@ -8,6 +8,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 ### Changed
+- Check all SQL snippets (get caption, preselect ids, hide button etc.) are SELECTs and raise an exception if they are not.
 ### Fixed
 
 ## [0.1.8] - 2018-08-31

@@ -51,7 +51,10 @@ class Roda
             hs[:list_values] = if query_param.includes_list_options?
                                  query_param.build_list.list_values
                                else
-                                 query_param.build_list { |sql| connection[sql].map(&:values) }.list_values
+                                 query_param.build_list do |sql|
+                                   raise "SQL for #{param list} is not a SELECT" if sql.match?(/insert |update |delete /i)
+                                   connection[sql].map(&:values)
+                                 end.list_values
                                end
             # if query_param.includes_list_options?
             #   hs[:list_values] = query_param.build_list.list_values

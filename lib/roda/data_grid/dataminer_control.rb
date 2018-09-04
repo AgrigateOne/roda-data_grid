@@ -54,6 +54,7 @@ class DataminerControl
   # @return [boolean] - Hide or do not hide the control.
   def hide_control_by_sql(page_control_def)
     sql = page_control_def[:hide_if_sql_returns_true]
+    check_sql_is_safe('hide_if_sql_returns_true', sql)
     DB[sql].get
   end
 
@@ -72,7 +73,9 @@ class DataminerControl
     caption = @list_def[:multiselect][@multiselect_options[:key].to_sym][:section_caption]
     return nil if caption.nil?
     return caption unless caption.match?(/SELECT/i)
-    DB[caption.sub('$:id$', @multiselect_options[:id])].first.values.first
+    sql = caption.sub('$:id$', @multiselect_options[:id])
+    check_sql_is_safe('caption', sql)
+    DB[sql].first.values.first
   end
 
   def multiselect_can_be_cleared
@@ -465,6 +468,7 @@ class DataminerControl
     return [] if options.nil? || options[:preselect].nil?
     sql = options[:preselect]
     @multiselect_options[:params].each { |k, v| sql.gsub!("$:#{k}$", v) }
+    check_sql_is_safe('preselect', sql)
     DB[sql].map { |r| r.values.first }
   end
 
@@ -496,5 +500,9 @@ class DataminerControl
       end
     end
     conditions
+  end
+
+  def check_sql_is_safe(context, sql)
+    raise ArgumentError, "SQL for \"#{context}\" is not a SELECT" if sql.match?(/insert |update |delete /i)
   end
 end
