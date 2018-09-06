@@ -122,12 +122,16 @@ class DataminerControl
     multiselect = @multiselect_options.nil? ? nil : list_def[:multiselect]
     if multiselect && @multiselect_options[:key]
       @grid_params ||= {}
-      conditions = Array(list_def[:conditions][multiselect[@multiselect_options[:key].to_sym][:conditions]]).map do |condition|
-        if condition[:val].to_s.include?('$')
-          parameterize_value(condition)
-        else
-          condition
+      if multiselect[@multiselect_options[:key].to_sym][:conditions]
+        conditions = Array(list_def[:conditions][multiselect[@multiselect_options[:key].to_sym][:conditions]]).map do |condition|
+          if condition[:val].to_s.include?('$')
+            parameterize_value(condition)
+          else
+            condition
+          end
         end
+      else
+        conditions = nil
       end
     else
       conditions = list_def[:conditions].nil? || @grid_params.nil? || @grid_params.empty? ? nil : conditions_from(list_def)
