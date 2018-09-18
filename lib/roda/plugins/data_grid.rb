@@ -13,8 +13,15 @@ class Roda
         app.opts[:data_grid] = opts.dup
       end
 
-      module InstanceMethods
+      module InstanceMethods # rubocop:disable Metrics/ModuleLength
         include Roda::DataGrid::DataGridHelpers
+
+        # Helper methods for accessing opts[:data_grid] options
+        %i[path search_url filter_url run_search_url run_to_excel_url].each do |opt|
+          define_method "opt_#{opt}" do
+            opts[:data_grid][opt]
+          end
+        end
 
         # Modify the url by applying querystring parameters.
         def configure_page_control(page_control_def, params)
@@ -25,65 +32,46 @@ class Roda
           page_control_def
         end
 
-        def render_data_grid_page(id, params = nil)
-          fit_height = params&.delete(:fit_height)
-          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
-          grid_path = dmc.is_nested_grid? ? opts[:data_grid][:list_nested_url] : opts[:data_grid][:list_url]
-          page_controls = dmc.page_controls
+        def render_data_grid_page(id, params = nil) # rubocop:disable Metrics/AbcSize
+          grid_def = Crossbeams::DataGrid::ListGridDefinition.new(root_path: opt_path,
+                                                                  grid_opts: opts[:data_grid],
+                                                                  id: id,
+                                                                  params: params)
 
-          layout = Crossbeams::Layout::Page.new form_object: dmc.report
-          layout.build do |page, page_config|
+          layout = Crossbeams::Layout::Page.new form_object: grid_def.report
+          layout.build do |page, _|
             page.section do |section|
-              page_controls.each do |page_control_def|
-                if page_control_def[:hide_if_sql_returns_true]
-                  section.add_control(configure_page_control(page_control_def, params)) unless dmc.hide_control_by_sql(page_control_def)
-                else
-                  section.add_control(configure_page_control(page_control_def, params))
-                end
+              grid_def.page_controls.each do |page_control_def|
+                section.add_control(configure_page_control(page_control_def, params))
               end
             end
             page.section do |section|
-              section.fit_height! if fit_height
-              section.add_grid("grid_#{id}", grid_path.%(id),
-                               caption: page_config.form_object.caption,
-                               is_nested: dmc.is_nested_grid?,
-                               tree: dmc.tree_def,
-                               grid_params: params)
+              section.fit_height! if grid_def.fit_height
+              section.add_grid("grid_#{id}", grid_def.grid_path, grid_def.render_options)
             end
           end
           layout
         end
 
-        def render_data_grid_page_multiselect(id, multiselect_options)
-          fit_height = multiselect_options&.delete(:fit_height)
-          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id, multiselect_options: multiselect_options)
-          grid_path = dmc.is_nested_grid? ? opts[:data_grid][:list_nested_url] : opts[:data_grid][:list_url]
-          grid_path = opts[:data_grid][:list_multi_url] if multiselect_options
-          page_controls = dmc.page_controls
+        def render_data_grid_page_multiselect(id, params) # rubocop:disable Metrics/AbcSize
+          grid_def = Crossbeams::DataGrid::ListGridDefinition.new(root_path: opt_path,
+                                                                  grid_opts: opts[:data_grid],
+                                                                  multi_key: params[:key],
+                                                                  id: id,
+                                                                  params: params)
 
-          parms = multiselect_options
-
-          layout = Crossbeams::Layout::Page.new form_object: dmc.report
-          layout.build do |page, page_config|
+          layout = Crossbeams::Layout::Page.new form_object: grid_def.report
+          layout.build do |page, _|
             page.section do |section|
-              page_controls.each do |page_control_def|
+              grid_def.page_controls.each do |page_control_def|
                 section.add_control(configure_page_control(page_control_def, params))
               end
             end
             page.section do |section|
-              section.fit_height! if fit_height
-              section.caption = dmc.multi_grid_caption
-              section.hide_caption = dmc.multi_grid_caption.nil?
-              section.add_grid("grid_#{id}", grid_path.%(id),
-                               caption: page_config.form_object.caption,
-                               is_nested: dmc.is_nested_grid?,
-                               tree: dmc.tree_def,
-                               is_multiselect: dmc.is_multiselect?,
-                               multiselect_url: dmc.multiselect_url,
-                               multiselect_key: multiselect_options[:key],
-                               multiselect_params: parms,
-                               can_be_cleared: dmc.multiselect_can_be_cleared,
-                               multiselect_save_method: dmc.multiselect_save_method)
+              section.fit_height! if grid_def.fit_height
+              section.caption = grid_def.multi_grid_caption
+              section.hide_caption = grid_def.multi_grid_caption.nil?
+              section.add_grid("grid_#{id}", grid_def.grid_path, grid_def.render_options)
             end
           end
           layout
@@ -91,58 +79,66 @@ class Roda
 
         def render_data_grid_rows(id, deny_access = nil, params = nil)
           dmc = if params.nil?
-                  DataminerControl.new(path: opts[:data_grid][:path], list_file: id, deny_access: deny_access)
+                  DataminerControl.new(path: opt_path, list_file: id, deny_access: deny_access)
                 else
-                  DataminerControl.new(path: opts[:data_grid][:path], list_file: id, deny_access: deny_access, grid_params: params)
+                  DataminerControl.new(path: opt_path, list_file: id, deny_access: deny_access, grid_params: params)
                 end
           dmc.list_rows
         end
 
-        def render_data_grid_multiselect_rows(id, deny_access = nil, multi_key = nil, params)
+        def render_data_grid_multiselect_rows(id, deny_access, multi_key, params)
           mult = multi_key.nil? ? nil : { key: multi_key, params: params }
-          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id, deny_access: deny_access, multiselect_options: mult)
+          dmc = DataminerControl.new(path: opt_path, list_file: id, deny_access: deny_access, multiselect_options: mult)
           dmc.list_rows
         end
 
         def render_data_grid_nested_rows(id)
-          dmc = DataminerControl.new(path: opts[:data_grid][:path], list_file: id)
+          dmc = DataminerControl.new(path: opt_path, list_file: id)
           dmc.list_nested_rows
         end
 
-        def render_search_filter(id, params)
-          dmc = DataminerControl.new(path: opts[:data_grid][:path], search_file: id)
-          for_rerun = params[:rerun] && params[:rerun] == 'y'
-          presenter = OpenStruct.new(rpt: dmc.report,
-                                     qps: dmc.report.query_parameter_definitions,
-                                     rpt_id: id,
-                                     load_params: (params[:back] && params[:back] == 'y'),
-                                     rerun: for_rerun)
+        def search_view_file(for_rerun)
           if for_rerun
-            fp = File.expand_path('../../data_grid/search_rerun.erb', __FILE__)
+            File.expand_path('../data_grid/search_rerun.erb', __dir__)
           else
-            fp = File.expand_path('../../data_grid/search_filter.erb', __FILE__)
+            File.expand_path('../data_grid/search_filter.erb', __dir__)
           end
-          view(path: fp,
-               locals: { presenter: presenter,
-                         run_search_url: opts[:data_grid][:run_search_url] % id,
-                         run_to_excel_url: opts[:data_grid][:run_to_excel_url] % id })
         end
 
-        def render_search_grid_page(id, params)
+        def search_presenter(id, dmc, params, for_rerun)
+          OpenStruct.new(rpt: dmc.report,
+                         qps: dmc.report.query_parameter_definitions,
+                         rpt_id: id,
+                         load_params: (params[:back] && params[:back] == 'y'),
+                         rerun: for_rerun)
+        end
+
+        def render_search_filter(id, params)
+          dmc = DataminerControl.new(path: opt_path, search_file: id)
+          for_rerun = params[:rerun] && params[:rerun] == 'y'
+          presenter = search_presenter(id, dmc, params, for_rerun)
+          fp = search_view_file(for_rerun)
+          view(path: fp,
+               locals: { presenter: presenter,
+                         run_search_url: opt_run_search_url % id,
+                         run_to_excel_url: opt_run_to_excel_url % id })
+        end
+
+        def render_search_grid_page(id, params) # rubocop:disable Metrics/AbcSize
           fit_height = params&.delete(:fit_height)
-          dmc = DataminerControl.new(path: opts[:data_grid][:path], search_file: id)
+          dmc = DataminerControl.new(path: opt_path, search_file: id)
           dmc.apply_params(params)
 
           layout = Crossbeams::Layout::Page.new form_object: dmc.report
           layout.build do |page, page_config|
             page.row do |row|
               row.column do |col|
-                col.add_control control_type: :link, text: 'Back', url: "#{opts[:data_grid][:filter_url].%(id)}?back=y", style: :back_button
+                col.add_control control_type: :link, text: 'Back', url: "#{opt_filter_url.%(id)}?back=y", style: :back_button
               end
             end
             page.section do |section|
               section.fit_height! if fit_height
-              section.add_grid("search_grid_#{id}", "#{opts[:data_grid][:search_url].%(id)}?json_var=#{CGI.escape(params[:json_var])}" \
+              section.add_grid("search_grid_#{id}", "#{opt_search_url.%(id)}?json_var=#{CGI.escape(params[:json_var])}" \
                                   "&limit=#{params[:limit]}&offset=#{params[:offset]}",
                                tree: dmc.tree_def,
                                caption: page_config.form_object.caption)
@@ -152,12 +148,12 @@ class Roda
         end
 
         def render_search_grid_rows(id, params, deny_access = nil)
-          dmc = DataminerControl.new(path: opts[:data_grid][:path], search_file: id, deny_access: deny_access)
+          dmc = DataminerControl.new(path: opt_path, search_file: id, deny_access: deny_access)
           dmc.search_rows(params)
         end
 
         def render_excel_rows(id, params)
-          dmc = DataminerControl.new(path: opts[:data_grid][:path], search_file: id)
+          dmc = DataminerControl.new(path: opt_path, search_file: id)
           [dmc.report.caption, dmc.excel_rows(params)]
         end
       end
