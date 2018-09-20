@@ -2,19 +2,11 @@
 
 module Crossbeams
   module DataGrid
-    class ListGridDefinition # rubocop:disable Metrics/ClassLength
-      attr_reader :fit_height
-
+    class ListGridDefinition
       def initialize(options)
-        @id = options.fetch(:id)
-        @root = options.fetch(:root_path)
-        @multiselect_key = options[:multi_key]&.to_sym
+        @config = ListGridConfig.new(options)
         @params = options[:params]
-        @fit_height = @params&.delete(:fit_height)
         @grid_opts = options[:grid_opts] || default_grid_opts
-        @grid_caption = options[:grid_caption]
-        @config_loader = options[:config_loader] || -> { load_config_from_file }
-        load_config
       end
 
       def default_grid_opts
@@ -29,48 +21,13 @@ module Crossbeams
         }
       end
 
-      def load_config_from_file
-        YAML.load(read_file)
-      end
-
-      def read_file
-        path = File.join(@root, 'grid_definitions', 'lists', @id.sub('.yml', '') << '.yml')
-        File.read(path)
-      end
-
-      def load_config
-        # tree
-        # page_controls
-        # dataminer_definition
-        # conditions |==> Not now (only required for grid)
-        # multiselect
-        # nesting
-        # actions |==> not now
-        config = @config_loader.call
-        @dataminer_definition = config[:dataminer_definition]
-        @tree = config[:tree]
-        @page_control_defs = config[:page_controls] || []
-        @multiselect_opts = if @multiselect_key
-                              config[:multiselect][@multiselect_key]
-                            else
-                              {}
-                            end
-        @nested_grid = !config[:nesting].nil?
-        @grid_caption = @multiselect_opts[:grid_caption] if @multiselect_opts[:grid_caption] && @grid_caption.nil?
-        @grid_caption = config[:grid_caption] if @grid_caption.nil?
-        # condition_sets = config[:conditions] || {}
-        # @conditions = if @multiselect_key && @multiselect_opts[:conditions]
-        #                 condition_sets[@multiselect_opts[:conditions]]
-        #               elsif @conditions_key
-        #                 condition_sets[@conditions_key]
-        #               else
-        #                 []
-        #               end
+      def fit_height
+        @config.fit_height
       end
 
       def multi_grid_caption
-        return nil unless @multiselect_opts
-        caption = @multiselect_opts[:section_caption]
+        return nil unless @config.multiselect_opts
+        caption = @config.multiselect_opts[:section_caption]
         return nil if caption.nil?
         return caption unless caption.match?(/SELECT/i) && caption.match?(/\$:id\$/)
         sql = caption.sub('$:id$', @params[:id].to_s)
@@ -80,7 +37,7 @@ module Crossbeams
 
       # Load a YML report.
       def load_report_def(file_name)
-        path = File.join(@root, 'grid_definitions', 'dataminer_queries', file_name.sub('.yml', '') << '.yml')
+        path = File.join(@config.root, 'grid_definitions', 'dataminer_queries', file_name.sub('.yml', '') << '.yml')
         Crossbeams::Dataminer::YamlPersistor.new(path)
       end
 
@@ -89,7 +46,7 @@ module Crossbeams
       end
 
       def report
-        @report ||= get_report(load_report_def(@dataminer_definition))
+        @report ||= get_report(load_report_def(@config.dataminer_definition))
       end
 
       # Run the given SQL to see if a page control should be hidden.
@@ -107,13 +64,13 @@ module Crossbeams
       end
 
       def page_controls
-        @page_control_defs.reject { |c| hide_control_by_sql(c) }
+        @config.page_control_defs.reject { |c| hide_control_by_sql(c) }
       end
 
       def grid_url
-        return @grid_opts[:list_nested_url] if @nested_grid
+        return @grid_opts[:list_nested_url] if @config.nested_grid
 
-        if @multiselect_key
+        if @config.multiselect_key
           @grid_opts[:list_multi_url]
         else
           @grid_opts[:list_url]
@@ -121,32 +78,32 @@ module Crossbeams
       end
 
       def grid_path
-        grid_url.%(@id)
+        grid_url.%(@config.id)
       end
 
       # The URL that a multiselect grid's selection should be saved to.
       #
       # @return [String] - the URL.
       def multiselect_url
-        @multiselect_opts[:url].sub('$:id$', @params[:id].to_s)
+        @config.multiselect_opts[:url].sub('$:id$', @params[:id].to_s)
       end
 
       def render_options
-        res = { caption: caption, is_nested: @nested_grid, tree: @tree, grid_params: @params }
+        res = { caption: caption, is_nested: @config.nested_grid, tree: @config.tree, grid_params: @params }
 
-        if @multiselect_key
+        if @config.multiselect_key
           res.merge!(is_multiselect: true,
                      multiselect_url: multiselect_url,
-                     multiselect_key: @multiselect_key,
+                     multiselect_key: @config.multiselect_key,
                      multiselect_params: res.delete(:grid_params),
-                     can_be_cleared: @multiselect_opts[:can_be_cleared],
-                     multiselect_save_method: @multiselect_opts[:multiselect_save_method])
+                     can_be_cleared: @config.multiselect_opts[:can_be_cleared],
+                     multiselect_save_method: @config.multiselect_opts[:multiselect_save_method])
         end
         res
       end
 
       def caption
-        @grid_caption || report.caption
+        @config.grid_caption || report.caption
       end
     end
   end

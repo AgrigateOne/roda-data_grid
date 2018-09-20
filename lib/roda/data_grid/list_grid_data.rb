@@ -3,6 +3,11 @@
 module Crossbeams
   module DataGrid
     class ListGridData
+      def initialize(options)
+        @config = ListGridConfig.new(options)
+        @params = options[:params]
+        # @grid_opts = options[:grid_opts] || default_grid_opts
+      end
 
       # Column and row definitions for a list grid.
       #
@@ -96,58 +101,6 @@ module Crossbeams
   end
 end
 __END__
-
-ListConfig
-init(options)
-        @id = options.fetch(:id)
-        @root = options.fetch(:root_path)
-        @multiselect_key = options[:multi_key]&.to_sym
-        @params = options[:params]
-        >>>> @fit_height = @params&.delete(:fit_height)
-        >>>> @grid_opts = options[:grid_opts] || default_grid_opts
-        >>>> @grid_caption = options[:grid_caption]
-        @config_loader = options[:config_loader] || -> { load_config_from_file }
-        load_config
-
-      def load_config_from_file
-        YAML.load(read_file)
-      end
-
-      def read_file
-        path = File.join(@root, 'grid_definitions', 'lists', @id.sub('.yml', '') << '.yml')
-        File.read(path)
-      end
-
-      def load_config
-        # tree
-        # page_controls
-        # dataminer_definition
-        # conditions |==> Not now (only required for grid)
-        # multiselect
-        # nesting
-        # actions |==> not now
-        config = @config_loader.call
-        @dataminer_definition = config[:dataminer_definition]
-        @tree = config[:tree]
-        @page_control_defs = config[:page_controls] || []
-        @multiselect_opts = if @multiselect_key
-                              config[:multiselect][@multiselect_key]
-                            else
-                              {}
-                            end
-        @nested_grid = !config[:nesting].nil?
-        >>>> @grid_caption = @multiselect_opts[:grid_caption] if @multiselect_opts[:grid_caption] && @grid_caption.nil?
-        >>>> @grid_caption = config[:grid_caption] if @grid_caption.nil?
-        # condition_sets = config[:conditions] || {}
-        # @conditions = if @multiselect_key && @multiselect_opts[:conditions]
-        #                 condition_sets[@multiselect_opts[:conditions]]
-        #               elsif @conditions_key
-        #                 condition_sets[@conditions_key]
-        #               else
-        #                 []
-        #               end
-      end
-
 
 def init(id, root_path, grid_opts, deny_access, params, multi_key) #==> this might read ListGridDef? (OR both could read ListGridConfig????)
 def init(list, options)
