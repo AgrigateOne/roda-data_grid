@@ -18,6 +18,10 @@ module Crossbeams
         load_config
       end
 
+      def multiselect
+        !@multiselect_key.nil?
+      end
+
       private
 
       def load_config

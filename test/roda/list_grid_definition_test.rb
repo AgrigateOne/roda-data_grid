@@ -1,14 +1,5 @@
 require 'test_helper'
 
-# Simple override for Postgres DB connection constant.
-class PgDb
-  def [](arg)
-    s = Struct.new(:get)
-    arg.include?('true') ? s.new(true) : s.new(false)
-  end
-end
-DB = PgDb.new
-
 class ListGridDefinitionTest < Minitest::Test
 
   YAML_FILES = {
@@ -117,6 +108,7 @@ class ListGridDefinitionTest < Minitest::Test
   end
 
   def test_page_controls
+    DB.array_expect(:get_bool)
     additions = {page_controls: [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behviour: :popup },
                                  { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behviour: :popup, hide_if_sql_returns_true: 'SELECT true' },
                                  { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behviour: :popup, hide_if_sql_returns_true: 'SELECT false' }]}

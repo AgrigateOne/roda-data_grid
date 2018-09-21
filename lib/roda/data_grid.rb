@@ -4,6 +4,7 @@ require 'roda/data_grid/version'
 require 'roda/data_grid/dataminer_control'
 require 'roda/data_grid/column_definer'
 require 'roda/data_grid/list_grid_config'
+require 'roda/data_grid/list_grid_data'
 require 'roda/data_grid/list_grid_definition'
 
 require 'crossbeams/dataminer'

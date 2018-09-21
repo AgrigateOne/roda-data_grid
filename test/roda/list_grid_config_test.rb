@@ -67,6 +67,7 @@ class ListGridConfigTest < Minitest::Test
   def test_multiselect
     additions = { multiselect: { multitest: { grid_caption: 'Multi caption', url: '/d/e/f' } } }
     config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { athing: 'athing' }, multi_key: 'multitest', config_loader: loader_extended(additions))
+    assert config.multiselect
     assert_equal :multitest, config.multiselect_key
     assert_equal '/d/e/f', config.multiselect_opts[:url]
   end

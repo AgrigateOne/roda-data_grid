@@ -78,24 +78,23 @@ class Roda
         end
 
         def render_data_grid_rows(id, deny_access = nil, params = nil)
-          dmc = if params.nil?
-                  DataminerControl.new(path: opt_path, list_file: id, deny_access: deny_access)
-                else
-                  DataminerControl.new(path: opt_path, list_file: id, deny_access: deny_access, grid_params: params)
-                end
-          dmc.list_rows
+          data = Crossbeams::DataGrid::ListGridData.new(id: id, root_path: opt_path, deny_access: deny_access, params: params)
+          data.list_rows
         end
 
         def render_data_grid_multiselect_rows(id, deny_access, multi_key, params)
-          mult = multi_key.nil? ? nil : { key: multi_key, params: params }
-          dmc = DataminerControl.new(path: opt_path, list_file: id, deny_access: deny_access, multiselect_options: mult)
-          dmc.list_rows
+          data = Crossbeams::DataGrid::ListGridData.new(id: id, root_path: opt_path, deny_access: deny_access, params: params, multi_key: multi_key)
+          data.list_rows
         end
 
         def render_data_grid_nested_rows(id)
-          dmc = DataminerControl.new(path: opt_path, list_file: id)
-          dmc.list_nested_rows
+          data = Crossbeams::DataGrid::ListGridData.new(id: id, root_path: opt_path)
+          data.list_nested_rows
         end
+
+        # ---------------------
+        # CODE FROM HERE STILL USES DataminerControl...
+        # ---------------------
 
         def search_view_file(for_rerun)
           if for_rerun

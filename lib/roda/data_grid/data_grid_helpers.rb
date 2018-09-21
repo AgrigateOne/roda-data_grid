@@ -28,8 +28,8 @@ class Roda
         ['is NOT blank', 'not_null']
       ].freeze
       TEXT_OPS = [
-        [['starts with'], ['starts_with']],
-        [['ends with'], ['ends_with']],
+        ['starts with', 'starts_with'],
+        ['ends with', 'ends_with'],
         %w[contains contains]
       ].freeze
       DATE_OPS = [
@@ -40,7 +40,7 @@ class Roda
       #
       # @param query_param [Crossbeams::Dataminer::QueryParam] the param.
       # @param connection [Sequel::Database] the db connection.
-      # @return [void]
+      # @return [Array] list of value for the parameter.
       def build_list_values(query_param, connection)
         if query_param.includes_list_options?
           query_param.build_list.list_values
