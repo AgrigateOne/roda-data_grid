@@ -9,6 +9,8 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 ### Changed
 - Check all SQL snippets (get caption, preselect ids, hide button etc.) are SELECTs and raise an exception if they are not.
+- Refactor list grid methods out of DataminerControl. New ListGridConfig, ListGridDefinition and ListGridData classes.
+- Make checkbox column a bit wider for multiselects.
 ### Fixed
 - Multiselect conditions code had a couple of problems.
 

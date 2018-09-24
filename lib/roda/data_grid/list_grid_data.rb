@@ -108,7 +108,7 @@ module Crossbeams
             headerName: '',
             colId: 'theSelector',
             pinned: 'left',
-            width: 45,
+            width: 60,
             headerCheckboxSelection: true,
             headerCheckboxSelectionFilteredOnly: true,
             checkboxSelection: true,
