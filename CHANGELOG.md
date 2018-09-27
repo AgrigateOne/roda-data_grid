@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Chosen parameters can be displayed from a toggle button on the display page.
 ### Changed
 - Check all SQL snippets (get caption, preselect ids, hide button etc.) are SELECTs and raise an exception if they are not.
 - Refactor list grid methods out of DataminerControl. New ListGridConfig, ListGridDefinition and ListGridData classes.

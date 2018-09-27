@@ -133,6 +133,10 @@ class Roda
             page.row do |row|
               row.column do |col|
                 col.add_control control_type: :link, text: 'Back', url: "#{opt_filter_url.%(id)}?back=y", style: :back_button
+                col.add_text %(<div id="rpt_param_text" style="display:none;" data-report-param-display="#{id}"></div>),
+                             toggle_button: true,
+                             toggle_element_id: 'rpt_param_text',
+                             toggle_caption: 'Chosen parameters'
               end
             end
             page.section do |section|
