@@ -42,7 +42,7 @@ class Roda
           layout.build do |page, _|
             page.section do |section|
               grid_def.page_controls.each do |page_control_def|
-                section.add_control(configure_page_control(page_control_def, params))
+                section.add_control(configure_page_control(page_control_def.merge(grid_id: "grid_#{id}"), params))
               end
             end
             page.section do |section|
@@ -64,7 +64,7 @@ class Roda
           layout.build do |page, _|
             page.section do |section|
               grid_def.page_controls.each do |page_control_def|
-                section.add_control(configure_page_control(page_control_def, params))
+                section.add_control(configure_page_control(page_control_def.merge(grid_id: "grid_#{id}"), params))
               end
             end
             page.section do |section|
