@@ -30,14 +30,26 @@ module Crossbeams
         @tree = config[:tree]
         @actions = config[:actions]
         @page_control_defs = config[:page_controls] || []
+        assign_multiselect(config)
+        @nested_grid = !config[:nesting].nil?
+        assign_caption(config)
+        assign_conditions(config)
+      end
+
+      def assign_multiselect(config)
         @multiselect_opts = if @multiselect_key
                               config[:multiselect][@multiselect_key]
                             else
                               {}
                             end
-        @nested_grid = !config[:nesting].nil?
+      end
+
+      def assign_caption(config)
         @grid_caption = @multiselect_opts[:grid_caption] if @multiselect_opts[:grid_caption] && @grid_caption.nil?
         @grid_caption = config[:grid_caption] if @grid_caption.nil?
+      end
+
+      def assign_conditions(config)
         condition_sets = config[:conditions] || {}
         @conditions = if @multiselect_key && @multiselect_opts[:conditions]
                         condition_sets[@multiselect_opts[:conditions].to_sym]
@@ -49,7 +61,12 @@ module Crossbeams
       end
 
       def conditions_key_from_params(params)
-        return nil unless params && params[:query_string]
+        return conditions_key_from_query_string(params) if params && params[:query_string]
+        return nil unless params
+        params[:key] ? params[:key].to_sym : nil
+      end
+
+      def conditions_key_from_query_string(params)
         key_a = params[:query_string].split('&').select { |k| k.start_with?('key=') }
         return nil if key_a.empty?
         key_a.first.delete('key=').to_sym
