@@ -7,6 +7,11 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+### Changed
+### Fixed
+
+## [0.1.9] - 2018-10-16
+### Added
 - Chosen parameters can be displayed from a toggle button on the display page.
 - Add the grid id to page control buttons.
 ### Changed
