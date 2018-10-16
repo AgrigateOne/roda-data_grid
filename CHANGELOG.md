@@ -7,6 +7,11 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+### Changed
+### Fixed
+
+## [0.1.9] - 2018-10-16
+### Added
 - Chosen parameters can be displayed from a toggle button on the display page.
 - Add the grid id to page control buttons.
 ### Changed
@@ -15,6 +20,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 - Make checkbox column a bit wider for multiselects.
 ### Fixed
 - Multiselect conditions code had a couple of problems.
+- Fix to conditions-handling for listing data.
 
 ## [0.1.8] - 2018-08-31
 ### Added

@@ -4,7 +4,7 @@ require 'rack'
 
 module Crossbeams
   module DataGrid
-    class ListGridData
+    class ListGridData # rubocop:disable Metrics/ClassLength
       attr_reader :config, :params
 
       def initialize(options)
@@ -32,7 +32,7 @@ module Crossbeams
       # @return [JSON] - a Hash containing row and column definitions.
       def list_rows
         n_params = { json_var: conditions.to_json }
-        apply_params(n_params) unless n_params.nil? || n_params.empty?
+        apply_params(n_params)
         col_defs = column_definitions
         multiselect_ids = config.multiselect ? preselect_ids : []
 
@@ -57,7 +57,7 @@ module Crossbeams
         in_keys
       end
 
-      def params_to_parms(params)
+      def params_to_parms(params) # rubocop:disable Metrics/AbcSize
         input_parameters = ::JSON.parse(params[:json_var]) || []
         parms = []
         # Check if this should become an IN parmeter (list of equal checks for a column.
@@ -90,8 +90,8 @@ module Crossbeams
       def apply_params(params)
         # { "col"=>"users.department_id", "op"=>"=", "opText"=>"is", "val"=>"17", "text"=>"Finance", "caption"=>"Department" }
         parms = params_to_parms(params)
-        report.limit  = params[:limit].to_i  unless params[:limit].nil? || params[:limit] != ''
-        report.offset = params[:offset].to_i unless params[:offset].nil? || params[:offset] != ''
+        report.limit  = limit_from_params(params)
+        report.offset = offset_from_params(params)
         begin
           report.apply_params(parms)
         rescue StandardError => e
@@ -99,7 +99,7 @@ module Crossbeams
         end
       end
 
-      def column_definitions(options = {})
+      def column_definitions(options = {}) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
         col_defs = []
 
         # TEST: multiselect
@@ -190,7 +190,7 @@ module Crossbeams
       private
 
       # Build action column items recursively.
-      def make_subitems(actions, level = 0)
+      def make_subitems(actions, level = 0) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
         this_col = []
         cnt = 0
         actions.each do |action| # rubocop:disable Metrics/BlockLength
@@ -259,7 +259,7 @@ module Crossbeams
       # For multiselect grids, get the ids that should be preselected in the grid.
       #
       # @return [Array] - a list of ids (can be empty)
-      def preselect_ids
+      def preselect_ids # rubocop:disable Metrics/AbcSize
         return [] if config.multiselect_opts[:preselect].nil? || params.nil?
         sql = config.multiselect_opts[:preselect]
         params.each { |k, v| sql.gsub!("$:#{k}$", v.to_s) }
@@ -274,6 +274,14 @@ module Crossbeams
           end
           rec
         end
+      end
+
+      def limit_from_params(params)
+        params[:limit].to_i  unless params[:limit].nil? || params[:limit] != ''
+      end
+
+      def offset_from_params(params)
+        params[:offset].to_i unless params[:offset].nil? || params[:offset] != ''
       end
 
       def assert_sql_is_select!(context, sql)

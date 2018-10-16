@@ -181,6 +181,11 @@ class ListGridDataTest < Minitest::Test
     data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: basic_loader, params: params)
     assert_equal({ one: 1 }, data.params)
 
+    params = { key: 'standard', sub_type_id: '3', product_column_ids: '[73, 74]' }
+    additions = { conditions: { standard: [{ col: 'id', op: '=', val: '$:sub_type_id$' }] } }
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions), params: params)
+    assert_equal '3', data.params[:sub_type_id]
+
     params = { query_string: 'key=standard&sub_type_id=3&product_column_ids=[73, 74]' }
     additions = { conditions: { standard: [{ col: 'id', op: '=', val: '$:sub_type_id$' }] } }
     data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions), params: params)
