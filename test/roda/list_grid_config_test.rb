@@ -123,4 +123,12 @@ class ListGridConfigTest < Minitest::Test
     config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { athing: 'athing' }, config_loader: loader_extended(additions))
     assert config.nested_grid
   end
+
+  def test_calculated_columns
+    additions = { calculated_columns: [{ name: 'colnew', caption: 'ColCap', date_type: :number, format: :delimited_1000, expression: 'col1 * col2', position: 2 }]
+    }
+    config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { some_parm: 'something' }, config_loader: loader_extended(additions))
+    assert_equal 1, config.calculated_columns.length
+    assert_equal 'ColCap', config.calculated_columns.last[:caption]
+  end
 end

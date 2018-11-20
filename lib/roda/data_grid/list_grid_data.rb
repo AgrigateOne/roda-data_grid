@@ -11,6 +11,7 @@ module Crossbeams
         @deny_access = options.fetch(:deny_access)
         @config = ListGridConfig.new(options)
         @params = parse_params(options)
+        assert_actions_ok!
       end
 
       # Load a YML report.
@@ -145,7 +146,7 @@ module Crossbeams
           # hs[:valueGetter]    = 'blankWhenNull'
 
           if %i[integer number].include?(col.data_type)
-            hs[:cellClass] = 'grid-number-column'
+            hs[:type]      = 'numericColumn'
             hs[:width]     = 100 if col.width.nil? && col.data_type == :integer
             hs[:width]     = 120 if col.width.nil? && col.data_type == :number
           end
@@ -172,6 +173,28 @@ module Crossbeams
 
           col_defs << hs
         end
+
+        (config.calculated_columns || []).each do |raw|
+          col = OpenStruct.new(raw)
+          hs                  = { headerName: col.caption, field: col.name, headerTooltip: col.caption }
+          hs[:width]          = col.width unless col.width.nil?
+          hs[:enableValue]    = true if %i[integer number].include?(col.data_type)
+
+          if %i[integer number].include?(col.data_type)
+            hs[:type]      = 'numericColumn'
+            hs[:width]     = 100 if col.width.nil? && col.data_type == :integer
+            hs[:width]     = 120 if col.width.nil? && col.data_type == :number
+          end
+          if col.format == :delimited_1000
+            hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2'
+          end
+          if col.format == :delimited_1000_4
+            hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4'
+          end
+          parts = col.expression.split(' ')
+          hs[:valueGetter] = parts.map { |p| %w[* + - /].include?(p) ? p : "data.#{p}" }.join(' ')
+          col_defs.insert((col.position || 1), hs)
+        end
         col_defs
       end
 
@@ -188,6 +211,35 @@ module Crossbeams
       end
 
       private
+
+      def assert_actions_ok!
+        return unless config.actions
+
+        config.actions.each do |action|
+          action.keys.each do |key|
+            raise ArgumentError, "#{key} is not a valid action attribute" unless %i[
+              auth
+              hide_if_false
+              hide_if_null
+              hide_if_present
+              hide_if_true
+              icon
+              is_delete
+              loading_window
+              popup
+              prompt
+              separator
+              submenu
+              text
+              title
+              title_field
+              url
+            ].include?(key)
+          end
+
+          raise ArgumentError, 'A grid action cannot be both a popup and a loading_window' if action[:popup] && action[:loading_window]
+        end
+      end
 
       # Build action column items recursively.
       def make_subitems(actions, level = 0) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
@@ -224,6 +276,7 @@ module Crossbeams
           link_h[:title] = action[:title] if action[:title]
           link_h[:title_field] = action[:title_field] if action[:title_field]
           link_h[:popup] = action[:popup] if action[:popup]
+          link_h[:loading_window] = action[:loading_window] if action[:loading_window]
           link_h[:hide_if_null] = action[:hide_if_null] if action[:hide_if_null]
           link_h[:hide_if_present] = action[:hide_if_present] if action[:hide_if_present]
           link_h[:hide_if_true] = action[:hide_if_true] if action[:hide_if_true]
