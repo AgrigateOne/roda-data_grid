@@ -7,12 +7,16 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+### Changed
+### Fixed
+
+## [0.1.10] - 2018-11-20
+### Added
 - Specify calculated columns - calculated on-the-fly by AG Grid.
 - Grid action URL can be opened in a loading window. Set `loading_window` to `true`.
 ### Changed
 - Use AG Grid 1.19's own formatting of number columns.
 - Raises an exception if any action's key is invalid.
-### Fixed
 
 ## [0.1.9] - 2018-10-16
 ### Added
