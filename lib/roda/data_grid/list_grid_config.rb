@@ -5,7 +5,8 @@ module Crossbeams
     class ListGridConfig
       attr_reader :id, :root, :multiselect_key, :fit_height, :grid_caption,
                   :dataminer_definition, :tree, :page_control_defs,
-                  :multiselect_opts, :nested_grid, :conditions_key, :conditions, :actions
+                  :multiselect_opts, :nested_grid, :conditions_key, :conditions, :actions,
+                  :calculated_columns
 
       def initialize(options)
         @id = options.fetch(:id)
@@ -29,6 +30,7 @@ module Crossbeams
         @dataminer_definition = config[:dataminer_definition]
         @tree = config[:tree]
         @actions = config[:actions]
+        @calculated_columns = config[:calculated_columns]
         @page_control_defs = config[:page_controls] || []
         assign_multiselect(config)
         @nested_grid = !config[:nesting].nil?

@@ -209,11 +209,11 @@ class ListGridDataTest < Minitest::Test
     assert_equal BASIC_EXPECTED, tester['rowDefs']
     assert_equal BASIC_EXPECTED.first.keys, tester['columnDefs'].map {|a| a['field'] }
     cols = [
-      { 'headerName' => 'Id', 'field' => 'id', 'hide' => false, 'headerTooltip' => 'Id', 'enableValue' => true, 'cellClass' => 'grid-number-column', 'width' => 100 },
+      { 'headerName' => 'Id', 'field' => 'id', 'hide' => false, 'headerTooltip' => 'Id', 'enableValue' => true, 'type' => 'numericColumn', 'width' => 100 },
       { 'headerName' => 'First name', 'field' => 'user_name', 'hide' => false, 'headerTooltip' => 'First name', 'width' => 150, 'enableRowGroup' => true, 'enablePivot' => true },
       { 'headerName' => 'Department name', 'field' => 'department_name', 'hide' => false, 'headerTooltip' => 'Department name', 'enableRowGroup' => true, 'enablePivot' => true },
       { 'headerName' => 'Created at', 'field' => 'created_at', 'hide' => false, 'headerTooltip' => 'Created at', 'enableRowGroup' => true, 'enablePivot' => true },
-      { 'headerName' => 'Amount', 'field' => 'amount', 'hide' => false, 'headerTooltip' => 'Amount', 'enableValue' => true, 'cellClass' => 'grid-number-column', 'width' => 120, 'valueFormatter' => 'crossbeamsGridFormatters.numberWithCommas2' },
+      { 'headerName' => 'Amount', 'field' => 'amount', 'hide' => false, 'headerTooltip' => 'Amount', 'enableValue' => true, 'type' => 'numericColumn', 'width' => 120, 'valueFormatter' => 'crossbeamsGridFormatters.numberWithCommas2' },
       { 'headerName' => 'Active', 'field' => 'active', 'hide' => false, 'headerTooltip' => 'Active', 'enableRowGroup' => true, 'enablePivot' => true, 'cellRenderer' => 'crossbeamsGridFormatters.booleanFormatter', 'cellClass' => 'grid-boolean-column', 'width' => 100 }
     ]
     assert_equal cols, tester['columnDefs']
@@ -291,6 +291,7 @@ class ListGridDataTest < Minitest::Test
     }
     assert_equal expected, actions_col
   end
+
   def test_deny_access_actions
     DB.array_expect(BASIC_DATA)
     additions = { actions:
@@ -309,5 +310,38 @@ class ListGridDataTest < Minitest::Test
     actions = tester['columnDefs'].first['valueGetter']
     expected = "[{\"text\":\"view\",\"url\":\"/development/masterfiles/users/$col0$\",\"col0\":\"id\",\"icon\":\"view-show\",\"title\":\"View\",\"popup\":true},{\"text\":\"sep01\",\"is_separator\":true},{\"text\":\"delete\",\"url\":\"/development/masterfiles/users/$col0$\",\"col0\":\"id\",\"prompt\":\"Are you sure?\",\"method\":\"delete\",\"icon\":\"delete\",\"popup\":true}]"
     assert_equal expected, actions
+  end
+
+  def test_popup_and_loading_window_action
+    DB.array_expect(BASIC_DATA)
+    additions = { actions:
+                  [{url: '/development/masterfiles/users/$:id$', text: 'view', icon: 'view-show', title: 'View', popup: true, loading_window: true}]
+    }
+    assert_raises(ArgumentError) { Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions), params: { id: '1' }) }
+
+    ok_additions = { actions:
+                  [{url: '/development/masterfiles/users/$:id$', text: 'view', icon: 'view-show', title: 'View', loading_window: true}]
+    }
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(ok_additions), params: { id: '1' })
+    rows = nil
+    data.stub(:load_report_def, BASIC_DM_REPORT) do
+      rows = data.list_rows
+    end
+    tester = JSON.parse(rows)
+    assert_equal BASIC_EXPECTED, tester['rowDefs']
+    assert_match(/"loading_window":true/, tester['columnDefs'].first['valueGetter'])
+  end
+
+  def test_calculated_columns
+    DB.array_expect(BASIC_DATA)
+    additions = { calculated_columns: [{ name: 'colnew', caption: 'ColCap', date_type: :number, format: :delimited_1000, expression: 'amount * id', position: 2 }] }
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions), params: { id: '1' })
+    rows = nil
+    data.stub(:load_report_def, BASIC_DM_REPORT) do
+      rows = data.list_rows
+    end
+    tester = JSON.parse(rows)
+    assert_equal 'colnew', tester['columnDefs'][2]['field']
+    assert_equal 'data.amount * data.id', tester['columnDefs'][2]['valueGetter']
   end
 end
