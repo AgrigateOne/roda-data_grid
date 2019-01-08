@@ -6,5 +6,5 @@ gemspec
 # While testing DM:
 gem 'crossbeams-dataminer', git: 'https://github.com/NoSoft-SA/crossbeams-dataminer.git'
 gem 'crossbeams-layout', git: 'https://github.com/NoSoft-SA/crossbeams-layout.git'
-# gem 'crossbeams-dataminer', path: File.expand_path('../../crossbeams-dataminer', __FILE__)
+# gem 'crossbeams-dataminer', path: File.expand_path('../crossbeams-dataminer', __dir__)
 # gem 'crossbeams-layout',    path: File.expand_path('../../crossbeams-layout', __FILE__)
