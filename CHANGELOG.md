@@ -10,6 +10,10 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 
+## [0.1.11] - 2018-01-08
+### Added
+- Pass `pinned` attribute to AG Grid if set. It can be 'left' or 'right' or nil.
+
 ## [0.1.10] - 2018-11-20
 ### Added
 - Specify calculated columns - calculated on-the-fly by AG Grid.
