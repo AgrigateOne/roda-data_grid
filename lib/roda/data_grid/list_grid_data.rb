@@ -141,9 +141,8 @@ module Crossbeams
           hs[:enableRowGroup] = true unless config.tree || hs[:enableValue] && !col.groupable
           hs[:enablePivot]    = true unless config.tree || hs[:enableValue] && !col.groupable
           hs[:rowGroupIndex]  = col.group_by_seq if col.group_by_seq
-          # hs[:pinned]         = 'left' if col.group_by_seq # if col.pinned || col.group_by_seq
+          hs[:pinned]         = col.pinned if col.pinned
           hs[:rowGroup]       = true if col.group_by_seq
-          # hs[:valueGetter]    = 'blankWhenNull'
 
           if %i[integer number].include?(col.data_type)
             hs[:type]      = 'numericColumn'

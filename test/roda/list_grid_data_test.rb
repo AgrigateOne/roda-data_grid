@@ -44,6 +44,7 @@ BASIC_DM_REPORT = {:caption=>nil,
      :width=>150,
      :format=>nil,
      :hide=>false,
+     :pinned=>'left',
      :groupable=>false,
      :group_by_seq=>nil,
      :group_sum=>false,
@@ -210,7 +211,7 @@ class ListGridDataTest < Minitest::Test
     assert_equal BASIC_EXPECTED.first.keys, tester['columnDefs'].map {|a| a['field'] }
     cols = [
       { 'headerName' => 'Id', 'field' => 'id', 'hide' => false, 'headerTooltip' => 'Id', 'enableValue' => true, 'type' => 'numericColumn', 'width' => 100 },
-      { 'headerName' => 'First name', 'field' => 'user_name', 'hide' => false, 'headerTooltip' => 'First name', 'width' => 150, 'enableRowGroup' => true, 'enablePivot' => true },
+      { 'headerName' => 'First name', 'field' => 'user_name', 'hide' => false, 'headerTooltip' => 'First name', 'width' => 150, 'enableRowGroup' => true, 'enablePivot' => true, 'pinned' => 'left' },
       { 'headerName' => 'Department name', 'field' => 'department_name', 'hide' => false, 'headerTooltip' => 'Department name', 'enableRowGroup' => true, 'enablePivot' => true },
       { 'headerName' => 'Created at', 'field' => 'created_at', 'hide' => false, 'headerTooltip' => 'Created at', 'enableRowGroup' => true, 'enablePivot' => true },
       { 'headerName' => 'Amount', 'field' => 'amount', 'hide' => false, 'headerTooltip' => 'Amount', 'enableValue' => true, 'type' => 'numericColumn', 'width' => 120, 'valueFormatter' => 'crossbeamsGridFormatters.numberWithCommas2' },
