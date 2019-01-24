@@ -60,6 +60,11 @@ module Crossbeams
                       else
                         []
                       end
+        assert_conditions_is_array!
+      end
+
+      def assert_conditions_is_array!
+        raise ArgumentError, "Expected conditions not found for key: \"#{@conditions_key || @multiselect_opts[:conditions]}\" in \"#{@id}.yml\"" if @conditions.nil?
       end
 
       def conditions_key_from_params(params)

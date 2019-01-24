@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Raise an informative error if the parameters include a key that does not exist in the `conditions` section.
 ### Changed
 ### Fixed
 

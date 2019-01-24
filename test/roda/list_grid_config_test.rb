@@ -84,6 +84,9 @@ class ListGridConfigTest < Minitest::Test
     assert_equal :standard, config.conditions_key
     assert_equal 1, config.conditions.length
     assert_equal 'id', config.conditions.first[:col]
+
+    # Test missmatched key and conditions - raises informative error.
+    assert_raises(ArgumentError) { Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { key: 'somethingelse', sub_type_id: '3', product_column_ids: '[73, 74]' }, config_loader: loader_extended(additions)) }
   end
 
   def test_multisel_conditions
