@@ -76,7 +76,7 @@ module Crossbeams
       def conditions_key_from_query_string(params)
         key_a = params[:query_string].split('&').select { |k| k.start_with?('key=') }
         return nil if key_a.empty?
-        key_a.first.delete('key=').to_sym
+        key_a.first.delete_prefix('key=').to_sym
       end
 
       def load_config_from_file

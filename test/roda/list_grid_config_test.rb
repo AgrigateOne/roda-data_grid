@@ -86,7 +86,10 @@ class ListGridConfigTest < Minitest::Test
     assert_equal 'id', config.conditions.first[:col]
 
     # Test missmatched key and conditions - raises informative error.
-    assert_raises(ArgumentError) { Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { key: 'somethingelse', sub_type_id: '3', product_column_ids: '[73, 74]' }, config_loader: loader_extended(additions)) }
+    err = assert_raises(ArgumentError) { Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { key: 'somethingelse', sub_type_id: '3', product_column_ids: '[73, 74]' }, config_loader: loader_extended(additions)) }
+    assert_equal 'Expected conditions not found for key: "somethingelse" in "agrid.yml"', err.message
+    err = assert_raises(ArgumentError) { Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { query_string: 'key=someother&sub_type_id=3&product_column_ids=[73, 74]' }, config_loader: loader_extended(additions)) }
+    assert_equal 'Expected conditions not found for key: "someother" in "agrid.yml"', err.message
   end
 
   def test_multisel_conditions
