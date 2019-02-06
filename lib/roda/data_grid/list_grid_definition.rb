@@ -59,12 +59,21 @@ module Crossbeams
         DB[sql].get
       end
 
+      # Check if the multiselect or conditions key matches a value to see if a page control should be hidden.
+      #
+      # @return [boolean] - Hide or do not hide the control.
+      def hide_control_by_param_key(page_control_def)
+        return false unless page_control_def[:hide_for_key]
+        values = Array(page_control_def[:hide_for_key]).map(&:to_sym)
+        values.include?(@config.multiselect_key) || values.include?(@config.conditions_key)
+      end
+
       def assert_sql_is_select!(context, sql)
         raise ArgumentError, "SQL for \"#{context}\" is not a SELECT" if sql.match?(/insert |update |delete /i)
       end
 
       def page_controls
-        @config.page_control_defs.reject { |c| hide_control_by_sql(c) }
+        @config.page_control_defs.reject { |c| hide_control_by_sql(c) || hide_control_by_param_key(c) }
       end
 
       def grid_url

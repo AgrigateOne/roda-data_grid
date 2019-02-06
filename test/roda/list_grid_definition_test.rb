@@ -53,7 +53,15 @@ class ListGridDefinitionTest < Minitest::Test
         :group_avg=>false,
         :group_min=>false,
         :group_max=>false}},
-    :query_parameter_definitions=>[]
+        :query_parameter_definitions=>[{ column: 'users.id',
+         caption: 'ID',
+         data_type: :integer,
+         control_type: :text,
+         default_value: nil,
+         ordered_list: nil,
+         ui_priority: 1,
+         list_def: nil }
+       ]
   }
 
   # def replace_read_file(gd, key, additions = {})
@@ -109,12 +117,27 @@ class ListGridDefinitionTest < Minitest::Test
 
   def test_page_controls
     DB.array_expect(:get_bool)
-    additions = {page_controls: [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behviour: :popup },
-                                 { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behviour: :popup, hide_if_sql_returns_true: 'SELECT true' },
-                                 { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behviour: :popup, hide_if_sql_returns_true: 'SELECT false' }]}
+    additions = {page_controls: [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
+                                 { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_if_sql_returns_true: 'SELECT true' },
+                                 { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_if_sql_returns_true: 'SELECT false' }]}
     gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { athing: 'athing' }, config_loader: loader_extended(additions))
-    expect = [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behviour: :popup },
-              { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behviour: :popup, hide_if_sql_returns_true: 'SELECT false' } ]
+    expect = [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
+              { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_if_sql_returns_true: 'SELECT false' } ]
+    pc = []
+    gd.stub(:load_report_def, BASIC_DM_REPORT) do
+      pc = gd.page_controls
+      assert_equal expect, pc
+    end
+  end
+
+  def test_page_controls_hidden_by_params
+    additions = { conditions: { hideme: [{ col: 'users.id', op: '=', val: 1 }] },
+                  page_controls: [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
+                                 { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_key: ['NA', 'AN'] },
+                                 { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_key: 'hideme' }]}
+    gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { key: 'hideme', athing: 'athing' }, config_loader: loader_extended(additions))
+    expect = [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
+              { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_key: ['NA', 'AN'] } ]
     pc = []
     gd.stub(:load_report_def, BASIC_DM_REPORT) do
       pc = gd.page_controls
