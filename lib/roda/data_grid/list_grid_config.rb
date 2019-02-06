@@ -13,7 +13,7 @@ module Crossbeams
         @root = options.fetch(:root_path)
         @multiselect_key = options[:multi_key]&.to_sym
         @fit_height = options[:params]&.delete(:fit_height)
-        @conditions_key = conditions_key_from_params(options[:params])
+        @conditions_key = conditions_key_from_params(options[:params]) unless @multiselect_key
         @grid_caption = options[:grid_caption]
         @config_loader = options[:config_loader] || -> { load_config_from_file }
         load_config

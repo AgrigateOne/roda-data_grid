@@ -10,6 +10,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 - Raise an informative error if the parameters include a key that does not exist in the `conditions` section.
 ### Changed
 ### Fixed
+- Exception was raised when the params included a key for a multiselect and there were no conditions with the same key. This was because the multiselect key was being used as the conditions key.
 
 ## [0.1.11] - 2018-01-08
 ### Added
