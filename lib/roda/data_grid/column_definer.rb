@@ -166,6 +166,7 @@ module Crossbeams
       end
 
       def href(link, field, options = {})
+        default_renderer = options[:fetch_renderer] ? 'crossbeamsGridFormatters.hrefSimpleFetchFormatter' : 'crossbeamsGridFormatters.hrefSimpleFormatter'
         @columns << {
           headerName: '',
           width: options[:width] || 60,
@@ -174,7 +175,7 @@ module Crossbeams
           enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
           valueGetter: link,
           colId: field,
-          cellRenderer: options[:cellRenderer] || 'crossbeamsGridFormatters.hrefSimpleFormatter'
+          cellRenderer: options[:cellRenderer] || default_renderer
         }
       end
 

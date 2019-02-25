@@ -77,6 +77,25 @@ class Roda
           layout
         end
 
+        def render_data_grid_page_lookup(id, key, params) # rubocop:disable Metrics/AbcSize
+          grid_def = Crossbeams::DataGrid::LookupGridDefinition.new(root_path: opt_path,
+                                                                    grid_opts: opts[:data_grid],
+                                                                    lookup_key: key,
+                                                                    id: id,
+                                                                    params: params)
+
+          layout = Crossbeams::Layout::Page.new form_object: grid_def.report
+          layout.build do |page, _|
+            page.section do |section|
+              section.fit_height! if grid_def.fit_height
+              section.caption = grid_def.lookup_grid_caption
+              section.hide_caption = grid_def.lookup_grid_caption.nil?
+              section.add_grid("grid_#{id}", grid_def.grid_path, grid_def.render_options)
+            end
+          end
+          layout
+        end
+
         def render_data_grid_rows(id, deny_access = nil, params = nil)
           data = Crossbeams::DataGrid::ListGridData.new(id: id, root_path: opt_path, deny_access: deny_access, params: params)
           data.list_rows
@@ -84,6 +103,11 @@ class Roda
 
         def render_data_grid_multiselect_rows(id, deny_access, multi_key, params)
           data = Crossbeams::DataGrid::ListGridData.new(id: id, root_path: opt_path, deny_access: deny_access, params: params, multi_key: multi_key)
+          data.list_rows
+        end
+
+        def render_data_grid_lookup_rows(id, deny_access, lookup_key, params)
+          data = Crossbeams::DataGrid::LookupGridData.new(id: id, root_path: opt_path, deny_access: deny_access, params: params, lookup_key: lookup_key)
           data.list_rows
         end
 
