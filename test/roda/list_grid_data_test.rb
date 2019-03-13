@@ -204,9 +204,10 @@ class ListGridDataTest < Minitest::Test
       rows = data.list_rows
     end
     tester = JSON.parse(rows)
-    assert_equal 4, tester.keys.length
+    assert_equal 5, tester.keys.length
     assert_equal [], tester['multiselect_ids']
     assert_nil tester['tree']
+    assert_nil tester['fieldUpdateUrl']
     assert_equal BASIC_EXPECTED, tester['rowDefs']
     assert_equal BASIC_EXPECTED.first.keys, tester['columnDefs'].map {|a| a['field'] }
     cols = [

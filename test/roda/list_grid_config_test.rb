@@ -33,6 +33,7 @@ class ListGridConfigTest < Minitest::Test
     assert_equal [], config.page_control_defs
     assert_equal({}, config.multiselect_opts)
     assert_equal [], config.conditions
+    assert_equal({}, config.edit_rules)
     refute config.nested_grid
   end
 
@@ -136,5 +137,11 @@ class ListGridConfigTest < Minitest::Test
     config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { some_parm: 'something' }, config_loader: loader_extended(additions))
     assert_equal 1, config.calculated_columns.length
     assert_equal 'ColCap', config.calculated_columns.last[:caption]
+  end
+
+  def test_edit_rules
+    additions = { edit_rules: {}
+    }
+    assert_raises(ArgumentError) { config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { some_parm: 'something' }, config_loader: loader_extended(additions)) }
   end
 end

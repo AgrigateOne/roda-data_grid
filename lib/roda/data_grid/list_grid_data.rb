@@ -34,13 +34,12 @@ module Crossbeams
       def list_rows
         n_params = { json_var: conditions.to_json }
         apply_params(n_params)
-        col_defs = column_definitions
-        multiselect_ids = config.multiselect ? preselect_ids : []
 
         {
           multiselect_ids: multiselect_ids,
+          fieldUpdateUrl: config.edit_rules[:url],
           tree: config.tree,
-          columnDefs: col_defs,
+          columnDefs: column_definitions,
           rowDefs:    dataminer_query(report.runnable_sql)
         }.to_json
       end
@@ -102,6 +101,7 @@ module Crossbeams
 
       def column_definitions(options = {}) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
         col_defs = []
+        edit_columns = (config.edit_rules[:editable_fields] || {}).keys
 
         # TEST: multiselect
         if config.multiselect
@@ -159,6 +159,26 @@ module Crossbeams
             hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
             hs[:cellClass]    = 'grid-boolean-column'
             hs[:width]        = 100 if col.width.nil?
+          end
+
+          # Rules for editable columns
+          if edit_columns.include?(col.name)
+            hs[:editable] = true
+            hs[:headerClass] = hs[:type] && hs[:type] == 'numericColumn' ? 'ag-numeric-header gridEditableColumn' : 'gridEditableColumn'
+            hs[:headerTooltip] = "#{col.caption} (editable)"
+
+            rule = config.edit_rules[:editable_fields][col.name]
+            if rule && rule[:editor]
+              hs[:cellEditor] = 'numericCellEditor' if rule[:editor] == :numeric
+              hs[:cellEditor] = 'agLargeTextCellEditor' if rule[:editor] == :textarea
+              if rule[:editor] == :select
+                hs[:cellEditor] = 'agRichSelectCellEditor'
+                values = select_editor_values(rule)
+                hs[:cellEditorParams] = { values: values }
+              end
+            else
+              hs[:cellEditor] = 'agPopupTextCellEditor'
+            end
           end
 
           if options[:expands_nested_grid] && options[:expands_nested_grid] == col.name
@@ -338,6 +358,18 @@ module Crossbeams
 
       def assert_sql_is_select!(context, sql)
         raise ArgumentError, "SQL for \"#{context}\" is not a SELECT" if sql.match?(/insert |update |delete /i)
+      end
+
+      def multiselect_ids
+        config.multiselect ? preselect_ids : []
+      end
+
+      def select_editor_values(rule)
+        return rule[:values] if rule[:values]
+        sql = rule[:value_sql]
+        raise ArgumentError, 'A select cell editor must have a :values array or a :value_sql string' if sql.nil?
+        assert_sql_is_select!('select editor', sql)
+        DB[sql].map { |r| r.values.first }
       end
     end
   end

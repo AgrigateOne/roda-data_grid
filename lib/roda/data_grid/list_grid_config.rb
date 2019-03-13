@@ -6,7 +6,7 @@ module Crossbeams
       attr_reader :id, :root, :multiselect_key, :fit_height, :grid_caption,
                   :dataminer_definition, :tree, :page_control_defs,
                   :multiselect_opts, :nested_grid, :conditions_key, :conditions, :actions,
-                  :calculated_columns
+                  :calculated_columns, :edit_rules
 
       def initialize(options)
         @id = options.fetch(:id)
@@ -25,17 +25,25 @@ module Crossbeams
 
       private
 
-      def load_config
+      def load_config # rubocop:disable Metrics/AbcSize
         config = @config_loader.call
         @dataminer_definition = config[:dataminer_definition]
         @tree = config[:tree]
         @actions = config[:actions]
+        @edit_rules = config[:edit_rules] || {}
         @calculated_columns = config[:calculated_columns]
         @page_control_defs = config[:page_controls] || []
         assign_multiselect(config)
         @nested_grid = !config[:nesting].nil?
         assign_caption(config)
         assign_conditions(config)
+        assert_edit_rules!(config)
+      end
+
+      def assert_edit_rules!(config)
+        return unless config[:edit_rules]
+        raise ArgumentError, 'Grid edit rules must include a URL' unless config[:edit_rules][:url]
+        raise ArgumentError, 'Grid edit rules must include editable_fields' unless config[:edit_rules][:editable_fields]
       end
 
       def assign_multiselect(config)
