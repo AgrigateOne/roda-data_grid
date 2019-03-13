@@ -143,5 +143,10 @@ class ListGridConfigTest < Minitest::Test
     additions = { edit_rules: {}
     }
     assert_raises(ArgumentError) { config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { some_parm: 'something' }, config_loader: loader_extended(additions)) }
+
+    additions = { edit_rules: { url: '/path/to/$:id$/inline_save', editable_fields: { 'code' => nil } }
+    }
+    config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { some_parm: 'something' }, config_loader: loader_extended(additions))
+    assert_equal({ 'code' => nil }, config.edit_rules[:editable_fields])
   end
 end
