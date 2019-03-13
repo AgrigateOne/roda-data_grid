@@ -346,4 +346,69 @@ class ListGridDataTest < Minitest::Test
     assert_equal 'colnew', tester['columnDefs'][2]['field']
     assert_equal 'data.amount * data.id', tester['columnDefs'][2]['valueGetter']
   end
+
+  def test_edit_rules
+    DB.array_expect(BASIC_DATA)
+    additions = { edit_rules: { url: '/path/to/$:id$/inline_save', editable_fields: { 'user_name' => nil,
+                                                                                      'amount' => { editor: :numeric },
+                                                                                      'department_name' => { editor: :textarea },
+                                                                                      'active' => { editor: :select, values: ['Yes', 'No'] } } } }
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions))
+    rows = nil
+    data.stub(:load_report_def, BASIC_DM_REPORT) do
+      rows = data.list_rows
+    end
+    tester = JSON.parse(rows)
+    assert_equal '/path/to/$:id$/inline_save', tester['fieldUpdateUrl']
+    col = tester['columnDefs'].find {|c| c['field'] == 'user_name' }
+
+    assert_equal 'agPopupTextCellEditor', col['cellEditor']
+    assert_equal 'First name (editable)', col['headerTooltip']
+    assert_equal 'gridEditableColumn', col['headerClass']
+    assert col['editable']
+
+    col = tester['columnDefs'].find {|c| c['field'] == 'amount' }
+    assert_equal 'numericCellEditor', col['cellEditor']
+    assert_equal 'Amount (editable)', col['headerTooltip']
+    assert_equal 'ag-numeric-header gridEditableColumn', col['headerClass']
+    assert col['editable']
+
+    col = tester['columnDefs'].find {|c| c['field'] == 'department_name' }
+    assert_equal 'agLargeTextCellEditor', col['cellEditor']
+    assert col['editable']
+
+    col = tester['columnDefs'].find {|c| c['field'] == 'active' }
+    assert_equal 'agRichSelectCellEditor', col['cellEditor']
+    assert_equal({ 'values' => ['Yes', 'No'] }, col['cellEditorParams'])
+    assert col['editable']
+  end
+
+  def test_edit_select_rule
+    DB.array_expect(BASIC_DATA)
+    additions = { edit_rules: { url: '/path/to/$:id$/inline_save', editable_fields: { 'active' => { editor: :select, value_sql: "SELECT t.* from (VALUES ('Yes'), ('No')) t" } } } }
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions))
+    rows = nil
+    data.stub(:load_report_def, BASIC_DM_REPORT) do
+      data.stub(:select_editor_values, ['Yes', 'No']) do
+        rows = data.list_rows
+      end
+    end
+    tester = JSON.parse(rows)
+
+    col = tester['columnDefs'].find {|c| c['field'] == 'active' }
+    assert_equal 'agRichSelectCellEditor', col['cellEditor']
+    assert_equal({ 'values' => ['Yes', 'No'] }, col['cellEditorParams'])
+    assert col['editable']
+  end
+
+  def test_edit_select_rule_ok
+    DB.array_expect(BASIC_DATA)
+    additions = { edit_rules: { url: '/path/to/$:id$/inline_save', editable_fields: { 'active' => { editor: :select, misspelled_values: [] } } } }
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions))
+    assert_raises(ArgumentError) do
+      data.stub(:load_report_def, BASIC_DM_REPORT) do
+        rows = data.list_rows
+      end
+    end
+  end
 end

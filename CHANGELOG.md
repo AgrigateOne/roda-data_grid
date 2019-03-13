@@ -7,15 +7,19 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+### Changed
+### Fixed
+
+## [0.1.12] - 2019-03-13
+### Added
 - Raise an informative error if the parameters include a key that does not exist in the `conditions` section.
 - A page control can be hidden when the value of the key parameter in the URL matches one of the list of `hide_for_key` values in the list definition.
 - Handle lookup grid definitions.
 - Inline editing of grid columns.
-### Changed
 ### Fixed
 - Exception was raised when the params included a key for a multiselect and there were no conditions with the same key. This was because the multiselect key was being used as the conditions key.
 
-## [0.1.11] - 2018-01-08
+## [0.1.11] - 2019-01-08
 ### Added
 - Pass `pinned` attribute to AG Grid if set. It can be 'left' or 'right' or nil.
 
