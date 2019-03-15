@@ -114,9 +114,11 @@ module Crossbeams
             headerCheckboxSelectionFilteredOnly: true,
             checkboxSelection: true,
             suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
-            suppressFilter: true, enableRowGroup: false,   enablePivot: false,
+            suppressFilter: true,
             enableValue: false,   suppressCsvExport: true, suppressToolPanel: true
           }
+          hs[:enableRowGroup] = false unless config.tree
+          hs[:enablePivot] = false unless config.tree
           col_defs << hs
         end
 
@@ -126,11 +128,13 @@ module Crossbeams
           hs = { headerName: '', pinned: 'left',
                  width: 60,
                  suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
-                 suppressFilter: true, enableRowGroup: false,   enablePivot: false,
+                 suppressFilter: true,
                  enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
                  valueGetter: this_col.to_json.to_s,
                  colId: 'action_links',
                  cellRenderer: 'crossbeamsGridFormatters.menuActionsRenderer' }
+          hs[:enableRowGroup] = false unless config.tree
+          hs[:enablePivot] = false unless config.tree
           col_defs << hs
         end
 
