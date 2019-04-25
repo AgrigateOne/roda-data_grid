@@ -37,6 +37,20 @@ class ListGridConfigTest < Minitest::Test
     refute config.nested_grid
   end
 
+  def test_dataminer_definition_for_client
+    additions = { dataminer_client_definitions: {'clientname' => 'some_other_report' } }
+    config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { athing: 'athing' }, config_loader: loader_extended(additions))
+    assert_equal 'a_report', config.dataminer_definition
+    
+    begin
+      ENV['CLIENT_CODE'] = 'clientname'
+      config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { athing: 'athing' }, config_loader: loader_extended(additions))
+      assert_equal 'some_other_report', config.dataminer_definition
+    ensure
+      ENV['CLIENT_CODE'] = nil
+    end
+  end
+
   def test_grid_caption
     config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { athing: 'athing' }, config_loader: basic_loader)
     assert_nil config.grid_caption

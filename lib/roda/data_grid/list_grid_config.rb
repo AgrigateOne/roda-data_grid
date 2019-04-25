@@ -27,7 +27,7 @@ module Crossbeams
 
       def load_config # rubocop:disable Metrics/AbcSize
         config = @config_loader.call
-        @dataminer_definition = config[:dataminer_definition]
+        assign_dataminer_def(config)
         @tree = config[:tree]
         @actions = config[:actions]
         @edit_rules = config[:edit_rules] || {}
@@ -38,6 +38,13 @@ module Crossbeams
         assign_caption(config)
         assign_conditions(config)
         assert_edit_rules!(config)
+      end
+
+      def assign_dataminer_def(config)
+        @dataminer_definition = config[:dataminer_definition]
+        return unless ENV['CLIENT_CODE']
+        defn = config.dig(:dataminer_client_definitions, ENV['CLIENT_CODE'])
+        @dataminer_definition = defn unless defn.nil?
       end
 
       def assert_edit_rules!(config)

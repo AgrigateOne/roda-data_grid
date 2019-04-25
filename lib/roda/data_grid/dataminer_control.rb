@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DataminerControl
+class DataminerControl # rubocop:disable Metrics/ClassLength
   attr_reader :report, :search_def, :list_def
 
   # TODO: Use some kind of config for this
@@ -11,7 +11,7 @@ class DataminerControl
   # - rules for links
   # - etc
 
-  def initialize(options)
+  def initialize(options) # rubocop:disable Metrics/AbcSize
     @root = options[:path]
     @deny_access = options[:deny_access] || ->(_, _, _) { false }
 
@@ -19,10 +19,10 @@ class DataminerControl
     @grid_params = options[:grid_params] || @multiselect_options && @multiselect_options[:params].dup
     if options[:search_file]
       @search_def = load_search_definition(options[:search_file])
-      @report     = get_report(@search_def[:dataminer_definition])
+      @report     = get_report(dataminer_def(@search_def))
     elsif options[:list_file]
       @list_def   = load_list_definition(options[:list_file])
-      @report     = get_report(@list_def[:dataminer_definition])
+      @report     = get_report(dataminer_def(@list_def))
     else
       @report     = get_report(options[:report_file])
     end
@@ -100,7 +100,7 @@ class DataminerControl
   # Column and row definitions for a search grid.
   #
   # @return [JSON] - a Hash containing row and column definitions.
-  def search_rows(params)
+  def search_rows(params) # rubocop:disable Metrics/AbcSize
     apply_params(params)
 
     actions     = search_def[:actions]
@@ -508,5 +508,12 @@ class DataminerControl
 
   def check_sql_is_safe(context, sql)
     raise ArgumentError, "SQL for \"#{context}\" is not a SELECT" if sql.match?(/insert |update |delete /i)
+  end
+
+  def dataminer_def(config)
+    dataminer_definition = config[:dataminer_definition]
+    return dataminer_definition unless ENV['CLIENT_CODE']
+    defn = config.dig(:dataminer_client_definitions, ENV['CLIENT_CODE'])
+    defn.nil? ? dataminer_definition : defn
   end
 end

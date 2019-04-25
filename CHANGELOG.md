@@ -7,6 +7,9 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- A list.yml file can optionally point to a different dataminer_definition to run its query.
+  This is based on the environment variable "CLIENT_CODE". If the environment variable is set and there is a matching
+  entry under `:datamnier_client_definitions`, that query definition will be used.
 ### Changed
 ### Fixed
 
