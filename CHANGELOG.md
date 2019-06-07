@@ -7,12 +7,15 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+### Changed
+### Fixed
+
+## [0.2.0] - 2019-06-07
+### Added
 - A list.yml file can optionally point to a different dataminer_definition to run its query.
   This is based on the environment variable "CLIENT_CODE". If the environment variable is set and there is a matching
   entry under `:datamnier_client_definitions`, that query definition will be used.
 - An action can be blocked if the user does not have the correct permission. New option for ListGridData - `has_permission` - which is a lambda which gets passed an array of permission tree keys and returns true if the user has permission, or false otherwise.
-### Changed
-### Fixed
 
 ## [0.1.12] - 2019-03-13
 ### Added
