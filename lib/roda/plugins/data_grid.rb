@@ -26,6 +26,7 @@ class Roda
         # Modify the url by applying querystring parameters.
         def configure_page_control(page_control_def, params)
           return page_control_def if params.nil? || params[:query_string].nil?
+
           qs_params = Rack::Utils.parse_nested_query(params[:query_string])
           url = page_control_def[:url]
           qs_params.each { |k, v| url.gsub!("$:#{k}$", v) }
@@ -96,18 +97,32 @@ class Roda
           layout
         end
 
-        def render_data_grid_rows(id, deny_access = nil, params = nil)
-          data = Crossbeams::DataGrid::ListGridData.new(id: id, root_path: opt_path, deny_access: deny_access, params: params)
+        def render_data_grid_rows(id, deny_access = nil, has_permission = nil, params = nil)
+          data = Crossbeams::DataGrid::ListGridData.new(id: id,
+                                                        root_path: opt_path,
+                                                        deny_access: deny_access,
+                                                        has_permission: has_permission,
+                                                        params: params)
           data.list_rows
         end
 
-        def render_data_grid_multiselect_rows(id, deny_access, multi_key, params)
-          data = Crossbeams::DataGrid::ListGridData.new(id: id, root_path: opt_path, deny_access: deny_access, params: params, multi_key: multi_key)
+        def render_data_grid_multiselect_rows(id, deny_access, has_permission, multi_key, params)
+          data = Crossbeams::DataGrid::ListGridData.new(id: id,
+                                                        root_path: opt_path,
+                                                        deny_access: deny_access,
+                                                        has_permission: has_permission,
+                                                        params: params,
+                                                        multi_key: multi_key)
           data.list_rows
         end
 
-        def render_data_grid_lookup_rows(id, deny_access, lookup_key, params)
-          data = Crossbeams::DataGrid::LookupGridData.new(id: id, root_path: opt_path, deny_access: deny_access, params: params, lookup_key: lookup_key)
+        def render_data_grid_lookup_rows(id, deny_access, has_permission, lookup_key, params)
+          data = Crossbeams::DataGrid::LookupGridData.new(id: id,
+                                                          root_path: opt_path,
+                                                          deny_access: deny_access,
+                                                          has_permission: has_permission,
+                                                          params: params,
+                                                          lookup_key: lookup_key)
           data.list_rows
         end
 

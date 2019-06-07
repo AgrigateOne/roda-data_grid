@@ -9,6 +9,7 @@ module Crossbeams
 
       def initialize(options)
         @deny_access = options.fetch(:deny_access)
+        @has_permission = options.fetch(:has_permission)
         @config = ListGridConfig.new(options)
         @params = parse_params(options)
         assert_actions_ok!
@@ -40,7 +41,7 @@ module Crossbeams
           fieldUpdateUrl: config.edit_rules[:url],
           tree: config.tree,
           columnDefs: column_definitions,
-          rowDefs:    dataminer_query(report.runnable_sql)
+          rowDefs: dataminer_query(report.runnable_sql)
         }.to_json
       end
 
@@ -73,6 +74,7 @@ module Crossbeams
           end
           param_def = report.parameter_definition(col)
           raise Roda::RodaPlugins::DataGrid::Error, "There is no parameter for this grid query named \"#{col}\"" if param_def.nil?
+
           val = if in_param['op'] == 'between'
                   [in_param['val'], in_param['val_to']]
                 else
@@ -153,12 +155,8 @@ module Crossbeams
             hs[:width]     = 100 if col.width.nil? && col.data_type == :integer
             hs[:width]     = 120 if col.width.nil? && col.data_type == :number
           end
-          if col.format == :delimited_1000
-            hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2'
-          end
-          if col.format == :delimited_1000_4
-            hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4'
-          end
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4
           if col.data_type == :boolean
             hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
             hs[:cellClass]    = 'grid-boolean-column'
@@ -208,12 +206,8 @@ module Crossbeams
             hs[:width]     = 100 if col.width.nil? && col.data_type == :integer
             hs[:width]     = 120 if col.width.nil? && col.data_type == :number
           end
-          if col.format == :delimited_1000
-            hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2'
-          end
-          if col.format == :delimited_1000_4
-            hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4'
-          end
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4
           parts = col.expression.split(' ')
           hs[:valueGetter] = parts.map { |p| %w[* + - /].include?(p) ? p : "data.#{p}" }.join(' ')
           col_defs.insert((col.position || 1), hs)
@@ -242,6 +236,7 @@ module Crossbeams
           action.keys.each do |key|
             raise ArgumentError, "#{key} is not a valid action attribute" unless %i[
               auth
+              has_permission
               hide_if_false
               hide_if_null
               hide_if_present
@@ -282,6 +277,9 @@ module Crossbeams
           # Check if user is authorised for this action:
           next if action[:auth] && @deny_access.call(action[:auth][:function], action[:auth][:program], action[:auth][:permission])
 
+          # Check if user has permission for this action:
+          next if action[:has_permission] && !@has_permission.call(action[:has_permission].map(&:to_sym))
+
           keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
           url  = action[:url]
           keys.each_with_index { |key, index| url.gsub!("$#{key}$", "$col#{index}$") }
@@ -311,8 +309,10 @@ module Crossbeams
 
       def parse_params(options)
         return nil unless options[:params]
+
         qstr = options[:params].delete(:query_string)
         return options[:params] if qstr.nil?
+
         options[:params].merge(Rack::Utils.parse_nested_query(qstr))
       end
 
@@ -320,15 +320,14 @@ module Crossbeams
         val = condition[:val]
         @params.each { |k, v| val.gsub!("$:#{k}$", v) }
         condition[:val] = val
-        if condition[:op].match?(/in/i)
-          condition[:val] = condition_value_as_array(val)
-        end
+        condition[:val] = condition_value_as_array(val) if condition[:op].match?(/in/i)
         condition
       end
 
       def condition_value_as_array(val)
         return val if val.is_a?(Array)
         return Array(val) unless val.is_a?(String)
+
         val.sub('[', '').sub(']', '').split(',').map(&:strip)
       end
 
@@ -337,6 +336,7 @@ module Crossbeams
       # @return [Array] - a list of ids (can be empty)
       def preselect_ids # rubocop:disable Metrics/AbcSize
         return [] if config.multiselect_opts[:preselect].nil? || params.nil?
+
         sql = config.multiselect_opts[:preselect]
         params.each { |k, v| sql.gsub!("$:#{k}$", v.to_s) }
         assert_sql_is_select!('preselect', sql)
@@ -370,8 +370,10 @@ module Crossbeams
 
       def select_editor_values(rule)
         return rule[:values] if rule[:values]
+
         sql = rule[:value_sql]
         raise ArgumentError, 'A select cell editor must have a :values array or a :value_sql string' if sql.nil?
+
         assert_sql_is_select!('select editor', sql)
         DB[sql].map { |r| r.values.first }
       end
