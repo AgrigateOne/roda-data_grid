@@ -13,6 +13,9 @@ BASIC_EXPECTED = [
 ALLOW_ACCESS = ->(function, program, permission) { false }
 DENY_ACCESS = ->(function, program, permission) { true }
 
+HAS_PERMISSION = ->(args) { true }
+NO_PERMISSION = ->(args) { false }
+
 BASIC_DM_REPORT = {:caption=>nil,
  :sql=>
   "SELECT users.id, users.user_name, departments.department_name, users.created_at, users.amount, users.active FROM users JOIN departments ON departments.id = users.department_id",
@@ -171,25 +174,27 @@ class ListGridDataTest < Minitest::Test
     assert_raises(KeyError) { Crossbeams::DataGrid::ListGridData.new(root_path: '/a/b/c') }
     assert_raises(KeyError) { Crossbeams::DataGrid::ListGridData.new(id: 'agrid') }
     assert_raises(KeyError) { Crossbeams::DataGrid::ListGridData.new(id: 'agrid', deny_access: ALLOW_ACCESS) }
+    assert_raises(KeyError) { Crossbeams::DataGrid::ListGridData.new(id: 'agrid', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION) }
+    assert_raises(KeyError) { Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', has_permission: HAS_PERMISSION) }
     assert_raises(KeyError) { Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c') }
   end
 
   def test_params
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: basic_loader)
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: basic_loader)
     assert_nil data.params
 
     params = { one: 1 }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: basic_loader, params: params)
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: basic_loader, params: params)
     assert_equal({ one: 1 }, data.params)
 
     params = { key: 'standard', sub_type_id: '3', product_column_ids: '[73, 74]' }
     additions = { conditions: { standard: [{ col: 'id', op: '=', val: '$:sub_type_id$' }] } }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions), params: params)
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions), params: params)
     assert_equal '3', data.params[:sub_type_id]
 
     params = { query_string: 'key=standard&sub_type_id=3&product_column_ids=[73, 74]' }
     additions = { conditions: { standard: [{ col: 'id', op: '=', val: '$:sub_type_id$' }] } }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions), params: params)
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions), params: params)
     assert_equal '3', data.params['sub_type_id']
 
     expect = [{ col: 'id', op: '=', val: '3' }]
@@ -198,7 +203,7 @@ class ListGridDataTest < Minitest::Test
 
   def test_basic_grid
     DB.array_expect(BASIC_DATA)
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: basic_loader)
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: basic_loader)
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
       rows = data.list_rows
@@ -224,7 +229,7 @@ class ListGridDataTest < Minitest::Test
   def test_multiselect
     DB.array_expect(BASIC_DATA)
     additions = { multiselect: { multitest: { grid_caption: 'Multi caption', url: '/d/e/f' } } }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, multi_key: 'multitest', config_loader: loader_extended(additions))
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, multi_key: 'multitest', config_loader: loader_extended(additions))
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
       rows = data.list_rows
@@ -235,7 +240,7 @@ class ListGridDataTest < Minitest::Test
     assert_equal [], tester['multiselect_ids']
 
     additions = { multiselect: { multitest: { grid_caption: 'Multi caption', url: '/d/e/f', preselect: 'SELECT id FROM users' } } }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, multi_key: 'multitest', config_loader: loader_extended(additions), params: { id: 1 })
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, multi_key: 'multitest', config_loader: loader_extended(additions), params: { id: 1 })
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
       rows = data.list_rows
@@ -247,7 +252,7 @@ class ListGridDataTest < Minitest::Test
   def test_tree
     DB.array_expect(BASIC_DATA)
     additions = { tree: { tree_column: 'tcol', tree_caption: 'The Tree', suppress_node_counts: false, groupDefaultExpanded: -1 } }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions))
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions))
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
       rows = data.list_rows
@@ -267,7 +272,7 @@ class ListGridDataTest < Minitest::Test
                     auth: { function: 'security', program: 'menu', permission: 'edit'}},
                    {separator: true},
                    {url: '/development/masterfiles/users/$:id$', text: 'delete', icon: 'delete', is_delete: true, popup: true}] }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions), params: { id: '1' })
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions), params: { id: '1' })
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
       rows = data.list_rows
@@ -302,7 +307,47 @@ class ListGridDataTest < Minitest::Test
                     auth: { function: 'security', program: 'menu', permission: 'edit'} },
                    {separator: true},
                    {url: '/development/masterfiles/users/$:id$', text: 'delete', icon: 'delete', is_delete: true, popup: true}] }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: DENY_ACCESS, config_loader: loader_extended(additions), params: { id: '1' })
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: DENY_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions), params: { id: '1' })
+    rows = nil
+    data.stub(:load_report_def, BASIC_DM_REPORT) do
+      rows = data.list_rows
+    end
+    tester = JSON.parse(rows)
+    assert_equal BASIC_EXPECTED, tester['rowDefs']
+    actions = tester['columnDefs'].first['valueGetter']
+    expected = "[{\"text\":\"view\",\"url\":\"/development/masterfiles/users/$col0$\",\"col0\":\"id\",\"icon\":\"view-show\",\"title\":\"View\",\"popup\":true},{\"text\":\"sep01\",\"is_separator\":true},{\"text\":\"delete\",\"url\":\"/development/masterfiles/users/$col0$\",\"col0\":\"id\",\"prompt\":\"Are you sure?\",\"method\":\"delete\",\"icon\":\"delete\",\"popup\":true}]"
+    assert_equal expected, actions
+  end
+
+  def test_has_permission_access_actions
+    DB.array_expect(BASIC_DATA)
+    additions = { actions:
+                  [{url: '/development/masterfiles/users/$:id$', text: 'view', icon: 'view-show', title: 'View', popup: true},
+                   {url: '/development/masterfiles/users/$:id$/edit', text: 'edit', icon: 'edit', title: 'Edit',
+                    has_permission: [ :key1, :key2] },
+                   {separator: true},
+                   {url: '/development/masterfiles/users/$:id$', text: 'delete', icon: 'delete', is_delete: true, popup: true}] }
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions), params: { id: '1' })
+    rows = nil
+    data.stub(:load_report_def, BASIC_DM_REPORT) do
+      rows = data.list_rows
+    end
+    tester = JSON.parse(rows)
+    assert_equal BASIC_EXPECTED, tester['rowDefs']
+    actions = tester['columnDefs'].first['valueGetter']
+    expected = "[{\"text\":\"view\",\"url\":\"/development/masterfiles/users/$col0$\",\"col0\":\"id\",\"icon\":\"view-show\",\"title\":\"View\",\"popup\":true},{\"text\":\"edit\",\"url\":\"/development/masterfiles/users/$col0$/edit\",\"col0\":\"id\",\"icon\":\"edit\",\"title\":\"Edit\"},{\"text\":\"sep01\",\"is_separator\":true},{\"text\":\"delete\",\"url\":\"/development/masterfiles/users/$col0$\",\"col0\":\"id\",\"prompt\":\"Are you sure?\",\"method\":\"delete\",\"icon\":\"delete\",\"popup\":true}]"
+    assert_equal expected, actions
+  end
+
+  def test_no_permission_access_actions
+    DB.array_expect(BASIC_DATA)
+    additions = { actions:
+                  [{url: '/development/masterfiles/users/$:id$', text: 'view', icon: 'view-show', title: 'View', popup: true},
+                   {url: '/development/masterfiles/users/$:id$/edit', text: 'edit', icon: 'edit', title: 'Edit',
+                    has_permission: [ :key1, :key2] },
+                   {separator: true},
+                   {url: '/development/masterfiles/users/$:id$', text: 'delete', icon: 'delete', is_delete: true, popup: true}] }
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: NO_PERMISSION, config_loader: loader_extended(additions), params: { id: '1' })
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
       rows = data.list_rows
@@ -319,12 +364,12 @@ class ListGridDataTest < Minitest::Test
     additions = { actions:
                   [{url: '/development/masterfiles/users/$:id$', text: 'view', icon: 'view-show', title: 'View', popup: true, loading_window: true}]
     }
-    assert_raises(ArgumentError) { Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions), params: { id: '1' }) }
+    assert_raises(ArgumentError) { Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions), params: { id: '1' }) }
 
     ok_additions = { actions:
                   [{url: '/development/masterfiles/users/$:id$', text: 'view', icon: 'view-show', title: 'View', loading_window: true}]
     }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(ok_additions), params: { id: '1' })
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(ok_additions), params: { id: '1' })
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
       rows = data.list_rows
@@ -337,7 +382,7 @@ class ListGridDataTest < Minitest::Test
   def test_calculated_columns
     DB.array_expect(BASIC_DATA)
     additions = { calculated_columns: [{ name: 'colnew', caption: 'ColCap', date_type: :number, format: :delimited_1000, expression: 'amount * id', position: 2 }] }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions), params: { id: '1' })
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions), params: { id: '1' })
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
       rows = data.list_rows
@@ -353,7 +398,7 @@ class ListGridDataTest < Minitest::Test
                                                                                       'amount' => { editor: :numeric },
                                                                                       'department_name' => { editor: :textarea },
                                                                                       'active' => { editor: :select, values: ['Yes', 'No'] } } } }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions))
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions))
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
       rows = data.list_rows
@@ -386,7 +431,7 @@ class ListGridDataTest < Minitest::Test
   def test_edit_select_rule
     DB.array_expect(BASIC_DATA)
     additions = { edit_rules: { url: '/path/to/$:id$/inline_save', editable_fields: { 'active' => { editor: :select, value_sql: "SELECT t.* from (VALUES ('Yes'), ('No')) t" } } } }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions))
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions))
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
       data.stub(:select_editor_values, ['Yes', 'No']) do
@@ -404,7 +449,7 @@ class ListGridDataTest < Minitest::Test
   def test_edit_select_rule_ok
     DB.array_expect(BASIC_DATA)
     additions = { edit_rules: { url: '/path/to/$:id$/inline_save', editable_fields: { 'active' => { editor: :select, misspelled_values: [] } } } }
-    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, config_loader: loader_extended(additions))
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions))
     assert_raises(ArgumentError) do
       data.stub(:load_report_def, BASIC_DM_REPORT) do
         rows = data.list_rows
