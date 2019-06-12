@@ -172,6 +172,7 @@ module Crossbeams
             rule = config.edit_rules[:editable_fields][col.name]
             if rule && rule[:editor]
               hs[:cellEditor] = 'numericCellEditor' if rule[:editor] == :numeric
+              hs[:cellEditorType] = 'integer' if rule[:editor] == :numeric && col.data_type == :integer
               hs[:cellEditor] = 'agLargeTextCellEditor' if rule[:editor] == :textarea
               if rule[:editor] == :select
                 hs[:cellEditor] = 'agRichSelectCellEditor'
