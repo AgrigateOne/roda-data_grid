@@ -8,6 +8,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 ### Changed
+- Search presenter gets parameters sorted by UI priority.
 ### Fixed
 
 ## [0.2.0] - 2019-06-07

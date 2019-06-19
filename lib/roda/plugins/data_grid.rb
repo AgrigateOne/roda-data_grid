@@ -145,7 +145,7 @@ class Roda
 
         def search_presenter(id, dmc, params, for_rerun)
           OpenStruct.new(rpt: dmc.report,
-                         qps: dmc.report.query_parameter_definitions,
+                         qps: dmc.report.ordered_query_parameter_definitions,
                          rpt_id: id,
                          load_params: (params[:back] && params[:back] == 'y'),
                          rerun: for_rerun)
