@@ -27,9 +27,11 @@ module Crossbeams
 
       def multi_grid_caption
         return nil unless @config.multiselect_opts
+
         caption = @config.multiselect_opts[:section_caption]
         return nil if caption.nil?
         return caption unless caption.match?(/SELECT/i) && caption.match?(/\$:id\$/)
+
         sql = caption.sub('$:id$', @params[:id].to_s)
         assert_sql_is_select!('caption', sql)
         DB[sql].first.values.first
@@ -54,6 +56,7 @@ module Crossbeams
       # @return [boolean] - Hide or do not hide the control.
       def hide_control_by_sql(page_control_def)
         return false unless page_control_def[:hide_if_sql_returns_true]
+
         sql = page_control_def[:hide_if_sql_returns_true]
         assert_sql_is_select!('hide_if_sql_returns_true', sql)
         DB[sql].get
@@ -64,6 +67,7 @@ module Crossbeams
       # @return [boolean] - Hide or do not hide the control.
       def hide_control_by_param_key(page_control_def)
         return false unless page_control_def[:hide_for_key]
+
         values = Array(page_control_def[:hide_for_key]).map(&:to_sym)
         values.include?(@config.multiselect_key) || values.include?(@config.conditions_key)
       end
