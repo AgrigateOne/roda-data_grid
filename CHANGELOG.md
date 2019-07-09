@@ -9,6 +9,9 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 ### Changed
 - Search presenter gets parameters sorted by UI priority.
+- Sensible defaults for cell editors (numeric/integer).
+- Use agRichSelectCellEditor for select boxes.
+- Add an iconFormatter for columns named "icon".
 ### Fixed
 
 ## [0.2.0] - 2019-06-07

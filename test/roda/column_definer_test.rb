@@ -135,7 +135,25 @@ class ColumnDefinerTest < Minitest::Test
     col = cols.first
 
     assert col[:editable]
-    assert_equal col[:cellEditor], 'select'
+    assert_equal col[:cellEditor], 'agRichSelectCellEditor'
     assert_equal col[:cellEditorParams], { values: ['true', 'false'] }
+
+    cols = cd.make_columns do |mk|
+      mk.numeric 'afield', nil, editable: true
+    end
+    col = cols.first
+
+    assert col[:editable]
+    assert_equal 'numericCellEditor', col[:cellEditor]
+    assert_nil col[:cellEditorType]
+
+    cols = cd.make_columns do |mk|
+      mk.integer 'afield', nil, editable: true
+    end
+    col = cols.first
+
+    assert col[:editable]
+    assert_equal 'numericCellEditor', col[:cellEditor]
+    assert_equal 'integer',  col[:cellEditorType]
   end
 end

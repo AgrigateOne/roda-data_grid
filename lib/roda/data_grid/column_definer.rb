@@ -198,8 +198,15 @@ module Crossbeams
         hs[:pinned]         = options[:pinned] if options[:pinned]
         if options[:editable]
           hs[:editable] = true
-          hs[:cellEditor] = options[:cellEditor] if options[:cellEditor]
+          if options[:cellEditor]
+            hs[:cellEditor] = options[:cellEditor]
+            hs[:cellEditor] = 'agRichSelectCellEditor' if hs[:cellEditor] == 'select'
+          elsif %i[integer number].include?(options[:data_type])
+            hs[:cellEditor] = 'numericCellEditor'
+            hs[:cellEditorType] = 'integer' if options[:data_type] == :integer
+          end
           hs[:cellEditorParams] = options[:cellEditorParams] if options[:cellEditorParams]
+          hs[:cellEditorType] = options[:cellEditorType] if options[:cellEditorType]
         end
 
         if %i[integer number].include?(options[:data_type])

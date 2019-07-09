@@ -162,6 +162,7 @@ module Crossbeams
             hs[:cellClass]    = 'grid-boolean-column'
             hs[:width]        = 100 if col.width.nil?
           end
+          hs[:cellRenderer] = 'crossbeamsGridFormatters.iconFormatter' if col.name == 'icon'
 
           # Rules for editable columns
           if edit_columns.include?(col.name)
