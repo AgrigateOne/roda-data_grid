@@ -62,8 +62,8 @@ module Crossbeams
         @columns << {
           headerName: '', pinned: 'left',
           width: 60,
-          suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
-          suppressFilter: true, enableRowGroup: false,   enablePivot: false,
+          suppressMenu: true,   sortable: false,   suppressMovable: true,
+          filter: false, enableRowGroup: false,   enablePivot: false,
           enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
           valueGetter: @actions.to_json.to_s,
           colId: 'action_links',
@@ -170,8 +170,8 @@ module Crossbeams
         @columns << {
           headerName: '',
           width: options[:width] || 60,
-          suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
-          suppressFilter: true, enableRowGroup: false,   enablePivot: false,
+          suppressMenu: true,   sortable: false,   suppressMovable: true,
+          filter: false, enableRowGroup: false,   enablePivot: false,
           enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
           valueGetter: link,
           colId: field,
