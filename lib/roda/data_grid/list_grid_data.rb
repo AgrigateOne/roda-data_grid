@@ -115,8 +115,8 @@ module Crossbeams
             headerCheckboxSelection: true,
             headerCheckboxSelectionFilteredOnly: true,
             checkboxSelection: true,
-            suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
-            suppressFilter: true,
+            suppressMenu: true,   sortable: false,   suppressMovable: true,
+            filter: false,
             enableValue: false,   suppressCsvExport: true, suppressToolPanel: true
           }
           hs[:enableRowGroup] = false unless config.tree
@@ -129,8 +129,8 @@ module Crossbeams
           this_col = make_subitems(config.actions)
           hs = { headerName: '', pinned: 'left',
                  width: 60,
-                 suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
-                 suppressFilter: true,
+                 suppressMenu: true,   sortable: false,   suppressMovable: true,
+                 filter: false,
                  enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
                  valueGetter: this_col.to_json.to_s,
                  colId: 'action_links',

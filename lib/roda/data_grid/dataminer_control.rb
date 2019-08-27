@@ -399,8 +399,8 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
         headerCheckboxSelection: true,
         headerCheckboxSelectionFilteredOnly: true,
         checkboxSelection: true,
-        suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
-        suppressFilter: true, enableRowGroup: false,   enablePivot: false,
+        suppressMenu: true,   sortable: false,   suppressMovable: true,
+        filter: false, enableRowGroup: false,   enablePivot: false,
         enableValue: false,   suppressCsvExport: true, suppressToolPanel: true
       }
       col_defs << hs
@@ -414,8 +414,8 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
       this_col = make_subitems(options[:actions])
       hs = { headerName: '', pinned: 'left',
              width: 60,
-             suppressMenu: true,   suppressSorting: true,   suppressMovable: true,
-             suppressFilter: true, enableRowGroup: false,   enablePivot: false,
+             suppressMenu: true,   sortable: false,   suppressMovable: true,
+             filter: false, enableRowGroup: false,   enablePivot: false,
              enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
              valueGetter: this_col.to_json.to_s,
              colId: 'action_links',
@@ -470,6 +470,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   # @return [Array] - a list of ids (can be empty)
   def preselect_ids(options)
     return [] if options.nil? || options[:preselect].nil?
+
     sql = options[:preselect]
     @multiselect_options[:params].each { |k, v| sql.gsub!("$:#{k}$", v) }
     check_sql_is_safe('preselect', sql)
