@@ -8,12 +8,15 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 ### Changed
+### Fixed
+
+## [0.2.1] - 2019-08-27
+### Changed
 - Changes related to upgrade of AG Grid to version 21.
 - Search presenter gets parameters sorted by UI priority.
 - Sensible defaults for cell editors (numeric/integer).
 - Use agRichSelectCellEditor for select boxes.
 - Add an iconFormatter for columns named "icon".
-### Fixed
 
 ## [0.2.0] - 2019-06-07
 ### Added
