@@ -49,6 +49,13 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
     search_def && search_def[:tree] || list_def && list_def[:tree]
   end
 
+  # Search: get the colour_key from the report definition
+  #
+  # @return [nil, Hash] - the colour key
+  def colour_key
+    @report.external_settings[:colour_key]
+  end
+
   # Run the given SQL to see if a page control should be hidden.
   #
   # @return [boolean] - Hide or do not hide the control.
@@ -65,14 +72,18 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
     # test on list_def for now...
     details = @list_def[:multiselect][@multiselect_options[:key].to_sym]
     raise ArgumentError, 'incorrect arguments for multiselect parameters' if details.nil?
+
     details[:url].sub('$:id$', @multiselect_options[:id])
   end
 
   def multi_grid_caption
     return nil unless @multiselect_options
+
     caption = @list_def[:multiselect][@multiselect_options[:key].to_sym][:section_caption]
     return nil if caption.nil?
+
     return caption unless caption.match?(/SELECT/i)
+
     sql = caption.sub('$:id$', @multiselect_options[:id])
     check_sql_is_safe('caption', sql)
     DB[sql].first.values.first
@@ -80,11 +91,13 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
 
   def multiselect_can_be_cleared
     return nil unless @multiselect_options
+
     @list_def[:multiselect][@multiselect_options[:key].to_sym][:can_be_cleared]
   end
 
   def multiselect_save_method
     return nil unless @multiselect_options
+
     @list_def[:multiselect][@multiselect_options[:key].to_sym][:multiselect_save_method]
   end
 
@@ -111,7 +124,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
     {
       multiselect_ids: multiselect_ids,
       columnDefs: col_defs,
-      rowDefs:    dataminer_query(report.runnable_sql)
+      rowDefs: dataminer_query(report.runnable_sql)
     }.to_json
   end
 
@@ -147,7 +160,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
       multiselect_ids: multiselect_ids,
       tree: list_def[:tree],
       columnDefs: col_defs,
-      rowDefs:    dataminer_query(report.runnable_sql)
+      rowDefs: dataminer_query(report.runnable_sql)
     }.to_json
   end
 
@@ -169,7 +182,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
 
     {
       nestedColumnDefs: nested_defs,
-      rowDefs:    dataminer_nested_query(report.runnable_sql)
+      rowDefs: dataminer_nested_query(report.runnable_sql)
     }.to_json
   end
 
@@ -240,6 +253,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
       end
       param_def = report.parameter_definition(col)
       raise Roda::RodaPlugins::DataGrid::Error, "There is no parameter for this grid query named \"#{col}\"" if param_def.nil?
+
       val = if in_param['op'] == 'between'
               [in_param['val'], in_param['val_to']]
             else
@@ -490,12 +504,14 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   def condition_value_as_array(val)
     return val if val.is_a?(Array)
     return Array(val) unless val.is_a?(String)
+
     val.sub('[', '').sub(']', '').split(',').map(&:strip)
   end
 
   def conditions_from(list_or_search_def)
     return nil unless @grid_params[:key]
     return nil unless list_or_search_def[:conditions][@grid_params[:key].to_sym]
+
     conditions = list_or_search_def[:conditions][@grid_params[:key].to_sym]
     conditions.map! do |condition|
       if condition[:val].to_s.include?('$')
@@ -514,6 +530,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   def dataminer_def(config)
     dataminer_definition = config[:dataminer_definition]
     return dataminer_definition unless ENV['CLIENT_CODE']
+
     defn = config.dig(:dataminer_client_definitions, ENV['CLIENT_CODE'])
     defn.nil? ? dataminer_definition : defn
   end

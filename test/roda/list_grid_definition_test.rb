@@ -169,4 +169,17 @@ class ListGridDefinitionTest < Minitest::Test
       assert_equal 'Multi caption', gd.render_options[:caption]
     end
   end
+
+  def test_colour_key
+    gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { athing: 'athing' }, config_loader: basic_loader)
+    gd.stub(:load_report_def, BASIC_DM_REPORT) do
+      assert_nil gd.render_options[:colour_key]
+    end
+
+    key = { 'green' => 'GO', 'red' => 'STOP' }
+    gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { athing: 'athing' }, config_loader: basic_loader)
+    gd.stub(:load_report_def, BASIC_DM_REPORT.merge(external_settings: { colour_key: key })) do
+      assert_equal key, gd.render_options[:colour_key]
+    end
+  end
 end

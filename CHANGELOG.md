@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- If a report definition includes a colour key in its external_settings, pass these values on to the Grid header for display.
 ### Changed
 ### Fixed
 
