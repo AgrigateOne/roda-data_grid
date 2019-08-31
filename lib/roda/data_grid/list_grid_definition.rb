@@ -101,8 +101,9 @@ module Crossbeams
         @config.multiselect_opts[:url].sub('$:id$', @params[:id].to_s)
       end
 
-      def render_options
+      def render_options # rubocop:disable Metrics/AbcSize
         res = { caption: caption, is_nested: @config.nested_grid, tree: @config.tree, grid_params: @params }
+        res.merge!(colour_key: report.external_settings[:colour_key]) if report.external_settings[:colour_key]
 
         if @config.multiselect_key
           res.merge!(is_multiselect: true,

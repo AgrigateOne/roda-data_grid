@@ -10,6 +10,10 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 
+## [0.2.2] - 2019-08-31
+### Added
+- If a report definition includes a colour key in its external_settings, pass these values on to the Grid header for display.
+
 ## [0.2.1] - 2019-08-27
 ### Changed
 - Changes related to upgrade of AG Grid to version 21.
