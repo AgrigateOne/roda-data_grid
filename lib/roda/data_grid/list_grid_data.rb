@@ -376,6 +376,7 @@ module Crossbeams
         sql = rule[:value_sql]
         raise ArgumentError, 'A select cell editor must have a :values array or a :value_sql string' if sql.nil?
 
+        params&.each { |k, v| sql.gsub!("$:#{k}$", v.to_s) }
         assert_sql_is_select!('select editor', sql)
         DB[sql].map { |r| r.values.first }
       end

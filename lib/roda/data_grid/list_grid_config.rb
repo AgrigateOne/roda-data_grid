@@ -63,7 +63,12 @@ module Crossbeams
 
       def assign_caption(config)
         @grid_caption = @multiselect_opts[:grid_caption] if @multiselect_opts[:grid_caption] && @grid_caption.nil?
-        @grid_caption = config[:grid_caption] if @grid_caption.nil?
+        @grid_caption = config.dig(:captions, :grid_caption) if @grid_caption.nil?
+
+        return unless @conditions_key
+
+        s = config.dig(:captions, :conditions, @conditions_key)
+        @grid_caption = s unless s.nil?
       end
 
       def assign_conditions(config)

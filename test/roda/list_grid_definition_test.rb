@@ -156,10 +156,16 @@ class ListGridDefinitionTest < Minitest::Test
     assert_equal 'Grid caption', gd.render_options[:caption]
     end
 
-    additions = { grid_caption: 'List caption' }
+    additions = { captions: { grid_caption: 'List caption' } }
     gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { athing: 'athing' }, config_loader: loader_extended(additions))
     gd.stub(:load_report_def, BASIC_DM_REPORT) do
       assert_equal 'List caption', gd.render_options[:caption]
+    end
+
+    additions = { captions: { grid_caption: 'List caption', conditions: { standard: 'Some other caption' } }, conditions: { standard: [{ col: 'users.id', op: '=', val: '$:id$' }] } }
+    gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { key: 'standard', id: 21 }, config_loader: loader_extended(additions))
+    gd.stub(:load_report_def, BASIC_DM_REPORT) do
+      assert_equal 'Some other caption', gd.render_options[:caption]
     end
 
     additions = { multiselect: { multitest: { grid_caption: 'Multi caption', url: '/d/e/f' } } }

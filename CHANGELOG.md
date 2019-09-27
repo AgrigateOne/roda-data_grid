@@ -10,6 +10,11 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 
+## [0.2.3] - 2019-09-27
+### Changed
+- `value_sql` for editable columns can include parameters.
+- Changed structure for setting captions, a caption can be set per condition key in list yml files.
+
 ## [0.2.2] - 2019-08-31
 ### Added
 - If a report definition includes a colour key in its external_settings, pass these values on to the Grid header for display.

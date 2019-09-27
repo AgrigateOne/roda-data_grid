@@ -58,7 +58,7 @@ class ListGridConfigTest < Minitest::Test
     config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { athing: 'athing' }, config_loader: basic_loader, grid_caption: 'Grid caption')
     assert_equal 'Grid caption', config.grid_caption
 
-    additions = { grid_caption: 'List caption' }
+    additions = { captions: { grid_caption: 'List caption' } }
     config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { athing: 'athing' }, config_loader: loader_extended(additions))
     assert_equal 'List caption', config.grid_caption
 
@@ -88,11 +88,12 @@ class ListGridConfigTest < Minitest::Test
   end
 
   def test_conditions
-    additions = { conditions: { standard: [{ col: 'id', op: '=', val: '$:id$' }] } }
+    additions = { conditions: { standard: [{ col: 'id', op: '=', val: '$:id$' }] }, captions: { conditions: { standard: 'Override caption' }, grid_caption: 'Ignore me' } }
     config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { query_string: 'key=standard&sub_type_id=3&product_column_ids=[73, 74]' }, config_loader: loader_extended(additions))
     assert_equal :standard, config.conditions_key
     assert_equal 1, config.conditions.length
     assert_equal 'id', config.conditions.first[:col]
+    assert_equal 'Override caption', config.grid_caption
 
     # Test when params are not part of querystring:
     config = Crossbeams::DataGrid::ListGridConfig.new(id: 'agrid', root_path: '/a/b/c', params: { key: 'standard', sub_type_id: '3', product_column_ids: '[73, 74]' }, config_loader: loader_extended(additions))
