@@ -8,6 +8,8 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 ### Changed
+- `value_sql` for editable columns can include parameters.
+- Changed structure for setting captions, a caption can be set per condition key in list yml files.
 ### Fixed
 
 ## [0.2.2] - 2019-08-31
