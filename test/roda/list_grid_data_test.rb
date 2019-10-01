@@ -424,13 +424,13 @@ class ListGridDataTest < Minitest::Test
 
     col = tester['columnDefs'].find {|c| c['field'] == 'active' }
     assert_equal 'agRichSelectCellEditor', col['cellEditor']
-    assert_equal({ 'values' => ['Yes', 'No'] }, col['cellEditorParams'])
+    assert_equal({ 'values' => ['Yes', 'No'], 'selectWidth' => 200 }, col['cellEditorParams'])
     assert col['editable']
   end
 
   def test_edit_select_rule
     DB.array_expect(BASIC_DATA)
-    additions = { edit_rules: { url: '/path/to/$:id$/inline_save', editable_fields: { 'active' => { editor: :select, value_sql: "SELECT t.* from (VALUES ('Yes'), ('No')) t" } } } }
+    additions = { edit_rules: { url: '/path/to/$:id$/inline_save', editable_fields: { 'active' => { editor: :select, width: 350, value_sql: "SELECT t.* from (VALUES ('Yes'), ('No')) t" } } } }
     data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions))
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
@@ -442,7 +442,7 @@ class ListGridDataTest < Minitest::Test
 
     col = tester['columnDefs'].find {|c| c['field'] == 'active' }
     assert_equal 'agRichSelectCellEditor', col['cellEditor']
-    assert_equal({ 'values' => ['Yes', 'No'] }, col['cellEditorParams'])
+    assert_equal({ 'values' => ['Yes', 'No'], 'selectWidth' => 350 }, col['cellEditorParams'])
     assert col['editable']
   end
 

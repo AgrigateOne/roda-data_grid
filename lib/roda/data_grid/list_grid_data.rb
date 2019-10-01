@@ -178,7 +178,7 @@ module Crossbeams
               if rule[:editor] == :select
                 hs[:cellEditor] = 'agRichSelectCellEditor'
                 values = select_editor_values(rule)
-                hs[:cellEditorParams] = { values: values }
+                hs[:cellEditorParams] = { values: values, selectWidth: rule[:width] || 200 }
               end
             else
               hs[:cellEditor] = 'agPopupTextCellEditor'

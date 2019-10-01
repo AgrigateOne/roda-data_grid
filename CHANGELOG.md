@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Select editor can receive a width which specifies the pixel width of items in the dropdown. The default is 200.
 ### Changed
 ### Fixed
 

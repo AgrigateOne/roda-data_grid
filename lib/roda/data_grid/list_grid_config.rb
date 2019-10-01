@@ -43,6 +43,7 @@ module Crossbeams
       def assign_dataminer_def(config)
         @dataminer_definition = config[:dataminer_definition]
         return unless ENV['CLIENT_CODE']
+
         defn = config.dig(:dataminer_client_definitions, ENV['CLIENT_CODE'])
         @dataminer_definition = defn unless defn.nil?
       end
@@ -90,12 +91,14 @@ module Crossbeams
       def conditions_key_from_params(params)
         return conditions_key_from_query_string(params) if params && params[:query_string]
         return nil unless params
+
         params[:key] ? params[:key].to_sym : nil
       end
 
       def conditions_key_from_query_string(params)
         key_a = params[:query_string].split('&').select { |k| k.start_with?('key=') }
         return nil if key_a.empty?
+
         key_a.first.delete_prefix('key=').to_sym
       end
 
