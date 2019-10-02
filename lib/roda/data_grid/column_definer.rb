@@ -205,7 +205,14 @@ module Crossbeams
             hs[:cellEditor] = 'numericCellEditor'
             hs[:cellEditorType] = 'integer' if options[:data_type] == :integer
           end
-          hs[:cellEditorParams] = options[:cellEditorParams] if options[:cellEditorParams]
+          if options[:cellEditorParams]
+            if options[:cellEditor] == 'select'
+              values = options[:cellEditorParams][:values]
+              hs[:cellEditorParams] = { values: values, selectWidth: options[:cellEditorParams][:width] || 200 }
+            else
+              hs[:cellEditorParams] = options[:cellEditorParams]
+            end
+          end
           hs[:cellEditorType] = options[:cellEditorType] if options[:cellEditorType]
         end
 
