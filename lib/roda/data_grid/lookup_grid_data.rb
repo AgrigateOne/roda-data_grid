@@ -95,11 +95,16 @@ module Crossbeams
         end
       end
 
+      def place_params_in_url(url)
+        tokens = Hash[url.split('$').select { |t| t.start_with?(':') }.map { |t| ["$#{t}$", "'+data.#{t.delete_prefix(':')}+'"] }]
+        url.gsub(/\$:.+?\$/, tokens)
+      end
+
       def select_link_column
         link = if config.select_url.include?('$:id$')
-                 "'#{config.select_url.sub('$:id$', "'+data.id+'")}|select'"
+                 "'#{place_params_in_url(config.select_url)}|select'"
                else
-                 "'#{config.select_url}/'+data.id+'|select'"
+                 "'#{place_params_in_url(config.select_url)}/'+data.id+'|select'"
                end
         Crossbeams::DataGrid::ColumnDefiner.new.make_columns do |mk|
           mk.href link, 'sel_link', fetch_renderer: true
