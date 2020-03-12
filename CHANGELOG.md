@@ -10,6 +10,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 - Select editor can receive a width which specifies the pixel width of items in the dropdown. The default is 200.
 ### Changed
 - Lookup grid's POST url can include other parameters, not just "id".
+- All datetime columns render using `dateTimeWithoutSecsOrZoneFormatter` which strips seconds and time zone display.
 ### Fixed
 
 ## [0.2.3] - 2019-09-27

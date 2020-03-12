@@ -31,14 +31,14 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   # Does this search or list grid need to be rendered as a nested grid.
   #
   # @return [boolean] - true if nested, otherwise false.
-  def is_nested_grid?
+  def is_nested_grid? # rubocop:disable Naming/PredicateName
     search_def && search_def[:nesting] || list_def && list_def[:nesting]
   end
 
   # Does this search or list grid need to be rendered as a multiselect grid.
   #
   # @return [boolean] - true if multiselect, otherwise false.
-  def is_multiselect?
+  def is_multiselect? # rubocop:disable Naming/PredicateName
     !@multiselect_options.nil?
   end
 
@@ -131,21 +131,19 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   # Column and row definitions for a list grid.
   #
   # @return [JSON] - a Hash containing row and column definitions.
-  def list_rows
+  def list_rows # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     multiselect = @multiselect_options.nil? ? nil : list_def[:multiselect]
     if multiselect && @multiselect_options[:key]
       @grid_params ||= {}
-      if multiselect[@multiselect_options[:key].to_sym][:conditions]
-        conditions = Array(list_def[:conditions][multiselect[@multiselect_options[:key].to_sym][:conditions].to_sym]).map do |condition|
-          if condition[:val].to_s.include?('$')
-            parameterize_value(condition)
-          else
-            condition
-          end
-        end
-      else
-        conditions = nil
-      end
+      conditions = if multiselect[@multiselect_options[:key].to_sym][:conditions]
+                     Array(list_def[:conditions][multiselect[@multiselect_options[:key].to_sym][:conditions].to_sym]).map do |condition|
+                       if condition[:val].to_s.include?('$')
+                         parameterize_value(condition)
+                       else
+                         condition
+                       end
+                     end
+                   end
     else
       conditions = list_def[:conditions].nil? || @grid_params.nil? || @grid_params.empty? ? nil : conditions_from(list_def)
     end
@@ -167,7 +165,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   # Column and row definitions for a nested list grid.
   #
   # @return [JSON] - a Hash containing row and column definitions.
-  def list_nested_rows
+  def list_nested_rows # rubocop:disable Metrics/AbcSize
     n_params = { json_var: list_def[:conditions].to_json }
     apply_params(n_params) unless n_params.nil? || n_params.empty?
 
@@ -186,7 +184,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
     }.to_json
   end
 
-  def excel_rows(params)
+  def excel_rows(params) # rubocop:disable Metrics/AbcSize
     apply_params(params)
 
     xls_possible_types = { string: :string, integer: :integer, date: :string,
@@ -232,7 +230,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
     res
   end
 
-  def apply_params(params)
+  def apply_params(params) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     # { "col"=>"users.department_id", "op"=>"=", "opText"=>"is", "val"=>"17", "text"=>"Finance", "caption"=>"Department" }
     input_parameters = ::JSON.parse(params[:json_var]) || []
     parms = []
@@ -288,7 +286,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   end
 
   # TODO: Hard-coded to 3 levels. Needs to be dynamic...
-  def dataminer_nested_query(sql)
+  def dataminer_nested_query(sql) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     column_levels = {}
     detail_level = 0
     prev_keys = {}
@@ -303,7 +301,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
     new_set = []
     new_rec = {}
     # FIXME: chunks of func 1 program in func2 - which has no programs......
-    DB[sql].to_a.each do |rec|
+    DB[sql].to_a.each do |rec| # rubocop:disable Metrics/BlockLength
       # puts ">>> #{rec[key_columns[1]]}"
       if rec[key_columns[1]] != prev_keys[1]
         new_set << new_rec unless new_rec.empty?
@@ -357,10 +355,10 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   end
 
   # Build action column items recursively.
-  def make_subitems(actions, level = 0)
+  def make_subitems(actions, level = 0) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     this_col = []
     cnt = 0
-    actions.each do |action|
+    actions.each do |action| # rubocop:disable Metrics/BlockLength
       if action[:separator]
         cnt += 1
         this_col << { text: "sep#{level}#{cnt}", is_separator: true }
@@ -400,7 +398,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
     this_col
   end
 
-  def column_definitions(report, options = {})
+  def column_definitions(report, options = {}) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     col_defs = []
 
     # TEST: multiselect
@@ -437,7 +435,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
       col_defs << hs
     end
 
-    (options[:column_set] || report.ordered_columns).each do |col|
+    (options[:column_set] || report.ordered_columns).each do |col| # rubocop:disable Metrics/BlockLength
       hs                  = { headerName: col.caption, field: col.name, hide: col.hide, headerTooltip: col.caption }
       hs[:width]          = col.width unless col.width.nil?
       hs[:enableValue]    = true if %i[integer number].include?(col.data_type)
@@ -453,17 +451,16 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
         hs[:width]     = 100 if col.width.nil? && col.data_type == :integer
         hs[:width]     = 120 if col.width.nil? && col.data_type == :number
       end
-      if col.format == :delimited_1000
-        hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2'
-      end
-      if col.format == :delimited_1000_4
-        hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4'
-      end
+
+      hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000
+      hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4
+
       if col.data_type == :boolean
         hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
         hs[:cellClass]    = 'grid-boolean-column'
         hs[:width]        = 100 if col.width.nil?
       end
+      hs[:cellRenderer] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if col.data_type == :datetime
 
       if options[:expands_nested_grid] && options[:expands_nested_grid] == col.name
         hs[:cellRenderer]       = 'group' # This column will have the expand/contract controls.
@@ -495,9 +492,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
     val = condition[:val]
     @grid_params.each { |k, v| val.gsub!("$:#{k}$", v) }
     condition[:val] = val
-    if condition[:op].match?(/in/i)
-      condition[:val] = condition_value_as_array(val)
-    end
+    condition[:val] = condition_value_as_array(val) if condition[:op].match?(/in/i)
     condition
   end
 

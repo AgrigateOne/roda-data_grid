@@ -162,6 +162,7 @@ module Crossbeams
             hs[:cellClass]    = 'grid-boolean-column'
             hs[:width]        = 100 if col.width.nil?
           end
+          hs[:cellRenderer] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if col.data_type == :datetime
           hs[:cellRenderer] = 'crossbeamsGridFormatters.iconFormatter' if col.name == 'icon'
 
           # Rules for editable columns
@@ -193,7 +194,6 @@ module Crossbeams
           end
 
           # hs[:cellClassRules] = { "grid-row-red": "x === 'Fred'" } if col.name == 'author'
-
           col_defs << hs
         end
 
