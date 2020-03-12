@@ -221,17 +221,16 @@ module Crossbeams
           hs[:width]     = 100 if options[:width].nil? && options[:data_type] == :integer
           hs[:width]     = 120 if options[:width].nil? && options[:data_type] == :number
         end
-        if options[:format] == :delimited_1000
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2'
-        end
-        if options[:format] == :delimited_1000_4
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4'
-        end
+
+        hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if options[:format] == :delimited_1000
+        hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if options[:format] == :delimited_1000_4
+
         if options[:data_type] == :boolean
           hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
           hs[:cellClass]    = 'grid-boolean-column'
           hs[:width]        = 100 if options[:width].nil?
         end
+        hs[:cellRenderer] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if options[:data_type] == :datetime
 
         if options[:expands_nested_grid] && options[:expands_nested_grid] == field.to_s
           hs[:cellRenderer]       = 'group' # This column will have the expand/contract controls.
