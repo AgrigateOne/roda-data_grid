@@ -7,7 +7,9 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- `dateTimeWithoutZoneFormatter` for formatting a datetime without time zone, but with seconds.
 ### Changed
+- `dateTimeWithoutSecsOrZoneFormatter` changed from a cellRenderer to a valueFormatter.
 ### Fixed
 
 ## [0.3.0] - 2020-03-12

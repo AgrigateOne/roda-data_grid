@@ -219,7 +219,7 @@ class ListGridDataTest < Minitest::Test
       { 'headerName' => 'Id', 'field' => 'id', 'hide' => false, 'headerTooltip' => 'Id', 'enableValue' => true, 'type' => 'numericColumn', 'width' => 100 },
       { 'headerName' => 'First name', 'field' => 'user_name', 'hide' => false, 'headerTooltip' => 'First name', 'width' => 150, 'enableRowGroup' => true, 'enablePivot' => true, 'pinned' => 'left' },
       { 'headerName' => 'Department name', 'field' => 'department_name', 'hide' => false, 'headerTooltip' => 'Department name', 'enableRowGroup' => true, 'enablePivot' => true },
-      { 'headerName' => 'Created at', 'field' => 'created_at', 'hide' => false, 'headerTooltip' => 'Created at', 'enableRowGroup' => true, 'enablePivot' => true, 'cellRenderer' => 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' },
+      { 'headerName' => 'Created at', 'field' => 'created_at', 'hide' => false, 'headerTooltip' => 'Created at', 'enableRowGroup' => true, 'enablePivot' => true, 'valueFormatter' => 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' },
       { 'headerName' => 'Amount', 'field' => 'amount', 'hide' => false, 'headerTooltip' => 'Amount', 'enableValue' => true, 'type' => 'numericColumn', 'width' => 120, 'valueFormatter' => 'crossbeamsGridFormatters.numberWithCommas2' },
       { 'headerName' => 'Active', 'field' => 'active', 'hide' => false, 'headerTooltip' => 'Active', 'enableRowGroup' => true, 'enablePivot' => true, 'cellRenderer' => 'crossbeamsGridFormatters.booleanFormatter', 'cellClass' => 'grid-boolean-column', 'width' => 100 }
     ]

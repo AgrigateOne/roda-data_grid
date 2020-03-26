@@ -460,7 +460,8 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
         hs[:cellClass]    = 'grid-boolean-column'
         hs[:width]        = 100 if col.width.nil?
       end
-      hs[:cellRenderer] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if col.data_type == :datetime
+      hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if col.data_type == :datetime
+      hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutZoneFormatter' if col.format == :datetime_with_secs
 
       if options[:expands_nested_grid] && options[:expands_nested_grid] == col.name
         hs[:cellRenderer]       = 'group' # This column will have the expand/contract controls.

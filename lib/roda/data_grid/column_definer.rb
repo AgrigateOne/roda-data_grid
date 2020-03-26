@@ -230,7 +230,8 @@ module Crossbeams
           hs[:cellClass]    = 'grid-boolean-column'
           hs[:width]        = 100 if options[:width].nil?
         end
-        hs[:cellRenderer] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if options[:data_type] == :datetime
+        hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if options[:data_type] == :datetime
+        hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutZoneFormatter' if options[:format] == :datetime_with_secs
 
         if options[:expands_nested_grid] && options[:expands_nested_grid] == field.to_s
           hs[:cellRenderer]       = 'group' # This column will have the expand/contract controls.
