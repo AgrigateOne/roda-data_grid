@@ -10,6 +10,12 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 
+## [0.3.1] - 2020-03-26
+### Added
+- `dateTimeWithoutZoneFormatter` for formatting a datetime without time zone, but with seconds.
+### Changed
+- `dateTimeWithoutSecsOrZoneFormatter` changed from a cellRenderer to a valueFormatter.
+
 ## [0.3.0] - 2020-03-12
 ### Added
 - Select editor can receive a width which specifies the pixel width of items in the dropdown. The default is 200.
