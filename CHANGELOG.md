@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Adding `_limit` or `_offset` parameters will alter the report's limit / offset values.
 ### Changed
 ### Fixed
 

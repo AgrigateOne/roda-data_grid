@@ -356,11 +356,15 @@ module Crossbeams
       end
 
       def limit_from_params(params)
-        params[:limit].to_i  unless params[:limit].nil? || params[:limit] != ''
+        return @params[:_limit].to_i if @params && @params[:_limit]
+
+        params[:limit].to_i  unless params[:limit].nil? || params[:limit] == ''
       end
 
       def offset_from_params(params)
-        params[:offset].to_i unless params[:offset].nil? || params[:offset] != ''
+        return @params[:_offset].to_i if @params && @params[:_offset]
+
+        params[:offset].to_i unless params[:offset].nil? || params[:offset] == ''
       end
 
       def assert_sql_is_select!(context, sql)
