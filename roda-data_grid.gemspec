@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'axlsx'
+  spec.add_dependency 'caxlsx'
   spec.add_dependency 'crossbeams-dataminer'
   spec.add_dependency 'crossbeams-layout'
   spec.add_dependency 'roda'

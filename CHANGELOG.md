@@ -9,6 +9,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 - Adding `_limit` or `_offset` parameters will alter the report's limit / offset values.
 ### Changed
+- Move from `axlsx` gem to community-maintained version `caxlsx`.
 ### Fixed
 
 ## [0.3.1] - 2020-03-26
