@@ -69,6 +69,7 @@ module Crossbeams
           end
           param_def = report.parameter_definition(col)
           raise Roda::RodaPlugins::DataGrid::Error, "There is no parameter for this grid query named \"#{col}\"" if param_def.nil?
+
           val = if in_param['op'] == 'between'
                   [in_param['val'], in_param['val_to']]
                 else
@@ -130,12 +131,10 @@ module Crossbeams
             hs[:width]     = 100 if col.width.nil? && col.data_type == :integer
             hs[:width]     = 120 if col.width.nil? && col.data_type == :number
           end
-          if col.format == :delimited_1000
-            hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2'
-          end
-          if col.format == :delimited_1000_4
-            hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4'
-          end
+
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4
+
           if col.data_type == :boolean
             hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
             hs[:cellClass]    = 'grid-boolean-column'
@@ -156,12 +155,10 @@ module Crossbeams
             hs[:width]     = 100 if col.width.nil? && col.data_type == :integer
             hs[:width]     = 120 if col.width.nil? && col.data_type == :number
           end
-          if col.format == :delimited_1000
-            hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2'
-          end
-          if col.format == :delimited_1000_4
-            hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4'
-          end
+
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4
+
           parts = col.expression.split(' ')
           hs[:valueGetter] = parts.map { |p| %w[* + - /].include?(p) ? p : "data.#{p}" }.join(' ')
           col_defs.insert((col.position || 1), hs)
@@ -187,6 +184,7 @@ module Crossbeams
         params = (options[:params] || {}).merge(lookup_key: @lookup_key)
         qstr = params.delete(:query_string)
         return params if qstr.nil?
+
         params.merge(Rack::Utils.parse_nested_query(qstr))
       end
 
@@ -194,15 +192,14 @@ module Crossbeams
         val = condition[:val]
         @params.each { |k, v| val.gsub!("$:#{k}$", v) }
         condition[:val] = val
-        if condition[:op].match?(/in/i)
-          condition[:val] = condition_value_as_array(val)
-        end
+        condition[:val] = condition_value_as_array(val) if condition[:op].match?(/in/i)
         condition
       end
 
       def condition_value_as_array(val)
         return val if val.is_a?(Array)
         return Array(val) unless val.is_a?(String)
+
         val.sub('[', '').sub(']', '').split(',').map(&:strip)
       end
 

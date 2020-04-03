@@ -47,6 +47,7 @@ class Roda
         else
           query_param.build_list do |sql|
             raise "SQL for #{param list} is not a SELECT" if sql.match?(/insert |update |delete /i)
+
             connection[sql].map(&:values)
           end.list_values
         end

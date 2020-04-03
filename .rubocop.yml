@@ -12,7 +12,7 @@ LineLength:
 MethodLength:
   Enabled: false
 
-Style/ExtraSpacing:
+Layout/ExtraSpacing:
   Enabled: false
 
 Metrics/BlockLength:
