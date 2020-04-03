@@ -33,6 +33,7 @@ module Crossbeams
         caption = @config.lookup_opts[:section_caption]
         return nil if caption.nil?
         return caption unless caption.match?(/SELECT/i) && caption.match?(/\$:/)
+
         sql = caption
         @params.each { |k, v| sql.gsub!("$:#{k}$", v) }
         assert_sql_is_select!('caption', sql)

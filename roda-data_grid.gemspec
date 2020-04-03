@@ -1,6 +1,6 @@
-# coding: utf-8
+# frozen_string_literal: true
 
-lib = File.expand_path('../lib', __FILE__)
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'roda/data_grid/version'
 
@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'axlsx'
+  spec.add_dependency 'caxlsx'
   spec.add_dependency 'crossbeams-dataminer'
   spec.add_dependency 'crossbeams-layout'
   spec.add_dependency 'roda'

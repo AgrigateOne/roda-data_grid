@@ -39,6 +39,7 @@ module Crossbeams
       def assign_dataminer_def(config)
         @dataminer_definition = config[:dataminer_definition]
         return unless ENV['CLIENT_CODE']
+
         defn = config.dig(:dataminer_client_definitions, ENV['CLIENT_CODE'])
         @dataminer_definition = defn unless defn.nil?
       end
