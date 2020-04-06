@@ -190,6 +190,7 @@ module Crossbeams
                                 hide: options[:hide] || false,
                                 headerTooltip: options[:tooltip] || header_name }
         hs[:width]          = options[:width] unless options[:width].nil?
+        hs[:width]          = Crossbeams::DataGrid::COLWIDTH_DATETIME if options[:width].nil? && options[:data_type] == :datetime
         hs[:enableValue]    = true if %i[integer number].include?(options[:data_type])
         hs[:enableRowGroup] = true unless hs[:enableValue] && !options[:groupable]
         hs[:enablePivot]    = true unless hs[:enableValue] && !options[:groupable]
@@ -218,8 +219,8 @@ module Crossbeams
 
         if %i[integer number].include?(options[:data_type])
           hs[:cellClass] = 'grid-number-column'
-          hs[:width]     = 100 if options[:width].nil? && options[:data_type] == :integer
-          hs[:width]     = 120 if options[:width].nil? && options[:data_type] == :number
+          hs[:width]     = Crossbeams::DataGrid::COLWIDTH_INTEGER  if options[:width].nil? && options[:data_type] == :integer
+          hs[:width]     = Crossbeams::DataGrid::COLWIDTH_NUMBER if options[:width].nil? && options[:data_type] == :number
         end
 
         hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if options[:format] == :delimited_1000
@@ -228,7 +229,7 @@ module Crossbeams
         if options[:data_type] == :boolean
           hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
           hs[:cellClass]    = 'grid-boolean-column'
-          hs[:width]        = 100 if options[:width].nil?
+          hs[:width]        = Crossbeams::DataGrid::COLWIDTH_BOOLEAN if options[:width].nil?
         end
         hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if options[:data_type] == :datetime
         hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutZoneFormatter' if options[:format] == :datetime_with_secs

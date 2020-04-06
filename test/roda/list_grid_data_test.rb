@@ -216,12 +216,12 @@ class ListGridDataTest < Minitest::Test
     assert_equal BASIC_EXPECTED, tester['rowDefs']
     assert_equal BASIC_EXPECTED.first.keys, tester['columnDefs'].map {|a| a['field'] }
     cols = [
-      { 'headerName' => 'Id', 'field' => 'id', 'hide' => false, 'headerTooltip' => 'Id', 'enableValue' => true, 'type' => 'numericColumn', 'width' => 100 },
+      { 'headerName' => 'Id', 'field' => 'id', 'hide' => false, 'headerTooltip' => 'Id', 'enableValue' => true, 'type' => 'numericColumn', 'width' => Crossbeams::DataGrid::COLWIDTH_INTEGER },
       { 'headerName' => 'First name', 'field' => 'user_name', 'hide' => false, 'headerTooltip' => 'First name', 'width' => 150, 'enableRowGroup' => true, 'enablePivot' => true, 'pinned' => 'left' },
       { 'headerName' => 'Department name', 'field' => 'department_name', 'hide' => false, 'headerTooltip' => 'Department name', 'enableRowGroup' => true, 'enablePivot' => true },
-      { 'headerName' => 'Created at', 'field' => 'created_at', 'hide' => false, 'headerTooltip' => 'Created at', 'enableRowGroup' => true, 'enablePivot' => true, 'valueFormatter' => 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' },
-      { 'headerName' => 'Amount', 'field' => 'amount', 'hide' => false, 'headerTooltip' => 'Amount', 'enableValue' => true, 'type' => 'numericColumn', 'width' => 120, 'valueFormatter' => 'crossbeamsGridFormatters.numberWithCommas2' },
-      { 'headerName' => 'Active', 'field' => 'active', 'hide' => false, 'headerTooltip' => 'Active', 'enableRowGroup' => true, 'enablePivot' => true, 'cellRenderer' => 'crossbeamsGridFormatters.booleanFormatter', 'cellClass' => 'grid-boolean-column', 'width' => 100 }
+      { 'headerName' => 'Created at', 'field' => 'created_at', 'hide' => false, 'headerTooltip' => 'Created at', 'width' => Crossbeams::DataGrid::COLWIDTH_DATETIME, 'enableRowGroup' => true, 'enablePivot' => true, 'valueFormatter' => 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' },
+      { 'headerName' => 'Amount', 'field' => 'amount', 'hide' => false, 'headerTooltip' => 'Amount', 'enableValue' => true, 'type' => 'numericColumn', 'width' => Crossbeams::DataGrid::COLWIDTH_NUMBER, 'valueFormatter' => 'crossbeamsGridFormatters.numberWithCommas2' },
+      { 'headerName' => 'Active', 'field' => 'active', 'hide' => false, 'headerTooltip' => 'Active', 'enableRowGroup' => true, 'enablePivot' => true, 'cellRenderer' => 'crossbeamsGridFormatters.booleanFormatter', 'cellClass' => 'grid-boolean-column', 'width' => Crossbeams::DataGrid::COLWIDTH_BOOLEAN }
     ]
     assert_equal cols, tester['columnDefs']
   end

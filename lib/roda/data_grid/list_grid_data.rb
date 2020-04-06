@@ -143,6 +143,7 @@ module Crossbeams
         (options[:column_set] || report.ordered_columns).each do |col| # rubocop:disable Metrics/BlockLength
           hs                  = { headerName: col.caption, field: col.name, hide: col.hide, headerTooltip: col.caption }
           hs[:width]          = col.width unless col.width.nil?
+          hs[:width]          = Crossbeams::DataGrid::COLWIDTH_DATETIME if col.width.nil? && col.data_type == :datetime
           hs[:enableValue]    = true if %i[integer number].include?(col.data_type)
           hs[:enableRowGroup] = true unless config.tree || hs[:enableValue] && !col.groupable
           hs[:enablePivot]    = true unless config.tree || hs[:enableValue] && !col.groupable
@@ -152,15 +153,15 @@ module Crossbeams
 
           if %i[integer number].include?(col.data_type)
             hs[:type]      = 'numericColumn'
-            hs[:width]     = 100 if col.width.nil? && col.data_type == :integer
-            hs[:width]     = 120 if col.width.nil? && col.data_type == :number
+            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_INTEGER if col.width.nil? && col.data_type == :integer
+            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_NUMBER if col.width.nil? && col.data_type == :number
           end
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4
           if col.data_type == :boolean
             hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
             hs[:cellClass]    = 'grid-boolean-column'
-            hs[:width]        = 100 if col.width.nil?
+            hs[:width]        = Crossbeams::DataGrid::COLWIDTH_BOOLEAN if col.width.nil?
           end
           hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if col.data_type == :datetime
           hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutZoneFormatter' if col.format == :datetime_with_secs
@@ -206,8 +207,8 @@ module Crossbeams
 
           if %i[integer number].include?(col.data_type)
             hs[:type]      = 'numericColumn'
-            hs[:width]     = 100 if col.width.nil? && col.data_type == :integer
-            hs[:width]     = 120 if col.width.nil? && col.data_type == :number
+            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_INTEGER if col.width.nil? && col.data_type == :integer
+            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_NUMBER if col.width.nil? && col.data_type == :number
           end
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4
