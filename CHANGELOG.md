@@ -8,8 +8,13 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 ### Changed
-- Ue constants for column with defaults and set a narrower default for datatime columns.
 ### Fixed
+
+## [0.4.1] - 2020-04-22
+### Added
+- Add special variables for conditions: `START_OF_DAY`, `END_OF_DAY` and `TODAY`.
+### Changed
+- Use constants for column with defaults and set a narrower default for datatime columns.
 
 ## [0.4.0] - 2020-04-03
 ### Added
