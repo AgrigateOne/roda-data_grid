@@ -323,9 +323,24 @@ module Crossbeams
       def parameterize_value(condition)
         val = condition[:val]
         @params.each { |k, v| val.gsub!("$:#{k}$", v) }
+        val = translate_special_variables(val)
         condition[:val] = val
         condition[:val] = condition_value_as_array(val) if condition[:op].match?(/in/i)
         condition
+      end
+
+      SPECIAL_VARIABLES = {
+        '$:START_OF_DAY$' => -> { Date.today.strftime('%Y-%m-%d 00:00:00') },
+        '$:END_OF_DAY$' => -> { Date.today.strftime('%Y-%m-%d 23:59:59') },
+        '$:TODAY$' => -> { Date.today.strftime('%Y-%m-%d') }
+      }.freeze
+
+      def translate_special_variables(val)
+        if SPECIAL_VARIABLES[val]
+          SPECIAL_VARIABLES[val].call
+        else
+          val
+        end
       end
 
       def condition_value_as_array(val)
