@@ -120,12 +120,12 @@ module Crossbeams
       # @option options [String] :icon ('view_show') the favicon to be displayed next to the link.
       # @return [void]
       def popup_view_link(url, options = {})
-        soft_opts = { text: 'view', icon: 'view_show', title: 'View' }
+        soft_opts = { text: 'view', icon: 'view-show', title: 'View' }
         @actions << soft_opts.merge(options).merge(url: url, popup: true)
       end
 
       def view_link(url, options = {})
-        soft_opts = { text: 'view', icon: 'view_show' }
+        soft_opts = { text: 'view', icon: 'view-show' }
         @actions << soft_opts.merge(options).merge(url: url)
       end
 

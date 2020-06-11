@@ -9,6 +9,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 ### Changed
 ### Fixed
+- Popup link for column definer: fix icon names.
 
 ## [0.4.1] - 2020-04-22
 ### Added
