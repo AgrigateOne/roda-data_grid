@@ -140,7 +140,7 @@ module Crossbeams
       end
 
       def popup_edit_link(url, options = {})
-        soft_opts = { text: 'edit', icon: 'edit', title: 'New' }
+        soft_opts = { text: 'edit', icon: 'edit', title: 'Edit' }
         @actions << soft_opts.merge(options).merge(url: url, popup: true)
       end
 
