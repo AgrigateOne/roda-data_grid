@@ -363,10 +363,11 @@ module Crossbeams
       end
 
       def dataminer_query(sql)
+        hstore = Object.const_defined?('Sequel::Postgres::HStore')
         DB[sql].to_a.map do |rec|
           rec.keys.each do |key|
             rec[key] = rec[key].to_f if rec[key].is_a?(BigDecimal)
-            rec[key] = rec[key].to_s if rec[key].is_a?(Sequel::Postgres::HStore)
+            rec[key] = rec[key].to_s if hstore && rec[key].is_a?(Sequel::Postgres::HStore)
           end
           rec
         end

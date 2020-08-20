@@ -2,13 +2,6 @@ $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'roda/data_grid'
 
 require 'minitest/autorun'
-module Sequel
-  module Postgres
-    class HStore
-      # Pass tests without requiring Sequel
-    end
-  end
-end
 
 # Simple override for Postgres DB connection constant.
 class PgDb
