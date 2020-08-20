@@ -10,6 +10,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 - Popup link for column definer: fix icon names.
+- Convert PG.Hstore columns to string.
 
 ## [0.4.1] - 2020-04-22
 ### Added
