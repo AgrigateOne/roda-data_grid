@@ -413,7 +413,8 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
         checkboxSelection: true,
         suppressMenu: true,   sortable: false,   suppressMovable: true,
         filter: false, enableRowGroup: false,   enablePivot: false,
-        enableValue: false,   suppressCsvExport: true, suppressToolPanel: true
+        enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+        suppressFiltersToolPanel: true
       }
       col_defs << hs
     end
@@ -428,7 +429,8 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
              width: 60,
              suppressMenu: true,   sortable: false,   suppressMovable: true,
              filter: false, enableRowGroup: false,   enablePivot: false,
-             enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
+             enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+             suppressFiltersToolPanel: true,
              valueGetter: this_col.to_json.to_s,
              colId: 'action_links',
              cellRenderer: 'crossbeamsGridFormatters.menuActionsRenderer' }

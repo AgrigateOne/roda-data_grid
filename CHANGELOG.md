@@ -9,6 +9,11 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 ### Changed
 ### Fixed
+
+## [0.5.0] - 2020-09-07
+### Changed
+- suppressToolPanel changes for AG Grid version 23.2.1.
+### Fixed
 - Popup link for column definer: fix icon names.
 - Convert PG.Hstore columns to string.
 
