@@ -117,7 +117,8 @@ module Crossbeams
             checkboxSelection: true,
             suppressMenu: true,   sortable: false,   suppressMovable: true,
             filter: false,
-            enableValue: false,   suppressCsvExport: true, suppressToolPanel: true
+            enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+            suppressFiltersToolPanel: true
           }
           hs[:enableRowGroup] = false unless config.tree
           hs[:enablePivot] = false unless config.tree
@@ -131,7 +132,8 @@ module Crossbeams
                  width: 60,
                  suppressMenu: true,   sortable: false,   suppressMovable: true,
                  filter: false,
-                 enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
+                 enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+                 suppressFiltersToolPanel: true,
                  valueGetter: this_col.to_json.to_s,
                  colId: 'action_links',
                  cellRenderer: 'crossbeamsGridFormatters.menuActionsRenderer' }

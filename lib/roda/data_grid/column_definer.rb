@@ -64,7 +64,8 @@ module Crossbeams
           width: 60,
           suppressMenu: true,   sortable: false,   suppressMovable: true,
           filter: false, enableRowGroup: false,   enablePivot: false,
-          enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
+          enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+          suppressFiltersToolPanel: true,
           valueGetter: @actions.to_json.to_s,
           colId: 'action_links',
           cellRenderer: 'crossbeamsGridFormatters.menuActionsRenderer'
@@ -172,7 +173,8 @@ module Crossbeams
           width: options[:width] || 60,
           suppressMenu: true,   sortable: false,   suppressMovable: true,
           filter: false, enableRowGroup: false,   enablePivot: false,
-          enableValue: false,   suppressCsvExport: true, suppressToolPanel: true,
+          enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+          suppressFiltersToolPanel: true,
           valueGetter: link,
           colId: field,
           cellRenderer: options[:cellRenderer] || default_renderer

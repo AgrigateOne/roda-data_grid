@@ -291,7 +291,8 @@ class ListGridDataTest < Minitest::Test
                  'enablePivot' => false,
                  'enableValue' => false,
                  'suppressCsvExport' => true,
-                 'suppressToolPanel' => true,
+                 'suppressColumnsToolPanel' => true,
+                 'suppressFiltersToolPanel' => true,
                  'valueGetter' => "[{\"text\":\"view\",\"url\":\"/development/masterfiles/users/$col0$\",\"col0\":\"id\",\"icon\":\"view-show\",\"title\":\"View\",\"popup\":true},{\"text\":\"edit\",\"url\":\"/development/masterfiles/users/$col0$/edit\",\"col0\":\"id\",\"icon\":\"edit\",\"title\":\"Edit\"},{\"text\":\"sep01\",\"is_separator\":true},{\"text\":\"delete\",\"url\":\"/development/masterfiles/users/$col0$\",\"col0\":\"id\",\"prompt\":\"Are you sure?\",\"method\":\"delete\",\"icon\":\"delete\",\"popup\":true}]",
                  'colId' => 'action_links',
                  'cellRenderer' => 'crossbeamsGridFormatters.menuActionsRenderer'
