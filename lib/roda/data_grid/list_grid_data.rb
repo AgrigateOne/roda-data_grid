@@ -185,6 +185,11 @@ module Crossbeams
                 values = select_editor_values(rule)
                 hs[:cellEditorParams] = { values: values, selectWidth: rule[:width] || 200 }
               end
+              if rule[:editor] == :search_select
+                hs[:cellEditor] = 'searchableSelectCellEditor'
+                values = select_editor_values(rule)
+                hs[:cellEditorParams] = { values: values }
+              end
             else
               hs[:cellEditor] = 'agPopupTextCellEditor'
             end

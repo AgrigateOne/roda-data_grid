@@ -148,6 +148,17 @@ class ColumnDefinerTest < Minitest::Test
     assert_equal col[:cellEditorParams], { values: ['true', 'false'], selectWidth: 350 }
 
     cols = cd.make_columns do |mk|
+      mk.col 'afield', nil, editable: true,
+             cellEditor: 'search_select',
+             cellEditorParams: { values: ['true', 'false'] }
+    end
+    col = cols.first
+
+    assert col[:editable]
+    assert_equal col[:cellEditor], 'searchableSelectCellEditor'
+    assert_equal col[:cellEditorParams], { values: ['true', 'false'] }
+
+    cols = cd.make_columns do |mk|
       mk.numeric 'afield', nil, editable: true
     end
     col = cols.first

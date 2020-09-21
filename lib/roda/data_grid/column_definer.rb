@@ -204,6 +204,7 @@ module Crossbeams
           if options[:cellEditor]
             hs[:cellEditor] = options[:cellEditor]
             hs[:cellEditor] = 'agRichSelectCellEditor' if hs[:cellEditor] == 'select'
+            hs[:cellEditor] = 'searchableSelectCellEditor' if hs[:cellEditor] == 'search_select'
           elsif %i[integer number].include?(options[:data_type])
             hs[:cellEditor] = 'numericCellEditor'
             hs[:cellEditorType] = 'integer' if options[:data_type] == :integer
@@ -212,6 +213,9 @@ module Crossbeams
             if options[:cellEditor] == 'select'
               values = options[:cellEditorParams][:values]
               hs[:cellEditorParams] = { values: values, selectWidth: options[:cellEditorParams][:width] || 200 }
+            elsif options[:cellEditor] == 'search_select'
+              values = options[:cellEditorParams][:values]
+              hs[:cellEditorParams] = { values: values }
             else
               hs[:cellEditorParams] = options[:cellEditorParams]
             end

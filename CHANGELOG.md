@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- New grid cell editor: `search_select`. This lists options that can be filtered in the editor.
 ### Changed
 ### Fixed
 
