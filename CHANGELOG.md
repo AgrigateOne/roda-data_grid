@@ -10,6 +10,10 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 
+## [0.5.1] - 2020-09-21
+### Added
+- New grid cell editor: `search_select`. This lists options that can be filtered in the editor.
+
 ## [0.5.0] - 2020-09-07
 ### Changed
 - suppressToolPanel changes for AG Grid version 23.2.1.
