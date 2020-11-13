@@ -371,6 +371,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
 
       # Check if user is authorised for this action:
       next if action[:auth] && @deny_access.call(action[:auth][:function], action[:auth][:program], action[:auth][:permission])
+      next if env_var_prevents_action?(action[:hide_if_env_var], action[:show_if_env_var])
 
       keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
       url  = action[:url]
@@ -396,6 +397,46 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
       this_col << link_h
     end
     this_col
+  end
+
+  # The hide_ and show_ env var settings contain a list of env vars and values:
+  # hide_if_env_var: 'X_ONLY:y,Y_COLOUR:blue'. (ENV['X_ONLY'] == 'y'; ENV'COLOUR'] == 'blue')
+  # If an env var exists and its value matches, the action will be hiden/shown.
+  # A special variable value '<present>' triggers the show/hide if the env var
+  # has ANY value. ('CHECK_THIS:<present>')
+  def env_var_prevents_action?(hide_if_env_var, show_if_env_var)
+    return false if hide_if_env_var.nil? && show_if_env_var.nil?
+
+    hide_action = false
+    hide_action = check_hide_action(hide_if_env_var) if hide_if_env_var
+    return true if hide_action
+
+    hide_action = check_show_action(show_if_env_var) if show_if_env_var
+    hide_action
+  end
+
+  def check_hide_action(hide_if_env_var)
+    hides = hide_if_env_var.split(',').map { |h| h.split(':') }
+    hide = false
+    hides.each do |key, val|
+      next unless ENV[key]
+
+      hide = true if val == '<present>'
+      hide = true if ENV[key] == val
+    end
+    hide
+  end
+
+  def check_show_action(show_if_env_var)
+    shows = show_if_env_var.split(',').map { |h| h.split(':') }
+    show = false
+    shows.each do |key, val|
+      next unless ENV[key]
+
+      show = true if val == '<present>'
+      show = true if ENV[key] == val
+    end
+    !show
   end
 
   def column_definitions(report, options = {}) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity

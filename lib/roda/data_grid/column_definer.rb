@@ -187,18 +187,18 @@ module Crossbeams
 
       def col(field, caption = nil, options = {}) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
         header_name = caption || field.to_s.tr('_', ' ').capitalize
-        hs                  = { headerName: header_name,
-                                field: field.to_s,
-                                hide: options[:hide] || false,
-                                headerTooltip: options[:tooltip] || header_name }
-        hs[:width]          = options[:width] unless options[:width].nil?
-        hs[:width]          = Crossbeams::DataGrid::COLWIDTH_DATETIME if options[:width].nil? && options[:data_type] == :datetime
-        hs[:enableValue]    = true if %i[integer number].include?(options[:data_type])
+        hs = { headerName: header_name,
+               field: field.to_s,
+               hide: options[:hide] || false,
+               headerTooltip: options[:tooltip] || header_name }
+        hs[:width] = options[:width] unless options[:width].nil?
+        hs[:width] = Crossbeams::DataGrid::COLWIDTH_DATETIME if options[:width].nil? && options[:data_type] == :datetime
+        hs[:enableValue] = true if %i[integer number].include?(options[:data_type])
         hs[:enableRowGroup] = true unless hs[:enableValue] && !options[:groupable]
-        hs[:enablePivot]    = true unless hs[:enableValue] && !options[:groupable]
-        hs[:rowGroupIndex]  = options[:group_by_seq] if options[:group_by_seq]
-        hs[:rowGroup]       = true if options[:group_by_seq]
-        hs[:pinned]         = options[:pinned] if options[:pinned]
+        hs[:enablePivot] = true unless hs[:enableValue] && !options[:groupable]
+        hs[:rowGroupIndex] = options[:group_by_seq] if options[:group_by_seq]
+        hs[:rowGroup] = true if options[:group_by_seq]
+        hs[:pinned] = options[:pinned] if options[:pinned]
         if options[:editable]
           hs[:editable] = true
           if options[:cellEditor]
