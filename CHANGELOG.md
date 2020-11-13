@@ -7,9 +7,12 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Actions get `hide_if_env_var` and `show_if_env_var` options. The values for these are comma-separated lists of ENV VAR keys and values separated by `:`.
 ### Changed
 ### Fixed
+
+## [0.5.2] - 2020-11-13
+### Added
+- Actions get `hide_if_env_var` and `show_if_env_var` options. The values for these are comma-separated lists of ENV VAR keys and values separated by `:`.
 
 ## [0.5.1] - 2020-09-21
 ### Added
