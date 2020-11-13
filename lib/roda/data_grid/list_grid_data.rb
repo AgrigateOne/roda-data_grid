@@ -97,7 +97,7 @@ module Crossbeams
         begin
           report.apply_params(parms)
         rescue StandardError => e
-          return "ERROR: #{e.message}"
+          "ERROR: #{e.message}"
         end
       end
 
@@ -208,9 +208,9 @@ module Crossbeams
 
         (config.calculated_columns || []).each do |raw|
           col = OpenStruct.new(raw)
-          hs                  = { headerName: col.caption, field: col.name, headerTooltip: col.caption }
-          hs[:width]          = col.width unless col.width.nil?
-          hs[:enableValue]    = true if %i[integer number].include?(col.data_type)
+          hs = { headerName: col.caption, field: col.name, headerTooltip: col.caption }
+          hs[:width] = col.width unless col.width.nil?
+          hs[:enableValue] = true if %i[integer number].include?(col.data_type)
 
           if %i[integer number].include?(col.data_type)
             hs[:type]      = 'numericColumn'
@@ -252,6 +252,8 @@ module Crossbeams
               hide_if_null
               hide_if_present
               hide_if_true
+              hide_if_env_var
+              show_if_env_var
               icon
               is_delete
               loading_window
@@ -287,6 +289,7 @@ module Crossbeams
 
           # Check if user is authorised for this action:
           next if action[:auth] && @deny_access.call(action[:auth][:function], action[:auth][:program], action[:auth][:permission])
+          next if env_var_prevents_action?(action[:hide_if_env_var], action[:show_if_env_var])
 
           # Check if user has permission for this action:
           next if action[:has_permission] && !@has_permission.call(action[:has_permission].map(&:to_sym))
@@ -316,6 +319,46 @@ module Crossbeams
           this_col << link_h
         end
         this_col
+      end
+
+      # The hide_ and show_ env var settings contain a list of env vars and values:
+      # hide_if_env_var: 'X_ONLY:y,Y_COLOUR:blue'. (ENV['X_ONLY'] == 'y'; ENV'COLOUR'] == 'blue')
+      # If an env var exists and its value matches, the action will be hiden/shown.
+      # A special variable value '<present>' triggers the show/hide if the env var
+      # has ANY value. ('CHECK_THIS:<present>')
+      def env_var_prevents_action?(hide_if_env_var, show_if_env_var)
+        return false if hide_if_env_var.nil? && show_if_env_var.nil?
+
+        hide_action = false
+        hide_action = check_hide_action(hide_if_env_var) if hide_if_env_var
+        return true if hide_action
+
+        hide_action = check_show_action(show_if_env_var) if show_if_env_var
+        hide_action
+      end
+
+      def check_hide_action(hide_if_env_var)
+        hides = hide_if_env_var.split(',').map { |h| h.split(':') }
+        hide = false
+        hides.each do |key, val|
+          next unless ENV[key]
+
+          hide = true if val == '<present>'
+          hide = true if ENV[key] == val
+        end
+        hide
+      end
+
+      def check_show_action(show_if_env_var)
+        shows = show_if_env_var.split(',').map { |h| h.split(':') }
+        show = false
+        shows.each do |key, val|
+          next unless ENV[key]
+
+          show = true if val == '<present>'
+          show = true if ENV[key] == val
+        end
+        !show
       end
 
       def parse_params(options)
