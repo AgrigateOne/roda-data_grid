@@ -7,9 +7,12 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Lists and Searches can include a `hide_for_client` section to hide grid columns based on the environment variable `CLIENT_CODE`.
 ### Changed
 ### Fixed
+
+## [0.5.3] - 2020-11-19
+### Added
+- Lists and Searches can include a `hide_for_client` section to hide grid columns based on the environment variable `CLIENT_CODE`.
 
 ## [0.5.2] - 2020-11-13
 ### Added
