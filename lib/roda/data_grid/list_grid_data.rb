@@ -144,6 +144,7 @@ module Crossbeams
 
         (options[:column_set] || report.ordered_columns).each do |col| # rubocop:disable Metrics/BlockLength
           hs                  = { headerName: col.caption, field: col.name, hide: col.hide, headerTooltip: col.caption }
+          hs[:hide]           = true if config.hide_for_client.include?(col.name)
           hs[:width]          = col.width unless col.width.nil?
           hs[:width]          = Crossbeams::DataGrid::COLWIDTH_DATETIME if col.width.nil? && col.data_type == :datetime
           hs[:enableValue]    = true if %i[integer number].include?(col.data_type)

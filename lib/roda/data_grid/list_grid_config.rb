@@ -6,7 +6,7 @@ module Crossbeams
       attr_reader :id, :root, :multiselect_key, :fit_height, :grid_caption,
                   :dataminer_definition, :tree, :page_control_defs,
                   :multiselect_opts, :nested_grid, :conditions_key, :conditions, :actions,
-                  :calculated_columns, :edit_rules
+                  :calculated_columns, :edit_rules, :hide_for_client
 
       def initialize(options)
         @id = options.fetch(:id)
@@ -31,6 +31,7 @@ module Crossbeams
         @tree = config[:tree]
         @actions = config[:actions]
         @edit_rules = config[:edit_rules] || {}
+        @hide_for_client = config.dig(:hide_for_client, ENV['CLIENT_CODE']) || []
         @calculated_columns = config[:calculated_columns]
         @page_control_defs = config[:page_controls] || []
         assign_multiselect(config)

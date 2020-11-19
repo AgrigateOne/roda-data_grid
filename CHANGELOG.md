@@ -10,6 +10,10 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 
+## [0.5.3] - 2020-11-19
+### Added
+- Lists and Searches can include a `hide_for_client` section to hide grid columns based on the environment variable `CLIENT_CODE`.
+
 ## [0.5.2] - 2020-11-13
 ### Added
 - Actions get `hide_if_env_var` and `show_if_env_var` options. The values for these are comma-separated lists of ENV VAR keys and values separated by `:`.

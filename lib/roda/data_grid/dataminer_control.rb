@@ -11,20 +11,22 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   # - rules for links
   # - etc
 
-  def initialize(options) # rubocop:disable Metrics/AbcSize
+  def initialize(options) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     @root = options[:path]
     @deny_access = options[:deny_access] || ->(_, _, _) { false }
 
     @multiselect_options = options[:multiselect_options]
     @grid_params = options[:grid_params] || @multiselect_options && @multiselect_options[:params].dup
+    @hide_for_client = []
     if options[:search_file]
       @search_def = load_search_definition(options[:search_file])
-      @report     = get_report(dataminer_def(@search_def))
+      @report = get_report(dataminer_def(@search_def))
+      @hide_for_client = @search_def.dig(:hide_for_client, ENV['CLIENT_CODE']) || []
     elsif options[:list_file]
-      @list_def   = load_list_definition(options[:list_file])
-      @report     = get_report(dataminer_def(@list_def))
+      @list_def = load_list_definition(options[:list_file])
+      @report = get_report(dataminer_def(@list_def))
     else
-      @report     = get_report(options[:report_file])
+      @report = get_report(options[:report_file])
     end
   end
 
@@ -480,6 +482,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
 
     (options[:column_set] || report.ordered_columns).each do |col| # rubocop:disable Metrics/BlockLength
       hs                  = { headerName: col.caption, field: col.name, hide: col.hide, headerTooltip: col.caption }
+      hs[:hide]           = true if @hide_for_client.include?(col.name)
       hs[:width]          = col.width unless col.width.nil?
       hs[:width]          = Crossbeams::DataGrid::COLWIDTH_DATETIME if col.width.nil? && col.data_type == :datetime
       hs[:enableValue]    = true if %i[integer number].include?(col.data_type)
