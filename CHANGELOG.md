@@ -8,6 +8,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 ### Changed
+- List grid: can include URL parameters in grid caption for conditional grids.
 ### Fixed
 
 ## [0.5.3] - 2020-11-19

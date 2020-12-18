@@ -16,6 +16,7 @@ module Crossbeams
         @conditions_key = conditions_key_from_params(options[:params]) unless @multiselect_key
         @grid_caption = options[:grid_caption]
         @config_loader = options[:config_loader] || -> { load_config_from_file }
+        @params = options[:params]
         load_config
       end
 
@@ -70,7 +71,11 @@ module Crossbeams
         return unless @conditions_key
 
         s = config.dig(:captions, :conditions, @conditions_key)
-        @grid_caption = s unless s.nil?
+        return if s.nil?
+
+        qs_params = Rack::Utils.parse_nested_query(@params[:query_string])
+        qs_params.each { |k, v| s.gsub!("$:#{k}$", v) }
+        @grid_caption = s
       end
 
       def assign_conditions(config)
