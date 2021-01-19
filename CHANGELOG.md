@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- List grid: searchable select can build items from a lookup URL. Provide `lookup_url: "/path/$:colname$` instead of values for the `cellEditorParams`.
 ### Changed
 - List grid: can include URL parameters in grid caption for conditional grids.
 ### Fixed

@@ -188,8 +188,12 @@ module Crossbeams
               end
               if rule[:editor] == :search_select
                 hs[:cellEditor] = 'searchableSelectCellEditor'
-                values = select_editor_values(rule)
-                hs[:cellEditorParams] = { values: values }
+                if rule[:lookup_url] # rubocop:disable Metrics/BlockNesting
+                  hs[:cellEditorParams] = { lookupUrl: rule[:lookup_url] }
+                else
+                  values = select_editor_values(rule)
+                  hs[:cellEditorParams] = { values: values }
+                end
               end
             else
               hs[:cellEditor] = 'agPopupTextCellEditor'
