@@ -399,7 +399,8 @@ class ListGridDataTest < Minitest::Test
                                                                                       'amount' => { editor: :numeric },
                                                                                       'department_name' => { editor: :textarea },
                                                                                       'active' => { editor: :select, values: ['Yes', 'No'] },
-                                                                                      'created_at' => { editor: :search_select, values: ['Now', 'Then', 'Soon'] } } } }
+                                                                                      'created_at' => { editor: :search_select, values: ['Now', 'Then', 'Soon'] },
+                                                                                      'id' => { editor: :search_select, lookup_url: '/path/$:id$' } } } }
     data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, config_loader: loader_extended(additions))
     rows = nil
     data.stub(:load_report_def, BASIC_DM_REPORT) do
@@ -432,6 +433,11 @@ class ListGridDataTest < Minitest::Test
     col = tester['columnDefs'].find {|c| c['field'] == 'created_at' }
     assert_equal 'searchableSelectCellEditor', col['cellEditor']
     assert_equal({ 'values' => ['Now', 'Then', 'Soon'] }, col['cellEditorParams'])
+    assert col['editable']
+
+    col = tester['columnDefs'].find {|c| c['field'] == 'id' }
+    assert_equal 'searchableSelectCellEditor', col['cellEditor']
+    assert_equal({ 'lookupUrl' => '/path/$:id$' }, col['cellEditorParams'])
     assert col['editable']
   end
 

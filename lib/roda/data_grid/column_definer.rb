@@ -214,8 +214,12 @@ module Crossbeams
               values = options[:cellEditorParams][:values]
               hs[:cellEditorParams] = { values: values, selectWidth: options[:cellEditorParams][:width] || 200 }
             elsif options[:cellEditor] == 'search_select'
-              values = options[:cellEditorParams][:values]
-              hs[:cellEditorParams] = { values: values }
+              if options[:cellEditorParams][:lookup_url] # rubocop:disable Metrics/BlockNesting
+                hs[:cellEditorParams] = { lookupUrl: options[:cellEditorParams][:lookup_url] }
+              else
+                values = options[:cellEditorParams][:values]
+                hs[:cellEditorParams] = { values: values }
+              end
             else
               hs[:cellEditorParams] = options[:cellEditorParams]
             end
