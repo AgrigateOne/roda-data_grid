@@ -9,6 +9,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 ### Changed
 ### Fixed
+- Raise an exception for data grids when there is a parse error when applying parameters to a query.
 
 ## [0.5.4] - 2021-01-19
 ### Added

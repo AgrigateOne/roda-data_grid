@@ -96,8 +96,10 @@ module Crossbeams
         report.offset = offset_from_params(params)
         begin
           report.apply_params(parms)
-        rescue StandardError => e
-          "ERROR: #{e.message}"
+        rescue PgQuery::ParseError => e
+          puts e.message
+          puts e.backtrace.join("\n")
+          raise Roda::RodaPlugins::DataGrid::Error, "Dataminer grid SQL error: #{e.message}"
         end
       end
 
