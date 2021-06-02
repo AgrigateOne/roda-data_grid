@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Column definer: specify `for_multiselect` to get a checkbox column.
 ### Changed
 ### Fixed
 - Raise an exception for data grids when there is a parse error when applying parameters to a query.

@@ -26,12 +26,20 @@ module Crossbeams
     #   # Return JSON definition of data grid:
     #   { columnDefs: cols, rowDefs: method_to_populate_rows }.to_json
     class ColumnDefiner # rubocop:disable Metrics/ClassLength
+      # New
+      # @param for_multiselect [bool] do we need a checkbox column for multiselect? Default is false.
+      # @param for_tree [bool] is this a tree? Default is false. Only required if `for_multiselect` is true.
+      def initialize(for_multiselect: false, for_tree: false)
+        @for_multiselect = for_multiselect
+        @for_tree = for_tree
+      end
+
       # Main DSL method.
       #
       # @yield [mk] self - the object on which other DSL methodds can be called in the block.
       # @return [Array] all the column definitions created inside the block.
       def make_columns
-        @columns = []
+        @columns = initialize_columns
         yield self
         @columns
       end
@@ -260,7 +268,7 @@ module Crossbeams
       end
 
       def numeric(field, caption = nil, options = {})
-        soft_opts = { format: :delimited_1000 }
+        soft_opts = { format: :delimited_1000 } # rubocop:disable Naming/VariableNumber
         hard_opts = { data_type: :number }
         all_opts = soft_opts.merge(options).merge(hard_opts)
         col(field, caption, all_opts)
@@ -270,6 +278,31 @@ module Crossbeams
         hard_opts = { data_type: :boolean }
         all_opts = options.merge(hard_opts)
         col(field, caption, all_opts)
+      end
+
+      private
+
+      # If the grid is a multiselect, include a column for checkboxes.
+      def initialize_columns
+        return [] unless @for_multiselect
+
+        hs = {
+          headerName: '',
+          colId: 'theSelector',
+          pinned: 'left',
+          width: 60,
+          headerCheckboxSelection: true,
+          headerCheckboxSelectionFilteredOnly: true,
+          checkboxSelection: true,
+          suppressMenu: true,   sortable: false,   suppressMovable: true,
+          filter: false,
+          enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+          suppressFiltersToolPanel: true
+        }
+        hs[:enableRowGroup] = false unless @for_tree
+        hs[:enablePivot] = false unless @for_tree
+
+        [hs]
       end
     end
   end
