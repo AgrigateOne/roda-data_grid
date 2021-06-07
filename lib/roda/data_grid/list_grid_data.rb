@@ -81,7 +81,7 @@ module Crossbeams
                 else
                   in_param['val']
                 end
-          next if val.nil? && in_param['optional'] # Optional parameter ignored for nil value...
+          next if val.to_s.empty? && in_param['optional'] # Optional parameter ignored for nil value...
 
           parms << Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], val, param_def.data_type))
         end
@@ -396,8 +396,7 @@ module Crossbeams
 
       def parameterize_value(condition)
         val = condition[:val]
-        # @params.each { |k, v| val.gsub!("$:#{k}$", v.nil? ? v.to_s : v) }
-        @params.each { |k, v| val.gsub!("$:#{k}$", v) }
+        @params.each { |k, v| val.gsub!("$:#{k}$", v.nil? ? '' : v) }
         val = translate_special_variables(val)
         condition[:val] = val
         condition[:val] = condition_value_as_array(val) if condition[:op].match?(/in/i)
