@@ -7,6 +7,11 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+### Changed
+### Fixed
+
+## [0.5.5] - 2021-06-07
+### Added
 - Column definer: specify `for_multiselect` to get a checkbox column.
 - Pass in a proc to check a client rule and show/hide controls if the rule is true.
 - Pass in a proc to check a client rule and show/hide menu actions if the rule is true.
