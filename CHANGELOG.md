@@ -8,7 +8,10 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Column definer: specify `for_multiselect` to get a checkbox column.
+- Pass in a proc to check a client rule and show/hide controls if the rule is true.
+- Pass in a proc to check a client rule and show/hide menu actions if the rule is true.
 ### Changed
+- Conditions can include an `optional: true` entry. If the value passed-in is nil and optional is set, the condition will be excluded from the WHERE clause.
 ### Fixed
 - Raise an exception for data grids when there is a parse error when applying parameters to a query.
 

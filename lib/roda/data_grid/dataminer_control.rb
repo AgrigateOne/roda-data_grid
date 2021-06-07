@@ -14,6 +14,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   def initialize(options) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     @root = options[:path]
     @deny_access = options[:deny_access] || ->(_, _, _) { false }
+    @client_rule_check = options[:client_rule_check]
 
     @multiselect_options = options[:multiselect_options]
     @grid_params = options[:grid_params] || @multiselect_options && @multiselect_options[:params].dup
@@ -374,6 +375,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
       # Check if user is authorised for this action:
       next if action[:auth] && @deny_access.call(action[:auth][:function], action[:auth][:program], action[:auth][:permission])
       next if env_var_prevents_action?(action[:hide_if_env_var], action[:show_if_env_var])
+      next if client_rule_prevents_action?(action[:hide_for_client_rule], action[:show_for_client_rule])
 
       keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
       url  = action[:url]
@@ -439,6 +441,17 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
       show = true if ENV[key] == val
     end
     !show
+  end
+
+  def client_rule_prevents_action?(hide_condition, show_condition)
+    return false unless hide_condition || show_condition
+    return false unless @client_rule_check
+
+    checker = Crossbeams::DataGrid::ClientRuleCheck.new(@client_rule_check)
+    return true if checker.should_hide?(hide_condition)
+    return true unless checker.should_show?(show_condition)
+
+    false
   end
 
   def column_definitions(report, options = {}) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity

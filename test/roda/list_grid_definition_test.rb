@@ -2,6 +2,9 @@ require 'test_helper'
 
 class ListGridDefinitionTest < Minitest::Test
 
+  PASS_CLIENT_RULE = ->(args) { args == ['CR_PROD', 'pass?'] }
+  FAIL_CLIENT_RULE = ->(args) { args == ['CR_PROD', 'fail?'] }
+
   YAML_FILES = {
     list: { file: { dataminer_definition: 'a_report' },
             render: { caption: 'List Users', is_nested: false, tree: nil, grid_params: nil }
@@ -138,6 +141,54 @@ class ListGridDefinitionTest < Minitest::Test
     gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { key: 'hideme', athing: 'athing' }, config_loader: loader_extended(additions))
     expect = [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
               { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_key: ['NA', 'AN'] } ]
+    pc = []
+    gd.stub(:load_report_def, BASIC_DM_REPORT) do
+      pc = gd.page_controls
+      assert_equal expect, pc
+    end
+  end
+
+  def test_page_controls_hidden_by_client_rule
+    additions = { conditions: { hideme: [{ col: 'users.id', op: '=', val: 1 }] },
+                  page_controls: [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
+                                  { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_client_rule: 'CR_PROD.pass?' },
+                                  { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_client_rule: 'CR_PROD.fail?' }]}
+    gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { key: 'hideme', athing: 'athing', client_rule_check: PASS_CLIENT_RULE }, config_loader: loader_extended(additions))
+    expect = [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
+              { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_client_rule: 'CR_PROD.fail?' } ]
+    pc = []
+    gd.stub(:load_report_def, BASIC_DM_REPORT) do
+      pc = gd.page_controls
+      assert_equal expect, pc
+    end
+
+    gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { key: 'hideme', athing: 'athing', client_rule_check: FAIL_CLIENT_RULE }, config_loader: loader_extended(additions))
+    expect = [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
+              { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_client_rule: 'CR_PROD.pass?' } ]
+    pc = []
+    gd.stub(:load_report_def, BASIC_DM_REPORT) do
+      pc = gd.page_controls
+      assert_equal expect, pc
+    end
+  end
+
+  def test_page_controls_shown_by_client_rule
+    additions = { conditions: { hideme: [{ col: 'users.id', op: '=', val: 1 }] },
+                  page_controls: [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
+                                  { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, show_for_client_rule: 'CR_PROD.pass?' },
+                                  { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, show_for_client_rule: 'CR_PROD.fail?' }]}
+    gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { key: 'hideme', athing: 'athing', client_rule_check: PASS_CLIENT_RULE }, config_loader: loader_extended(additions))
+    expect = [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
+              { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, show_for_client_rule: 'CR_PROD.pass?' } ]
+    pc = []
+    gd.stub(:load_report_def, BASIC_DM_REPORT) do
+      pc = gd.page_controls
+      assert_equal expect, pc
+    end
+
+    gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { key: 'hideme', athing: 'athing', client_rule_check: FAIL_CLIENT_RULE }, config_loader: loader_extended(additions))
+    expect = [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
+              { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, show_for_client_rule: 'CR_PROD.fail?' } ]
     pc = []
     gd.stub(:load_report_def, BASIC_DM_REPORT) do
       pc = gd.page_controls

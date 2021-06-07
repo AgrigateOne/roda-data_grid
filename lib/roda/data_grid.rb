@@ -2,6 +2,7 @@
 
 require 'roda/data_grid/version'
 require 'roda/data_grid/dataminer_control'
+require 'roda/data_grid/client_rule_check'
 require 'roda/data_grid/column_definer'
 require 'roda/data_grid/list_grid_config'
 require 'roda/data_grid/list_grid_data'

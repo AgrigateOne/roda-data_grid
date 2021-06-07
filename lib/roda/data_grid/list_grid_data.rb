@@ -10,6 +10,7 @@ module Crossbeams
       def initialize(options)
         @deny_access = options.fetch(:deny_access)
         @has_permission = options.fetch(:has_permission)
+        @client_rule_check = options.fetch(:client_rule_check)
         @config = ListGridConfig.new(options)
         @params = parse_params(options)
         assert_actions_ok!
@@ -80,6 +81,8 @@ module Crossbeams
                 else
                   in_param['val']
                 end
+          next if val.nil? && in_param['optional'] # Optional parameter ignored for nil value...
+
           parms << Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(in_param['op'], val, param_def.data_type))
         end
         in_sets.each do |col, vals|
@@ -261,6 +264,8 @@ module Crossbeams
               hide_if_true
               hide_if_env_var
               show_if_env_var
+              hide_for_client_rule
+              show_for_client_rule
               icon
               is_delete
               loading_window
@@ -297,6 +302,7 @@ module Crossbeams
           # Check if user is authorised for this action:
           next if action[:auth] && @deny_access.call(action[:auth][:function], action[:auth][:program], action[:auth][:permission])
           next if env_var_prevents_action?(action[:hide_if_env_var], action[:show_if_env_var])
+          next if client_rule_prevents_action?(action[:hide_for_client_rule], action[:show_for_client_rule])
 
           # Check if user has permission for this action:
           next if action[:has_permission] && !@has_permission.call(action[:has_permission].map(&:to_sym))
@@ -368,6 +374,17 @@ module Crossbeams
         !show
       end
 
+      def client_rule_prevents_action?(hide_condition, show_condition)
+        return false unless hide_condition || show_condition
+        return false unless @client_rule_check
+
+        checker = ClientRuleCheck.new(@client_rule_check)
+        return true if checker.should_hide?(hide_condition)
+        return true unless checker.should_show?(show_condition)
+
+        false
+      end
+
       def parse_params(options)
         return nil unless options[:params]
 
@@ -379,7 +396,7 @@ module Crossbeams
 
       def parameterize_value(condition)
         val = condition[:val]
-        @params.each { |k, v| val.gsub!("$:#{k}$", v) }
+        @params.each { |k, v| val.gsub!("$:#{k}$", v.nil? ? v.to_s : v) }
         val = translate_special_variables(val)
         condition[:val] = val
         condition[:val] = condition_value_as_array(val) if condition[:op].match?(/in/i)
