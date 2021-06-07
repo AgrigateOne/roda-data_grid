@@ -396,7 +396,8 @@ module Crossbeams
 
       def parameterize_value(condition)
         val = condition[:val]
-        @params.each { |k, v| val.gsub!("$:#{k}$", v.nil? ? v.to_s : v) }
+        # @params.each { |k, v| val.gsub!("$:#{k}$", v.nil? ? v.to_s : v) }
+        @params.each { |k, v| val.gsub!("$:#{k}$", v) }
         val = translate_special_variables(val)
         condition[:val] = val
         condition[:val] = condition_value_as_array(val) if condition[:op].match?(/in/i)
