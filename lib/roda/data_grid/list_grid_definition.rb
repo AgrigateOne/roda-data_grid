@@ -6,6 +6,7 @@ module Crossbeams
       def initialize(options)
         @config = ListGridConfig.new(options)
         @params = options[:params]
+        @client_rule_check = (@params || {}).delete(:client_rule_check)
         @grid_opts = options[:grid_opts] || default_grid_opts
       end
 
@@ -51,6 +52,20 @@ module Crossbeams
         @report ||= get_report(load_report_def(@config.dataminer_definition))
       end
 
+      # Check if a control should be hidden based on a client rule.
+      #
+      # @return [boolean] - Hide or do not hide the control.
+      def hide_control_by_client_rule(page_control_def)
+        return false unless page_control_def[:hide_for_client_rule] || page_control_def[:show_for_client_rule]
+        return false unless @client_rule_check
+
+        checker = ClientRuleCheck.new(@client_rule_check)
+        return true if checker.should_hide?(page_control_def[:hide_for_client_rule])
+        return true unless checker.should_show?(page_control_def[:show_for_client_rule])
+
+        false
+      end
+
       # Run the given SQL to see if a page control should be hidden.
       #
       # @return [boolean] - Hide or do not hide the control.
@@ -77,7 +92,7 @@ module Crossbeams
       end
 
       def page_controls
-        @config.page_control_defs.reject { |c| hide_control_by_sql(c) || hide_control_by_param_key(c) }
+        @config.page_control_defs.reject { |c| hide_control_by_sql(c) || hide_control_by_param_key(c) || hide_control_by_client_rule(c) }
       end
 
       def grid_url
