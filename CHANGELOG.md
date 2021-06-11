@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- `render_debug_list` method returns debug information for a List grid.
 ### Changed
 ### Fixed
 

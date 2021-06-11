@@ -129,6 +129,11 @@ class Roda
           data.list_rows
         end
 
+        def render_debug_list(options)
+          data = Crossbeams::DataGrid::ListGridData.new(options.merge(root_path: opt_path))
+          data.debug_grid
+        end
+
         def render_data_grid_nested_rows(id)
           data = Crossbeams::DataGrid::ListGridData.new(id: id, root_path: opt_path)
           data.list_nested_rows

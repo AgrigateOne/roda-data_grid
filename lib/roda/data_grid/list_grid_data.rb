@@ -46,6 +46,30 @@ module Crossbeams
         }.to_json
       end
 
+      def debug_grid
+        n_params = { json_var: conditions.to_json }
+        apply_params(n_params)
+
+        {
+          caption: report.caption,
+          multiselect_ids: multiselect_ids,
+          fieldUpdateUrl: config.edit_rules[:url],
+          tree: config.tree,
+          fit_height: config.fit_height,
+          root: config.root,
+          columnDefs: column_definitions,
+          sql: report.runnable_sql,
+          conditions_key: config.conditions_key,
+          conditions: conditions,
+          multiselect_key: config.multiselect_key,
+          multiselect_opts: config.multiselect_opts,
+          edit_rules: config.edit_rules,
+          calculated_columns: config.calculated_columns,
+          grid_caption: config.grid_caption,
+          page_controls: config.page_control_defs
+        }
+      end
+
       def list_nested_rows
         raise Roda::RodaPlugins::DataGrid::Error, 'Nested rows implementation is on hold'
       end

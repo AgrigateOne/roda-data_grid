@@ -343,11 +343,15 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   def load_search_definition(file_name)
     path = File.join(@root, 'grid_definitions', 'searches', file_name.sub('.yml', '') << '.yml')
     YAML.load(File.read(path))
+  rescue Psych::SyntaxError => e
+    raise "Syntax error in YAML file (#{file_name.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
   end
 
   def load_list_definition(file_name)
     path = File.join(@root, 'grid_definitions', 'lists', file_name.sub('.yml', '') << '.yml')
     YAML.load(File.read(path))
+  rescue Psych::SyntaxError => e
+    raise "Syntax error in YAML file (#{file_name.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
   end
 
   # Load a YML report.
