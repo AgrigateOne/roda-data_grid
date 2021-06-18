@@ -47,7 +47,8 @@ module Crossbeams
       end
 
       def debug_grid
-        n_params = { json_var: conditions.to_json }
+        cond = conditions
+        n_params = { json_var: cond.to_json }
         apply_params(n_params)
 
         {
@@ -60,7 +61,7 @@ module Crossbeams
           columnDefs: column_definitions,
           sql: report.runnable_sql,
           conditions_key: config.conditions_key,
-          conditions: conditions,
+          conditions: cond,
           multiselect_key: config.multiselect_key,
           multiselect_opts: config.multiselect_opts,
           edit_rules: config.edit_rules,
@@ -265,7 +266,7 @@ module Crossbeams
 
         config.conditions.map do |condition|
           if condition[:val].to_s.include?('$')
-            parameterize_value(condition)
+            parameterize_value(condition.dup)
           else
             condition
           end
