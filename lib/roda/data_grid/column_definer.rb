@@ -208,6 +208,7 @@ module Crossbeams
         hs[:rowGroup] = true if options[:group_by_seq]
         hs[:pinned] = options[:pinned] if options[:pinned]
         if options[:editable]
+          hs[:headerClass] = %i[integer number].include?(options[:data_type]) ? 'ag-numeric-header gridEditableColumn' : 'gridEditableColumn'
           hs[:editable] = true
           if options[:cellEditor]
             hs[:cellEditor] = options[:cellEditor]

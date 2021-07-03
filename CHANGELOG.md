@@ -7,9 +7,14 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- `render_debug_list` method returns debug information for a List grid.
 ### Changed
 ### Fixed
+
+## [0.5.6] - 2021-07-03
+### Added
+- `render_debug_list` method returns debug information for a List grid.
+### Changed
+- `ColumnDefiner` sets the correct classes in the header to highlight editable columns.
 
 ## [0.5.5] - 2021-06-07
 ### Added
