@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- A page control can be hidden when the value of the key parameter in the URL does not matches one of the list of `show_for_key` values in the list definition.
 ### Changed
 ### Fixed
 

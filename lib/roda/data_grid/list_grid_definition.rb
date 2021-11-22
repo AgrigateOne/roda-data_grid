@@ -81,9 +81,16 @@ module Crossbeams
       #
       # @return [boolean] - Hide or do not hide the control.
       def hide_control_by_param_key(page_control_def)
-        return false unless page_control_def[:hide_for_key]
+        return false unless page_control_def[:hide_for_key] || page_control_def[:show_for_key]
 
+        values = Array(page_control_def[:show_for_key]).map(&:to_sym)
+        unless values.empty?
+          shows = values.include?(@config.multiselect_key) || values.include?(@config.conditions_key)
+          return true unless shows
+        end
         values = Array(page_control_def[:hide_for_key]).map(&:to_sym)
+        return false if values.empty?
+
         values.include?(@config.multiselect_key) || values.include?(@config.conditions_key)
       end
 

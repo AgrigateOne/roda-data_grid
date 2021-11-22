@@ -137,10 +137,13 @@ class ListGridDefinitionTest < Minitest::Test
     additions = { conditions: { hideme: [{ col: 'users.id', op: '=', val: 1 }] },
                   page_controls: [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
                                  { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_key: ['NA', 'AN'] },
+                                 { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, show_for_key: ['NA', 'AN'] },
+                                 { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, show_for_key: ['hideme'] },
                                  { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_key: 'hideme' }]}
     gd = Crossbeams::DataGrid::ListGridDefinition.new(root_path: '/a/b/c', grid_opts: GRID_OPTS, id: 'arep', params: { key: 'hideme', athing: 'athing' }, config_loader: loader_extended(additions))
     expect = [{ control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup },
-              { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_key: ['NA', 'AN'] } ]
+              { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, hide_for_key: ['NA', 'AN'] },
+              { control_type: :link, url: '/d/e/f', text: 'Blah', style: :button, behaviour: :popup, show_for_key: ['hideme'] } ]
     pc = []
     gd.stub(:load_report_def, BASIC_DM_REPORT) do
       pc = gd.page_controls

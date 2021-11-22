@@ -57,6 +57,8 @@ module Crossbeams
       end
 
       def assign_multiselect(config)
+        raise "The grid definition does not include a multiselect section for '#{@multiselect_key}'." if @multiselect_key && (config[:multiselect].nil? || config[:multiselect][@multiselect_key].nil?)
+
         @multiselect_opts = if @multiselect_key
                               config[:multiselect][@multiselect_key]
                             else
