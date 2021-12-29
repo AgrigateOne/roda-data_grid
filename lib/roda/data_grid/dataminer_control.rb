@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DataminerControl # rubocop:disable Metrics/ClassLength
+class DataminerControl
   attr_reader :report, :search_def, :list_def
 
   # TODO: Use some kind of config for this
@@ -304,7 +304,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
     new_set = []
     new_rec = {}
     # FIXME: chunks of func 1 program in func2 - which has no programs......
-    DB[sql].to_a.each do |rec| # rubocop:disable Metrics/BlockLength
+    DB[sql].to_a.each do |rec|
       # puts ">>> #{rec[key_columns[1]]}"
       if rec[key_columns[1]] != prev_keys[1]
         new_set << new_rec unless new_rec.empty?
@@ -365,7 +365,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   def make_subitems(actions, level = 0) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     this_col = []
     cnt = 0
-    actions.each do |action| # rubocop:disable Metrics/BlockLength
+    actions.each do |action|
       if action[:separator]
         cnt += 1
         this_col << { text: "sep#{level}#{cnt}", is_separator: true }
@@ -497,7 +497,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
       col_defs << hs
     end
 
-    (options[:column_set] || report.ordered_columns).each do |col| # rubocop:disable Metrics/BlockLength
+    (options[:column_set] || report.ordered_columns).each do |col|
       hs                  = { headerName: col.caption, field: col.name, hide: col.hide, headerTooltip: col.caption }
       hs[:hide]           = true if @hide_for_client.include?(col.name)
       hs[:width]          = col.width unless col.width.nil?

@@ -15,12 +15,20 @@ MethodLength:
 Layout/ExtraSpacing:
   Enabled: false
 
+Metrics/BlockNesting:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
 Metrics/BlockLength:
-  Exclude:
-    - '*.gemspec'
-    - 'Rakefile'
-    - '**/*.rake'
-    - 'spec/**/*.rb'
+  Enabled: false
 
 Layout/SpaceAroundOperators:
   AllowForAlignment: true

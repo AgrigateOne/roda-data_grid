@@ -13,7 +13,7 @@ class Roda
         app.opts[:data_grid] = opts.dup
       end
 
-      module InstanceMethods # rubocop:disable Metrics/ModuleLength
+      module InstanceMethods
         include Roda::DataGrid::DataGridHelpers
 
         # Helper methods for accessing opts[:data_grid] options

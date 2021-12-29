@@ -25,7 +25,7 @@ module Crossbeams
     #
     #   # Return JSON definition of data grid:
     #   { columnDefs: cols, rowDefs: method_to_populate_rows }.to_json
-    class ColumnDefiner # rubocop:disable Metrics/ClassLength
+    class ColumnDefiner
       # New
       # @param for_multiselect [bool] do we need a checkbox column for multiselect? Default is false.
       # @param for_tree [bool] is this a tree? Default is false. Only required if `for_multiselect` is true.
@@ -223,7 +223,7 @@ module Crossbeams
               values = options[:cellEditorParams][:values]
               hs[:cellEditorParams] = { values: values, selectWidth: options[:cellEditorParams][:width] || 200 }
             elsif options[:cellEditor] == 'search_select'
-              if options[:cellEditorParams][:lookup_url] # rubocop:disable Metrics/BlockNesting
+              if options[:cellEditorParams][:lookup_url]
                 hs[:cellEditorParams] = { lookupUrl: options[:cellEditorParams][:lookup_url] }
               else
                 values = options[:cellEditorParams][:values]
