@@ -191,6 +191,7 @@ class Roda
               section.add_grid("search_grid_#{id}", "#{opt_search_url.%(id)}?json_var=#{CGI.escape(params[:json_var])}" \
                                   "&limit=#{params[:limit]}&offset=#{params[:offset]}",
                                tree: dmc.tree_def,
+                               group_default_expanded: dmc.group_default_expanded,
                                colour_key: dmc.colour_key,
                                caption: page_config.form_object.caption)
             end

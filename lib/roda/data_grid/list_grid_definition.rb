@@ -126,6 +126,7 @@ module Crossbeams
       def render_options # rubocop:disable Metrics/AbcSize
         res = { caption: caption, is_nested: @config.nested_grid, tree: @config.tree, grid_params: @params }
         res.merge!(colour_key: report.external_settings[:colour_key]) if report.external_settings[:colour_key]
+        res.merge!(group_default_expanded: @config.group_default_expanded) if @config.group_default_expanded
 
         if @config.multiselect_key
           res.merge!(is_multiselect: true,

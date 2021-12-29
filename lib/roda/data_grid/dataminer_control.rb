@@ -52,6 +52,13 @@ class DataminerControl
     search_def && search_def[:tree] || list_def && list_def[:tree]
   end
 
+  # No of groups to load expanded in the grid.
+  #
+  # @return [nil, Integer] - no of expanded rows (-1 for all).
+  def group_default_expanded
+    search_def&.dig(:grouping, :groupDefaultExpanded)
+  end
+
   # Search: get the colour_key from the report definition
   #
   # @return [nil, Hash] - the colour key
