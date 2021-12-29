@@ -57,7 +57,7 @@ module Crossbeams
       end
 
       def assign_multiselect(config)
-        raise "The grid definition does not include a multiselect section for '#{@multiselect_key}'." if @multiselect_key && (config[:multiselect].nil? || config[:multiselect][@multiselect_key].nil?)
+        raise Error, "The grid definition does not include a multiselect section for '#{@multiselect_key}'." if @multiselect_key && (config[:multiselect].nil? || config[:multiselect][@multiselect_key].nil?)
 
         @multiselect_opts = if @multiselect_key
                               config[:multiselect][@multiselect_key]
@@ -113,7 +113,7 @@ module Crossbeams
       def load_config_from_file
         YAML.load(read_file)
       rescue Psych::SyntaxError => e
-        raise "Syntax error in YAML file (#{@id.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
+        raise Error, "Syntax error in YAML file (#{@id.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
       end
 
       def read_file

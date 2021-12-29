@@ -16,6 +16,8 @@ require 'crossbeams/layout'
 
 module Crossbeams
   module DataGrid
+    class Error < StandardError; end
+
     # Default column widths for different data types
     COLWIDTH_DATETIME = 140
     COLWIDTH_BOOLEAN = 100

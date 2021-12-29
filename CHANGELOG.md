@@ -9,6 +9,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 - A page control can be hidden when the value of the key parameter in the URL does not matches one of the list of `show_for_key` values in the list definition.
 ### Changed
+- Use library-specific Error class instead of RuntimeError.
 ### Fixed
 
 ## [0.5.6] - 2021-07-03
