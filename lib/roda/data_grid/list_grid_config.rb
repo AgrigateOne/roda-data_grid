@@ -6,7 +6,7 @@ module Crossbeams
       attr_reader :id, :root, :multiselect_key, :fit_height, :grid_caption,
                   :dataminer_definition, :tree, :page_control_defs,
                   :multiselect_opts, :nested_grid, :conditions_key, :conditions, :actions,
-                  :calculated_columns, :edit_rules, :hide_for_client
+                  :calculated_columns, :edit_rules, :hide_for_client, :group_default_expanded
 
       def initialize(options)
         @id = options.fetch(:id)
@@ -30,6 +30,7 @@ module Crossbeams
         config = @config_loader.call
         assign_dataminer_def(config)
         @tree = config[:tree]
+        @group_default_expanded = config.dig(:grouping, :groupDefaultExpanded)
         @actions = config[:actions]
         @edit_rules = config[:edit_rules] || {}
         @hide_for_client = config.dig(:hide_for_client, ENV['CLIENT_CODE']) || []
@@ -57,7 +58,7 @@ module Crossbeams
       end
 
       def assign_multiselect(config)
-        raise "The grid definition does not include a multiselect section for '#{@multiselect_key}'." if @multiselect_key && (config[:multiselect].nil? || config[:multiselect][@multiselect_key].nil?)
+        raise Error, "The grid definition does not include a multiselect section for '#{@multiselect_key}'." if @multiselect_key && (config[:multiselect].nil? || config[:multiselect][@multiselect_key].nil?)
 
         @multiselect_opts = if @multiselect_key
                               config[:multiselect][@multiselect_key]
@@ -113,7 +114,7 @@ module Crossbeams
       def load_config_from_file
         YAML.load(read_file)
       rescue Psych::SyntaxError => e
-        raise "Syntax error in YAML file (#{@id.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
+        raise Error, "Syntax error in YAML file (#{@id.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
       end
 
       def read_file

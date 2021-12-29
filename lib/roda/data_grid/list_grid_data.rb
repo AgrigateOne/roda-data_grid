@@ -4,7 +4,7 @@ require 'rack'
 
 module Crossbeams
   module DataGrid
-    class ListGridData # rubocop:disable Metrics/ClassLength
+    class ListGridData
       attr_reader :config, :params
 
       def initialize(options)
@@ -172,7 +172,7 @@ module Crossbeams
           col_defs << hs
         end
 
-        (options[:column_set] || report.ordered_columns).each do |col| # rubocop:disable Metrics/BlockLength
+        (options[:column_set] || report.ordered_columns).each do |col|
           hs                  = { headerName: col.caption, field: col.name, hide: col.hide, headerTooltip: col.caption }
           hs[:hide]           = true if config.hide_for_client.include?(col.name)
           hs[:width]          = col.width unless col.width.nil?
@@ -218,7 +218,7 @@ module Crossbeams
               end
               if rule[:editor] == :search_select
                 hs[:cellEditor] = 'searchableSelectCellEditor'
-                if rule[:lookup_url] # rubocop:disable Metrics/BlockNesting
+                if rule[:lookup_url]
                   hs[:cellEditorParams] = { lookupUrl: rule[:lookup_url] }
                 else
                   values = select_editor_values(rule)
@@ -313,7 +313,7 @@ module Crossbeams
       def make_subitems(actions, level = 0) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
         this_col = []
         cnt = 0
-        actions.each do |action| # rubocop:disable Metrics/BlockLength
+        actions.each do |action|
           if action[:separator]
             cnt += 1
             this_col << { text: "sep#{level}#{cnt}", is_separator: true }

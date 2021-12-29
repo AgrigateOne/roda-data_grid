@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DataminerControl # rubocop:disable Metrics/ClassLength
+class DataminerControl
   attr_reader :report, :search_def, :list_def
 
   # TODO: Use some kind of config for this
@@ -50,6 +50,13 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   # @return [nil, Hash] - Config for tree.
   def tree_def
     search_def && search_def[:tree] || list_def && list_def[:tree]
+  end
+
+  # No of groups to load expanded in the grid.
+  #
+  # @return [nil, Integer] - no of expanded rows (-1 for all).
+  def group_default_expanded
+    search_def&.dig(:grouping, :groupDefaultExpanded)
   end
 
   # Search: get the colour_key from the report definition
@@ -304,7 +311,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
     new_set = []
     new_rec = {}
     # FIXME: chunks of func 1 program in func2 - which has no programs......
-    DB[sql].to_a.each do |rec| # rubocop:disable Metrics/BlockLength
+    DB[sql].to_a.each do |rec|
       # puts ">>> #{rec[key_columns[1]]}"
       if rec[key_columns[1]] != prev_keys[1]
         new_set << new_rec unless new_rec.empty?
@@ -344,14 +351,14 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
     path = File.join(@root, 'grid_definitions', 'searches', file_name.sub('.yml', '') << '.yml')
     YAML.load(File.read(path))
   rescue Psych::SyntaxError => e
-    raise "Syntax error in YAML file (#{file_name.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
+    raise Error, "Syntax error in YAML file (#{file_name.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
   end
 
   def load_list_definition(file_name)
     path = File.join(@root, 'grid_definitions', 'lists', file_name.sub('.yml', '') << '.yml')
     YAML.load(File.read(path))
   rescue Psych::SyntaxError => e
-    raise "Syntax error in YAML file (#{file_name.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
+    raise Error, "Syntax error in YAML file (#{file_name.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
   end
 
   # Load a YML report.
@@ -365,7 +372,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
   def make_subitems(actions, level = 0) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     this_col = []
     cnt = 0
-    actions.each do |action| # rubocop:disable Metrics/BlockLength
+    actions.each do |action|
       if action[:separator]
         cnt += 1
         this_col << { text: "sep#{level}#{cnt}", is_separator: true }
@@ -497,7 +504,7 @@ class DataminerControl # rubocop:disable Metrics/ClassLength
       col_defs << hs
     end
 
-    (options[:column_set] || report.ordered_columns).each do |col| # rubocop:disable Metrics/BlockLength
+    (options[:column_set] || report.ordered_columns).each do |col|
       hs                  = { headerName: col.caption, field: col.name, hide: col.hide, headerTooltip: col.caption }
       hs[:hide]           = true if @hide_for_client.include?(col.name)
       hs[:width]          = col.width unless col.width.nil?

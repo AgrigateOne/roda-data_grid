@@ -4,7 +4,7 @@ require 'rack'
 
 module Crossbeams
   module DataGrid
-    class LookupGridData # rubocop:disable Metrics/ClassLength
+    class LookupGridData
       attr_reader :config, :params
 
       def initialize(options)

@@ -66,7 +66,7 @@ module Crossbeams
       def load_config_from_file
         YAML.load(read_file)
       rescue Psych::SyntaxError => e
-        raise "Syntax error in YAML file (#{@id.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
+        raise Error, "Syntax error in YAML file (#{@id.sub('.yml', '') << '.yml'}). The syntax error is: #{e.message}"
       end
 
       def read_file
