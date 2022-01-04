@@ -9,6 +9,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 ### Changed
 ### Fixed
+- LIMIT parameter was ignored.
 
 ## [0.5.7] - 2021-2-29
 ### Added

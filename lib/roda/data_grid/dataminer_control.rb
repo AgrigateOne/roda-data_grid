@@ -273,8 +273,8 @@ class DataminerControl
       param_def = report.parameter_definition(col)
       parms << Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new('in', vals, param_def.data_type))
     end
-    report.limit  = params[:limit].to_i  unless params[:limit].nil? || params[:limit] != ''
-    report.offset = params[:offset].to_i unless params[:offset].nil? || params[:offset] != ''
+    report.limit  = params[:limit].to_i  unless params[:limit].nil? || params[:limit].to_s == ''
+    report.offset = params[:offset].to_i unless params[:offset].nil? || params[:offset].to_s == ''
     begin
       report.apply_params(parms)
     rescue StandardError => e
