@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- ColumnDefiner can specify an `icon` column to render as an icon
 ### Changed
 ### Fixed
 - LIMIT parameter was ignored.

@@ -116,6 +116,19 @@ class ColumnDefinerTest < Minitest::Test
     assert_equal col[:width], 400
   end
 
+  def test_icon_column
+    cd = Crossbeams::DataGrid::ColumnDefiner.new
+    cols = cd.make_columns do |mk|
+      mk.icon 'afield', 'A Caption'
+    end
+    col = cols.first
+
+    assert_equal col[:headerName], 'A Caption'
+    assert_equal col[:headerTooltip], 'A Caption'
+    assert_equal col[:field], 'afield'
+    assert_equal col[:cellRenderer], 'crossbeamsGridFormatters.iconFormatter'
+  end
+
   def test_editable_column
     cd = Crossbeams::DataGrid::ColumnDefiner.new
     cols = cd.make_columns do |mk|

@@ -21,6 +21,7 @@ module Crossbeams
     #     mk.col 'description', nil, width: 200
     #     mk.numeric 'total'
     #     mk.boolean 'active'
+    #     mk.calculated_column 'tot', 'Total', type: :number, format: :delimited_1000, expression: "qty * price"
     #   end
     #
     #   # Return JSON definition of data grid:
@@ -207,6 +208,8 @@ module Crossbeams
         hs[:rowGroupIndex] = options[:group_by_seq] if options[:group_by_seq]
         hs[:rowGroup] = true if options[:group_by_seq]
         hs[:pinned] = options[:pinned] if options[:pinned]
+        hs[:cellRenderer] = 'crossbeamsGridFormatters.iconFormatter' if options[:icon]
+
         if options[:editable]
           hs[:headerClass] = %i[integer number].include?(options[:data_type]) ? 'ag-numeric-header gridEditableColumn' : 'gridEditableColumn'
           hs[:editable] = true
@@ -277,6 +280,12 @@ module Crossbeams
 
       def boolean(field, caption = nil, options = {})
         hard_opts = { data_type: :boolean }
+        all_opts = options.merge(hard_opts)
+        col(field, caption, all_opts)
+      end
+
+      def icon(field, caption = nil, options = {})
+        hard_opts = { icon: true }
         all_opts = options.merge(hard_opts)
         col(field, caption, all_opts)
       end
