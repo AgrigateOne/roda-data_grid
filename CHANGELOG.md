@@ -11,6 +11,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 - LIMIT parameter was ignored.
+- To value for between parameters was incorrectly referenced.
 
 ## [0.5.7] - 2021-2-29
 ### Added
