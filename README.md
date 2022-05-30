@@ -39,6 +39,7 @@ List definition files and search definition files must be in the relevant direct
     ├── grid_definitions
     │   ├── dataminer_queries
     │   ├── lists
+    │   ├── lookups
     │   └── searches
 
 The various paths for lists and searches must include `%s` where the list or search filename will be substituted.
@@ -73,7 +74,11 @@ The various paths for lists and searches must include `%s` where the list or sea
 
         r.on 'grid' do
           response['Content-Type'] = 'application/json'
-          render_search_grid_rows(id, params)
+          render_search_grid_rows(id,
+                                  params,
+                                  ->(args) { Crossbeams::Config::ClientRuleChecker.rule_passed?(*args) },
+                                  ->(function, program, permission) { auth_blocked?(function, program.split(','), permission) },
+                                  ->(args) { Crossbeams::Config::UserPermissions.can_user?(current_user, *args) })
         end
 
         r.on 'xls' do

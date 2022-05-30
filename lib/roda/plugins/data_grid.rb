@@ -160,9 +160,14 @@ class Roda
         end
 
         def render_search_filter(id, params)
-          dmc = DataminerControl.new(path: opt_path, search_file: id)
+          grid_def = Crossbeams::DataGrid::SearchGridDefinition.new(root_path: opt_path,
+                                                                    grid_opts: opts[:data_grid],
+                                                                    id: id,
+                                                                    params: params)
+          # dmc = DataminerControl.new(path: opt_path, search_file: id)
           for_rerun = params[:rerun] && params[:rerun] == 'y'
-          presenter = search_presenter(id, dmc, params, for_rerun)
+          # presenter = search_presenter(id, dmc, params, for_rerun)
+          presenter = search_presenter(id, grid_def, params, for_rerun)
           fp = search_view_file(for_rerun)
           view(path: fp,
                locals: { presenter: presenter,
@@ -171,12 +176,17 @@ class Roda
         end
 
         def render_search_grid_page(id, params) # rubocop:disable Metrics/AbcSize
-          fit_height = params&.delete(:fit_height)
-          dmc = DataminerControl.new(path: opt_path, search_file: id)
-          dmc.apply_params(params)
+          grid_def = Crossbeams::DataGrid::SearchGridDefinition.new(root_path: opt_path,
+                                                                    grid_opts: opts[:data_grid],
+                                                                    id: id,
+                                                                    params: params)
+          # fit_height = params&.delete(:fit_height)
+          # dmc = DataminerControl.new(path: opt_path, search_file: id)
+          # dmc.apply_params(params)
 
-          layout = Crossbeams::Layout::Page.new form_object: dmc.report
-          layout.build do |page, page_config|
+          # layout = Crossbeams::Layout::Page.new form_object: dmc.report
+          layout = Crossbeams::Layout::Page.new form_object: grid_def.report
+          layout.build do |page, _|
             page.row do |row|
               row.column do |col|
                 col.add_control control_type: :link, text: 'Back', url: "#{opt_filter_url.%(id)}?back=y", style: :back_button
@@ -187,26 +197,46 @@ class Roda
               end
             end
             page.section do |section|
-              section.fit_height! if fit_height
-              section.add_grid("search_grid_#{id}", "#{opt_search_url.%(id)}?json_var=#{CGI.escape(params[:json_var])}" \
-                                  "&limit=#{params[:limit]}&offset=#{params[:offset]}",
-                               tree: dmc.tree_def,
-                               group_default_expanded: dmc.group_default_expanded,
-                               colour_key: dmc.colour_key,
-                               caption: page_config.form_object.caption)
+              section.fit_height! if grid_def.fit_height
+              # section.fit_height! if fit_height
+              section.add_grid("search_grid_#{id}", grid_def.grid_path, grid_def.render_options)
+              # section.add_grid("search_grid_#{id}", "#{opt_search_url.%(id)}?json_var=#{CGI.escape(params[:json_var])}" \
+              #                     "&limit=#{params[:limit]}&offset=#{params[:offset]}",
+              #                  tree: dmc.tree_def,
+              #                  group_default_expanded: dmc.group_default_expanded,
+              #                  colour_key: dmc.colour_key,
+              #                  caption: page_config.form_object.caption)
             end
           end
           layout
         end
 
-        def render_search_grid_rows(id, params, client_rule_check = nil, deny_access = nil)
-          dmc = DataminerControl.new(path: opt_path, search_file: id, client_rule_check: client_rule_check, deny_access: deny_access)
-          dmc.search_rows(params)
+        def render_search_grid_rows(id, params, client_rule_check = nil, deny_access = nil, has_permission = nil)
+          # dmc = DataminerControl.new(path: opt_path, search_file: id, client_rule_check: client_rule_check, deny_access: deny_access)
+          # dmc.search_rows(params)
+
+          always_pass = ->(_) { true }
+          data = Crossbeams::DataGrid::SearchGridData.new(id: id,
+                                                          root_path: opt_path,
+                                                          deny_access: deny_access || always_pass,
+                                                          has_permission: has_permission || always_pass,
+                                                          client_rule_check: client_rule_check,
+                                                          params: params)
+          data.list_rows
         end
 
         def render_excel_rows(id, params)
-          dmc = DataminerControl.new(path: opt_path, search_file: id)
-          [dmc.report.caption, dmc.excel_rows(params)]
+          always_pass = ->(_) { true }
+          data = Crossbeams::DataGrid::SearchGridData.new(id: id,
+                                                          root_path: opt_path,
+                                                          deny_access: always_pass,
+                                                          has_permission: always_pass,
+                                                          client_rule_check: always_pass,
+                                                          params: params)
+          data.list_rows
+          [data.report.caption, data.excel_rows]
+          # dmc = DataminerControl.new(path: opt_path, search_file: id)
+          # [dmc.report.caption, dmc.excel_rows(params)]
         end
       end
     end
