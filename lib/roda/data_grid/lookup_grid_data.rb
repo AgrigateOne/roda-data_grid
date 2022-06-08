@@ -71,7 +71,7 @@ module Crossbeams
           raise Roda::RodaPlugins::DataGrid::Error, "There is no parameter for this grid query named \"#{col}\"" if param_def.nil?
 
           val = if in_param['op'] == 'between'
-                  [in_param['val'], in_param['val_to']]
+                  [in_param['val'], in_param['valTo']]
                 else
                   in_param['val']
                 end
