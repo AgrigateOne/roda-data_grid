@@ -7,13 +7,17 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- ColumnDefiner can specify an `icon` column to render as an icon
 ### Changed
+### Fixed
+
+## [0.5.8] - 2022-06-08
+### Added
+- ColumnDefiner can specify an `icon` column to render as an icon
 ### Fixed
 - LIMIT parameter was ignored.
 - To value for between parameters was incorrectly referenced.
 
-## [0.5.7] - 2021-2-29
+## [0.5.7] - 2021-02-29
 ### Added
 - A page control can be hidden when the value of the key parameter in the URL does not matches one of the list of `show_for_key` values in the list definition.
 - A new setting for `groupDefaultExpanded` can be used to set the number of initially expanded groups in a grid.
