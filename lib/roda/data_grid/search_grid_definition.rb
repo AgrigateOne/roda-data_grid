@@ -114,8 +114,7 @@ module Crossbeams
       end
 
       def grid_path
-        # grid_url.%(@config.id)
-        "#{grid_url.%(@config.id)}?json_var=#{CGI.escape(@params[:json_var])}&limit=#{@params[:limit]}&offset=#{@params[:offset]}"
+        "#{grid_url.%(@config.id)}?json_var=#{CGI.escape(@params[:json_var].to_s)}&limit=#{@params[:limit]}&offset=#{@params[:offset]}"
       end
 
       # The URL that a multiselect grid's selection should be saved to.
