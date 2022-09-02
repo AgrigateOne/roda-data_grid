@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Page control links can build their caption from SQL using the new `sql_text` attribute which has access to the URL querystring parameters for building conditions.
 ### Changed
 ### Fixed
 
