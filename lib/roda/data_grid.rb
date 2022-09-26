@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json'
+
 require 'roda/data_grid/version'
 # require 'roda/data_grid/dataminer_control'
 require 'roda/data_grid/client_rule_check'
