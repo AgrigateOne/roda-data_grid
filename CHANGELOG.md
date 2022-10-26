@@ -9,6 +9,8 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 - Page control links can build their caption from SQL using the new `sql_text` attribute which has access to the URL querystring parameters for building conditions.
 ### Changed
+- Prepare for upgrade to Ruby 2.7 and 3
+- Housekeeping: remove DataminerControl and references to the class
 ### Fixed
 
 ## [0.5.8] - 2022-06-08
