@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
+require 'json'
+
 require 'roda/data_grid/version'
-# require 'roda/data_grid/dataminer_control'
 require 'roda/data_grid/client_rule_check'
 require 'roda/data_grid/base_grid_config'
 require 'roda/data_grid/column_definer'
@@ -32,6 +33,5 @@ end
 
 class Roda
   module DataGrid
-    # Your code goes here...
   end
 end

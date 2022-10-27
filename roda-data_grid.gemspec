@@ -34,10 +34,12 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'caxlsx'
   spec.add_dependency 'crossbeams-dataminer'
   spec.add_dependency 'crossbeams-layout'
+  spec.add_dependency 'json'
   spec.add_dependency 'roda'
 
   spec.add_development_dependency 'minitest'
   spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'pry-doc'
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rubocop'
   spec.add_development_dependency 'yard'
