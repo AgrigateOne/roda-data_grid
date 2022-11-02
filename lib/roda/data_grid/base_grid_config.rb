@@ -24,13 +24,20 @@ module Crossbeams
 
       private
 
-      def load_config
+      def extend_hide_cols(show_cols)
+        show_cols.each do |col, clients|
+          @hide_for_client << col unless clients.include?(ENV['CLIENT_CODE'])
+        end
+      end
+
+      def load_config # rubocop:disable Metrics/AbcSize
         config = @config_loader.call
         assign_dataminer_def(config)
         @tree = config[:tree]
         @group_default_expanded = config.dig(:grouping, :groupDefaultExpanded)
         @actions = config[:actions]
         @hide_for_client = config.dig(:hide_for_client, ENV['CLIENT_CODE']) || []
+        extend_hide_cols(config.fetch(:show_for_client, {}))
         @calculated_columns = config[:calculated_columns]
         assign_multiselect(config)
         @nested_grid = !config[:nesting].nil?

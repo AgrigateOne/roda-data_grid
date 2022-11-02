@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Show columns for selected clients only (using `show_for_client` option)
 ### Changed
 ### Fixed
 
