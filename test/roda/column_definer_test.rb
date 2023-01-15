@@ -106,6 +106,19 @@ class ColumnDefinerTest < Minitest::Test
     assert_equal col[:cellRenderer], 'crossbeamsGridFormatters.booleanFormatter'
   end
 
+  def test_bar_colour_cell_renderer
+    cd = Crossbeams::DataGrid::ColumnDefiner.new
+    cols = cd.make_columns do |mk|
+      mk.col 'afield', 'A Caption', format: :bar_colour
+    end
+    col = cols.first
+
+    assert_equal col[:headerName], 'A Caption'
+    assert_equal col[:headerTooltip], 'A Caption'
+    assert_equal col[:field], 'afield'
+    assert_equal col[:cellRenderer], 'crossbeamsGridFormatters.barColourFormatter'
+  end
+
   def test_boolean_with_overrides
     cd = Crossbeams::DataGrid::ColumnDefiner.new
     cols = cd.make_columns do |mk|
