@@ -441,6 +441,19 @@ class ListGridDataTest < Minitest::Test
     assert_equal 'data.amount * data.id', tester['columnDefs'][2]['valueGetter']
   end
 
+  def test_bar_colour_format_column
+    DB.array_expect(BASIC_DATA)
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, client_rule_check: FALSE_CLIENT_RULE, config_loader: basic_loader)
+    rpt = BASIC_DM_REPORT.dup
+    rpt[:columns]['user_name'][:format] = :bar_colour
+    rows = nil
+      data.stub(:load_report_def, rpt) do
+      rows = data.list_rows
+    end
+    tester = JSON.parse(rows)
+    assert_equal 'crossbeamsGridFormatters.barColourFormatter', tester['columnDefs'][1]['cellRenderer']
+  end
+
   def test_edit_rules
     DB.array_expect(BASIC_DATA)
     additions = { edit_rules: { url: '/path/to/$:id$/inline_save', editable_fields: { 'user_name' => nil,

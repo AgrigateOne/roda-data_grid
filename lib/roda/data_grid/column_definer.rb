@@ -245,8 +245,8 @@ module Crossbeams
           hs[:width]     = Crossbeams::DataGrid::COLWIDTH_NUMBER if options[:width].nil? && options[:data_type] == :number
         end
 
-        hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if options[:format] == :delimited_1000
-        hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if options[:format] == :delimited_1000_4
+        hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if options[:format] == :delimited_1000 # rubocop:disable Naming/VariableNumber
+        hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if options[:format] == :delimited_1000_4 # rubocop:disable Naming/VariableNumber
 
         if options[:data_type] == :boolean
           hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
@@ -255,6 +255,7 @@ module Crossbeams
         end
         hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if options[:data_type] == :datetime
         hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutZoneFormatter' if options[:format] == :datetime_with_secs
+        hs[:cellRenderer] = 'crossbeamsGridFormatters.barColourFormatter' if options[:format] == :bar_colour
 
         if options[:expands_nested_grid] && options[:expands_nested_grid] == field.to_s
           hs[:cellRenderer]       = 'group' # This column will have the expand/contract controls.

@@ -8,6 +8,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Show columns for selected clients only (using `show_for_client` option)
+- New column formatter "barColourFormatter". This works for a column containing 0 or more semicolon-separated characters (b, g, o, r, s, y) each will display as a coloured section of a bar (blue, green, orange, red, silver, yellow). This can be used at a high-level to indicate a set of states.
 ### Changed
 ### Fixed
 
