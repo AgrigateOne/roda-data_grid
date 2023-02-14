@@ -294,6 +294,7 @@ module Crossbeams
               show_for_client_rule
               icon
               is_delete
+              remote
               loading_window
               popup
               prompt
@@ -307,6 +308,7 @@ module Crossbeams
           end
 
           raise ArgumentError, 'A grid action cannot be both a popup and a loading_window' if action[:popup] && action[:loading_window]
+          raise ArgumentError, 'A remote grid action must also be defined as a popup' if action[:remote] && !action[:popup]
         end
       end
 
@@ -345,6 +347,8 @@ module Crossbeams
             link_h[:prompt] = 'Are you sure?'
             link_h[:method] = 'delete'
           end
+          link_h[:method] = 'post' if action[:remote]
+
           link_h[:icon] = action[:icon] if action[:icon]
           link_h[:prompt] = action[:prompt] if action[:prompt]
           link_h[:title] = action[:title] if action[:title]

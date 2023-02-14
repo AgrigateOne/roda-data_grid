@@ -162,6 +162,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [0.1.8] - 2018-08-31
 ### Added
 - Grid can render as a tree.
+- Grid action can be `remote` - this will result in a POST fetch request
 ### Changed
 - A page control can be hidden based on the result of running the SQL in `hide_if_sql_returns_true`.
 
