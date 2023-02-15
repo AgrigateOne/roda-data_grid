@@ -7,6 +7,8 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- If a grid action column is defined as a `remote` action, set the action method to `post`
+- Remote link for column definer
 ### Changed
 ### Fixed
 

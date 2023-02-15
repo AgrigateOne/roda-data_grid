@@ -121,6 +121,16 @@ module Crossbeams
         @actions << options.merge(text: text, url: url, popup: true)
       end
 
+      # Create a remote link in an action list.
+      #
+      # @param text [String] the text to be displayed in the link.
+      # @param url [String] the url to be called when the link is clicked.
+      # @param [Hash] options.
+      # @return [void]
+      def remote_link(text, url, options = {})
+        @actions << options.merge(text: text, url: url, popup: true, method: 'post')
+      end
+
       # Create a popup link in an action list for a view-only action.
       #
       # @param url [String] the url to be called when the link is clicked.
