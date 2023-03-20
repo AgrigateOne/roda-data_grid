@@ -23,6 +23,19 @@ module Crossbeams
   module DataGrid
     class Error < StandardError; end
 
+    # Sparkline formatter types
+    SPARKTYPES = {
+      sparkline: 'line',
+      sparkline_text: 'line',
+      sparkarea: 'area',
+      sparkarea_text: 'area',
+      sparkcol: 'column',
+      sparkcol_text: 'column',
+      sparkbar: 'bar',
+      sparkbar_text: 'bar',
+      sparkbar_perc: 'bar'
+    }.freeze
+
     # Default column widths for different data types
     COLWIDTH_DATETIME = 140
     COLWIDTH_BOOLEAN = 100

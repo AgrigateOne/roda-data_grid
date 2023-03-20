@@ -27,12 +27,16 @@ module Crossbeams
     #   # Return JSON definition of data grid:
     #   { columnDefs: cols, rowDefs: method_to_populate_rows }.to_json
     class ColumnDefiner
+      attr_reader :multi_dimensional_arrays, :percentage_bars
+
       # New
       # @param for_multiselect [bool] do we need a checkbox column for multiselect? Default is false.
       # @param for_tree [bool] is this a tree? Default is false. Only required if `for_multiselect` is true.
       def initialize(for_multiselect: false, for_tree: false)
         @for_multiselect = for_multiselect
         @for_tree = for_tree
+        @multi_dimensional_arrays = []
+        @percentage_bars = []
       end
 
       # Main DSL method.
@@ -232,10 +236,11 @@ module Crossbeams
             hs[:cellEditorType] = 'integer' if options[:data_type] == :integer
           end
           if options[:cellEditorParams]
-            if options[:cellEditor] == 'select'
+            case options[:cellEditor]
+            when 'select'
               values = options[:cellEditorParams][:values]
               hs[:cellEditorParams] = { values: values, selectWidth: options[:cellEditorParams][:width] || 200 }
-            elsif options[:cellEditor] == 'search_select'
+            when 'search_select'
               if options[:cellEditorParams][:lookup_url]
                 hs[:cellEditorParams] = { lookupUrl: options[:cellEditorParams][:lookup_url] }
               else
@@ -266,6 +271,31 @@ module Crossbeams
         hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if options[:data_type] == :datetime
         hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutZoneFormatter' if options[:format] == :datetime_with_secs
         hs[:cellRenderer] = 'crossbeamsGridFormatters.barColourFormatter' if options[:format] == :bar_colour
+
+        # Sparkline chart formats
+        if SPARKTYPES.keys.include?(options[:format])
+          hs[:cellRenderer] = 'agSparklineCellRenderer'
+          hs[:cellRendererParams] = { sparklineOptions: { type: SPARKTYPES[options[:format]] } }
+          @multi_dimensional_arrays << field.to_sym if options[:format].to_s.end_with?('_text')
+
+          if options[:format] == :sparkbar_perc
+            @percentage_bars << field.to_sym
+            hs[:cellRendererParams] = {
+              sparklineOptions: {
+                type: SPARKTYPES[options[:format]],
+                valueAxisDomain: [0, 100],
+                label: {
+                  enabled: true,
+                  placement: 'outsideEnd'
+                },
+                padding: {
+                  top: 0,
+                  bottom: 0
+                }
+              }
+            }
+          end
+        end
 
         if options[:expands_nested_grid] && options[:expands_nested_grid] == field.to_s
           hs[:cellRenderer]       = 'group' # This column will have the expand/contract controls.
