@@ -13,6 +13,8 @@ module Crossbeams
         @client_rule_check = options.fetch(:client_rule_check)
         @config = ListGridConfig.new(options)
         @params = parse_params(options)
+        @multi_dimensional_arrays = []
+        @percentage_bars = []
         assert_actions_ok!
       end
 
@@ -46,7 +48,7 @@ module Crossbeams
         }.to_json
       end
 
-      def debug_grid
+      def debug_grid # rubocop:disable Metrics/AbcSize
         cond = conditions
         n_params = { json_var: cond.to_json }
         apply_params(n_params)
@@ -84,7 +86,7 @@ module Crossbeams
         in_keys
       end
 
-      def params_to_parms(params) # rubocop:disable Metrics/AbcSize
+      def params_to_parms(params) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
         input_parameters = ::JSON.parse(params[:json_var]) || []
         parms = []
         # Check if this should become an IN parmeter (list of equal checks for a column.
@@ -201,6 +203,31 @@ module Crossbeams
           hs[:cellRenderer] = 'crossbeamsGridFormatters.iconFormatter' if col.name == 'icon'
           hs[:cellRenderer] = 'crossbeamsGridFormatters.barColourFormatter' if col.format == :bar_colour
 
+          # Sparkline chart formats
+          if SPARKTYPES.keys.include?(col.format)
+            hs[:cellRenderer] = 'agSparklineCellRenderer'
+            hs[:cellRendererParams] = { sparklineOptions: { type: SPARKTYPES[col.format] } }
+            @multi_dimensional_arrays << col.name.to_sym if col.format.to_s.end_with?('_text')
+
+            if col.format == :sparkbar_perc
+              @percentage_bars << col.name.to_sym
+              hs[:cellRendererParams] = {
+                sparklineOptions: {
+                  type: SPARKTYPES[col.format],
+                  valueAxisDomain: [0, 100],
+                  label: {
+                    enabled: true,
+                    placement: 'outsideEnd'
+                  },
+                  padding: {
+                    top: 0,
+                    bottom: 0
+                  }
+                }
+              }
+            end
+          end
+
           # Rules for editable columns
           if edit_columns.include?(col.name)
             hs[:editable] = true
@@ -276,11 +303,11 @@ module Crossbeams
 
       private
 
-      def assert_actions_ok!
+      def assert_actions_ok! # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
         return unless config.actions
 
         config.actions.each do |action|
-          action.keys.each do |key|
+          action.each_key do |key|
             raise ArgumentError, "#{key} is not a valid action attribute" unless %i[
               auth
               has_permission
@@ -466,10 +493,12 @@ module Crossbeams
         DB[sql].map { |r| r.values.first }
       end
 
-      def dataminer_query(sql)
+      def dataminer_query(sql) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
         hstore = Object.const_defined?('Sequel::Postgres::HStore')
         DB[sql].to_a.map do |rec|
-          rec.keys.each do |key|
+          rec.each_key do |key|
+            rec[key] = rec[key].map { |a, b| [a, b.to_f] } if @multi_dimensional_arrays.include?(key) && !rec[key].nil?
+            rec[key] = Array(rec[key]) if @percentage_bars.include?(key) && !rec[key].nil?
             rec[key] = rec[key].to_f if rec[key].is_a?(BigDecimal)
             rec[key] = rec[key].to_s if hstore && rec[key].is_a?(Sequel::Postgres::HStore)
           end
