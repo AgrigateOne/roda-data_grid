@@ -7,11 +7,14 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+### Changed
+### Fixed
+
+## [1.2.0] - 2023-03-20
+### Added
 - Formatters for sparkline columns - `:sparkline`, `:sparkline_text`, `:sparkarea`, `:sparkarea_text`, `:sparkcol`, `:sparkcol_text`, `:sparkbar`, `:sparkbar_text`
 - If a grid action column is defined as a `remote` action, set the action method to `post`
 - Remote link for column definer
-### Changed
-### Fixed
 
 ## [1.1.0] - 2023-01-15
 ### Added
