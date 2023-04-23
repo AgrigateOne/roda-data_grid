@@ -8,6 +8,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 ### Changed
+- `value_sql` can return two columns - the first is used for display, and the second for the value.
 ### Fixed
 
 ## [1.2.0] - 2023-03-20

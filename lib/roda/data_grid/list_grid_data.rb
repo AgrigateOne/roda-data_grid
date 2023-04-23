@@ -526,7 +526,7 @@ module Crossbeams
         config.multiselect ? preselect_ids : []
       end
 
-      def select_editor_values(rule)
+      def select_editor_values(rule) # rubocop:disable Metrics/AbcSize
         return rule[:values] if rule[:values]
 
         sql = rule[:value_sql]
@@ -534,7 +534,7 @@ module Crossbeams
 
         params&.each { |k, v| sql.gsub!("$:#{k}$", v.to_s) }
         assert_sql_is_select!('select editor', sql)
-        DB[sql].map { |r| r.values.first }
+        DB[sql].map { |r| r.values.length > 1 ? r.values : r.values.first }
       end
     end
   end
