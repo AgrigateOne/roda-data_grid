@@ -185,6 +185,7 @@ module Crossbeams
           hs[:rowGroupIndex]  = col.group_by_seq if col.group_by_seq
           hs[:pinned]         = col.pinned if col.pinned
           hs[:rowGroup]       = true if col.group_by_seq
+          hs[:aggFunc]        = 'sum' if col.group_sum
 
           if %i[integer number].include?(col.data_type)
             hs[:type]      = 'numericColumn'
