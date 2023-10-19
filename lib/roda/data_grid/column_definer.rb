@@ -61,6 +61,9 @@ module Crossbeams
         hs[:groupable]    = col.groupable
         hs[:group_by_seq] = col.group_by_seq if col.group_by_seq
         hs[:group_sum]    = col.group_sum if col.group_sum
+        hs[:group_min]    = col.group_min if col.group_min
+        hs[:group_max]    = col.group_max if col.group_max
+        hs[:group_avg]    = col.group_avg if col.group_avg
         hs[:format]       = col.format if col.format
         col(col.name, col.caption, hs)
       end
@@ -223,6 +226,11 @@ module Crossbeams
         hs[:rowGroup] = true if options[:group_by_seq]
         hs[:pinned] = options[:pinned] if options[:pinned]
         hs[:cellRenderer] = 'crossbeamsGridFormatters.iconFormatter' if options[:icon]
+        hs[:group_sum] = options[:group_sum] if options[:group_sum]
+        hs[:aggFunc] = 'sum' if options[:group_sum]
+        hs[:aggFunc] = 'min' if options[:group_min]
+        hs[:aggFunc] = 'max' if options[:group_max]
+        hs[:aggFunc] = 'avg' if options[:group_avg]
 
         if options[:editable]
           hs[:headerClass] = %i[integer number].include?(options[:data_type]) ? 'ag-numeric-header gridEditableColumn' : 'gridEditableColumn'
@@ -244,7 +252,7 @@ module Crossbeams
               if options[:cellEditorParams][:lookup_url]
                 hs[:cellEditorParams] = { lookupUrl: options[:cellEditorParams][:lookup_url] }
               else
-                values = options[:cellEditorParams][:values]
+                values = options[:cellEditorParams][:values] # TODO: Convert nil to ''?
                 hs[:cellEditorParams] = { values: values }
               end
             else
