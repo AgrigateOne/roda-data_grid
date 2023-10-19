@@ -3,6 +3,7 @@
 require 'json'
 
 require 'roda/data_grid/version'
+require 'roda/data_grid/data_grid_helpers'
 require 'roda/data_grid/client_rule_check'
 require 'roda/data_grid/base_grid_config'
 require 'roda/data_grid/column_definer'

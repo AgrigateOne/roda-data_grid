@@ -8,6 +8,11 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 ### Changed
+### Fixed
+
+## [1.2.1] - 2023-10-19
+### Added
+### Changed
 - `value_sql` can return two columns - the first is used for display, and the second for the value
 ### Fixed
 - If a column is set to sum when grouped, set its aggFunc so that it will be included automatically if the grid is grouped

@@ -46,8 +46,8 @@ class Roda
           query_param.build_list.list_values
         else
           query_param.build_list do |sql|
-            raise "SQL for #{param list} is not set" if sql.nil?
-            raise "SQL for #{param list} is not a SELECT" if sql.match?(/insert |update |delete /i)
+            raise "SQL for #{query_param.column} is not set" if sql.nil?
+            raise "SQL for #{query_param.column} is not a SELECT" if sql.match?(/insert |update |delete /i)
 
             connection[sql].map(&:values)
           end.list_values
