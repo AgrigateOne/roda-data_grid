@@ -101,33 +101,36 @@ class Roda
           layout
         end
 
-        def render_data_grid_rows(id, deny_access = nil, has_permission = nil, client_rule_check = nil, params = nil)
+        def render_data_grid_rows(id, fixed_params: {}, deny_access: nil, has_permission: nil, client_rule_check: nil, params: nil)
           data = Crossbeams::DataGrid::ListGridData.new(id: id,
                                                         root_path: opt_path,
                                                         deny_access: deny_access,
                                                         has_permission: has_permission,
                                                         client_rule_check: client_rule_check,
+                                                        fixed_params: fixed_params,
                                                         params: params)
           data.list_rows
         end
 
-        def render_data_grid_multiselect_rows(id, deny_access, has_permission, client_rule_check, multi_key, params)
+        def render_data_grid_multiselect_rows(id, fixed_params, deny_access, has_permission, client_rule_check, multi_key, params)
           data = Crossbeams::DataGrid::ListGridData.new(id: id,
                                                         root_path: opt_path,
                                                         deny_access: deny_access,
                                                         has_permission: has_permission,
                                                         client_rule_check: client_rule_check,
+                                                        fixed_params: fixed_params,
                                                         params: params,
                                                         multi_key: multi_key)
           data.list_rows
         end
 
-        def render_data_grid_lookup_rows(id, deny_access, has_permission, client_rule_check, lookup_key, params)
+        def render_data_grid_lookup_rows(id, fixed_params, deny_access, has_permission, client_rule_check, lookup_key, params)
           data = Crossbeams::DataGrid::LookupGridData.new(id: id,
                                                           root_path: opt_path,
                                                           deny_access: deny_access,
                                                           has_permission: has_permission,
                                                           client_rule_check: client_rule_check,
+                                                          fixed_params: fixed_params,
                                                           params: params,
                                                           lookup_key: lookup_key)
           data.list_rows
