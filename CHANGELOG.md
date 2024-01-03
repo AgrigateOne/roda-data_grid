@@ -7,9 +7,12 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- List and lookup grids can have fixed params. These are parameters that are applied in addition to the provided parameters. For example, a multi-tenanted site could use this to ensure a grid is always filtered by an appropriate key
 ### Changed
 ### Fixed
+
+## [1.5.0] - 2024-01-03
+### Added
+- List and lookup grids can have fixed params. These are parameters that are applied in addition to the provided parameters. For example, a multi-tenanted site could use this to ensure a grid is always filtered by an appropriate key
 
 ## [1.2.1] - 2023-10-19
 ### Added
