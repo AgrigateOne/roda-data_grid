@@ -5,7 +5,7 @@ require 'rack'
 module Crossbeams
   module DataGrid
     class ListGridData
-      attr_reader :config, :params
+      attr_reader :config, :params, :fixed_params
 
       def initialize(options)
         @deny_access = options.fetch(:deny_access)
@@ -13,6 +13,7 @@ module Crossbeams
         @client_rule_check = options.fetch(:client_rule_check)
         @config = ListGridConfig.new(options)
         @params = parse_params(options)
+        @fixed_params = options.fetch(:fixed_params, {})
         @multi_dimensional_arrays = []
         @percentage_bars = []
         assert_actions_ok!
@@ -122,6 +123,7 @@ module Crossbeams
       def apply_params(params)
         # { "col"=>"users.department_id", "op"=>"=", "opText"=>"is", "val"=>"17", "text"=>"Finance", "caption"=>"Department" }
         parms = params_to_parms(params)
+        parms += apply_fixed_filters
         report.limit  = limit_from_params(params)
         report.offset = offset_from_params(params)
         begin
@@ -536,6 +538,22 @@ module Crossbeams
         params&.each { |k, v| sql.gsub!("$:#{k}$", v.to_s) }
         assert_sql_is_select!('select editor', sql)
         DB[sql].map { |r| r.values.length > 1 ? r.values : r.values.first }
+      end
+
+      # If the list definition declares that it should apply any of the fixed params, create parameters for all of them
+      # as `x = y` where conditions.
+      # Only integer parameters are supported.
+      def apply_fixed_filters
+        return [] if config.fixed_filters.empty?
+
+        filters = []
+        config.fixed_filters.each do |key, col|
+          filters << Crossbeams::Dataminer::QueryParameter.new(col,
+                                                               Crossbeams::Dataminer::OperatorValue.new('=',
+                                                                                                        fixed_params.fetch(key),
+                                                                                                        :integer))
+        end
+        filters
       end
     end
   end

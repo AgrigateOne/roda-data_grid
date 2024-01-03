@@ -4,7 +4,7 @@ module Crossbeams
   module DataGrid
     class BaseGridConfig
       attr_reader :id, :root, :multiselect_key, :fit_height, :grid_caption,
-                  :dataminer_definition, :tree,
+                  :dataminer_definition, :tree, :fixed_filters,
                   :actions, :calculated_columns, :hide_for_client, :group_default_expanded
 
       def initialize(options)
@@ -41,6 +41,7 @@ module Crossbeams
         @calculated_columns = config[:calculated_columns]
         assign_multiselect(config)
         @nested_grid = !config[:nesting].nil?
+        @fixed_filters = config[:fixed_filters] || {}
         yield config if block_given?
       end
 

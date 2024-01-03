@@ -2,6 +2,6 @@
 
 class Roda
   module DataGrid
-    VERSION = '1.2.1'
+    VERSION = '1.5.0'
   end
 end

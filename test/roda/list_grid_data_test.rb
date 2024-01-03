@@ -444,7 +444,8 @@ class ListGridDataTest < Minitest::Test
   def test_bar_colour_format_column
     DB.array_expect(BASIC_DATA)
     data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, client_rule_check: FALSE_CLIENT_RULE, config_loader: basic_loader)
-    rpt = BASIC_DM_REPORT.dup
+    serialized_copy = Marshal.dump(BASIC_DM_REPORT)
+    rpt = Marshal.load(serialized_copy)
     rpt[:columns]['user_name'][:format] = :bar_colour
     rows = nil
       data.stub(:load_report_def, rpt) do
