@@ -84,7 +84,7 @@ module Crossbeams
 
       def params_to_parms(params) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
         input_parameters = ::JSON.parse(params[:json_var]) || []
-        parms = []
+        parms = initialise_params
         # Check if this should become an IN parmeter (list of equal checks for a column.
         in_keys = in_params(input_parameters)
         in_sets = {}
@@ -327,6 +327,21 @@ module Crossbeams
       end
 
       private
+
+      # If the search config definition has fixed parameters, return them, otherwise return an empty array.
+      def initialise_params
+        return [] unless config.fixed_parameters
+
+        config.fixed_parameters.map do |fp|
+          col = fp[:col]
+          raise Roda::RodaPlugins::DataGrid::Error, "#{col} is a fixed parameter. It cannot also be a selected parameter" if config.selected_parameter_list.include?(col)
+
+          param_def = report.parameter_definition(col)
+          raise Roda::RodaPlugins::DataGrid::Error, "There is no parameter for this grid query named \"#{col}\"" if param_def.nil?
+
+          Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(fp[:op], fp[:val], param_def.data_type))
+        end
+      end
 
       def assert_actions_ok! # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
         return unless config.actions
