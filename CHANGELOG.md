@@ -7,10 +7,13 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Search grids can define `fixed_parameters` which will always be applied to the query
-- Search grids can define a `selected_parameter_list` to only show those parameters to the user - even if the report definition has more
 ### Changed
 ### Fixed
+
+## [1.5.1] - 2024-05-29
+### Added
+- Search grids can define `fixed_parameters` which will always be applied to the query
+- Search grids can define a `selected_parameter_list` to only show those parameters to the user - even if the report definition has more
 
 ## [1.5.0] - 2024-01-03
 ### Added
