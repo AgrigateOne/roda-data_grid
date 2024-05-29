@@ -10,6 +10,11 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 
+## [1.5.1] - 2024-05-29
+### Added
+- Search grids can define `fixed_parameters` which will always be applied to the query
+- Search grids can define a `selected_parameter_list` to only show those parameters to the user - even if the report definition has more
+
 ## [1.5.0] - 2024-01-03
 ### Added
 - List and lookup grids can have fixed params. These are parameters that are applied in addition to the provided parameters. For example, a multi-tenanted site could use this to ensure a grid is always filtered by an appropriate key

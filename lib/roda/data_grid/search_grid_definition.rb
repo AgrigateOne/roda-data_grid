@@ -66,6 +66,17 @@ module Crossbeams
         false
       end
 
+      # Get the query definitions from the report.
+      # Filter the list if the config has a selected_parameter_list.
+      #
+      # @return [array] Crossbeams::Dataminer::QueryParameterDefinition
+      def parameter_list
+        return report.ordered_query_parameter_definitions if @config.selected_parameter_list.empty? && @config.fixed_parameters.nil?
+        return report.ordered_query_parameter_definitions.reject { |d| @config.fixed_parameters.any? { |p| p[:col] == d.column } } if @config.selected_parameter_list.empty?
+
+        report.ordered_query_parameter_definitions.select { |d| @config.selected_parameter_list.include?(d.column) }
+      end
+
       # Run the given SQL to see if a page control should be hidden.
       #
       # @return [boolean] - Hide or do not hide the control.
