@@ -1,5 +1,5 @@
 <h1>Fill in parameters</h1>
-<h2><%= presenter.rpt.caption %></h2>
+<h2><%= presenter.caption %></h2>
 
 <form action='<%= run_search_url %>' id="rp_form" method=post class="crossbeams-form"
   onsubmit="crossbeamsDataMinerParams.storeCurrentParams('<%=presenter.rpt_id%>'); crossbeamsUtils.addJSONVarToForm('rp_form', crossbeamsDataMinerParams.current_values);">

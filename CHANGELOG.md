@@ -9,6 +9,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Added
 ### Changed
 ### Fixed
+- Search: parameter filter screen shows the grid caption if provided instead of the report caption
 
 ## [1.5.1] - 2024-05-29
 ### Added
