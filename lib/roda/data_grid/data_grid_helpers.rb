@@ -27,6 +27,9 @@ class Roda
         ['is blank', 'is_null'],
         ['is NOT blank', 'not_null']
       ].freeze
+      ARRAY_OPS = [
+        ['array contains', 'any']
+      ].freeze
       TEXT_OPS = [
         ['starts with', 'starts_with'],
         ['ends with', 'ends_with'],
@@ -57,15 +60,20 @@ class Roda
       # Assemble appropriate operators for a control type.
       #
       # @param control_type [Symbol] the type.
+      # @param data_type [Symbol] the data type of the parameter.
       # @return [Array] a list of text/value array pairs.
-      def build_operators(control_type)
-        case control_type
-        when :list
-          COMMON_OPS
-        when :daterange
-          DATE_OPS + COMMON_OPS
+      def build_operators(control_type, data_type)
+        if %i[integer_array string_array].include?(data_type)
+          ARRAY_OPS
         else
-          COMMON_OPS + TEXT_OPS
+          case control_type
+          when :list
+            COMMON_OPS
+          when :daterange
+            DATE_OPS + COMMON_OPS
+          else
+            COMMON_OPS + TEXT_OPS
+          end
         end
       end
 
@@ -73,14 +81,14 @@ class Roda
       #
       # @param query_params [Array<Crossbeams::Dataminer::QueryParameterDefinition>] the parameter definitions.
       # @return [JSON] a hash of config for the parameters defined for a report.
-      def make_query_param_json(query_params, connection = DB)
+      def make_query_param_json(query_params, connection = DB) # rubocop:disable Metrics/AbcSize
         qp_hash = {}
         query_params.each do |query_param|
           hs = { column: query_param.column, caption: query_param.caption,
                  default_value: query_param.default_value, data_type: query_param.data_type,
                  control_type: query_param.control_type }
           hs[:list_values] = build_list_values(query_param, connection) if query_param.control_type == :list
-          hs[:operator] = build_operators(query_param.control_type)
+          hs[:operator] = build_operators(query_param.control_type, query_param.data_type)
           qp_hash[query_param.column] = hs
         end
         qp_hash.to_json
