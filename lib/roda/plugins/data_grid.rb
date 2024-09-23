@@ -23,11 +23,13 @@ class Roda
         end
 
         # Modify the url by applying querystring parameters.
-        def configure_page_control(page_control_def, params) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
+        def configure_page_control(page_control_def, params) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity , Metrics/PerceivedComplexity
           return page_control_def if params.nil? || params[:query_string].nil?
 
-          qs_params = Rack::Utils.parse_nested_query(params[:query_string])
           url = page_control_def[:url]
+          return page_control_def if url.nil?
+
+          qs_params = Rack::Utils.parse_nested_query(params[:query_string])
           qs_params.each { |k, v| url.gsub!("$:#{k}$", v) }
           if page_control_def[:sql_text]
             sql_text = page_control_def[:sql_text].dup

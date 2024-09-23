@@ -11,6 +11,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 - Search: parameter filter screen shows the grid caption if provided instead of the report caption
+- Grid page controls: cater for controls without URL on pages with querystring (e.g. help button on a page with a limit set)
 
 ## [1.5.1] - 2024-05-29
 ### Added
