@@ -7,8 +7,13 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- New "any" operator can be used to search where an array column contains a value
 ### Changed
+### Fixed
+
+## [1.5.2] - 2025-05-06
+### Added
+- New "any" operator can be used to search where an array column contains a value
+- New formatter for grid columns: `local_currency`
 ### Fixed
 - Search: parameter filter screen shows the grid caption if provided instead of the report caption
 - Grid page controls: cater for controls without URL on pages with querystring (e.g. help button on a page with a limit set)
@@ -23,7 +28,6 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 - List and lookup grids can have fixed params. These are parameters that are applied in addition to the provided parameters. For example, a multi-tenanted site could use this to ensure a grid is always filtered by an appropriate key
 
 ## [1.2.1] - 2023-10-19
-### Added
 ### Changed
 - `value_sql` can return two columns - the first is used for display, and the second for the value
 ### Fixed

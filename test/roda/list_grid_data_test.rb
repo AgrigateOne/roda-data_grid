@@ -441,6 +441,20 @@ class ListGridDataTest < Minitest::Test
     assert_equal 'data.amount * data.id', tester['columnDefs'][2]['valueGetter']
   end
 
+  def test_local_currency_format_column
+    DB.array_expect(BASIC_DATA)
+    data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, client_rule_check: FALSE_CLIENT_RULE, config_loader: basic_loader)
+    serialized_copy = Marshal.dump(BASIC_DM_REPORT)
+    rpt = Marshal.load(serialized_copy)
+    rpt[:columns]['amount'][:format] = :local_currency
+    rows = nil
+      data.stub(:load_report_def, rpt) do
+      rows = data.list_rows
+    end
+    tester = JSON.parse(rows)
+    assert_equal 'crossbeamsGridFormatters.localCurrencyFormatter', tester['columnDefs'][4]['valueFormatter']
+  end
+
   def test_bar_colour_format_column
     DB.array_expect(BASIC_DATA)
     data = Crossbeams::DataGrid::ListGridData.new(id: 'agrid', root_path: '/a/b/c', deny_access: ALLOW_ACCESS, has_permission: HAS_PERMISSION, client_rule_check: FALSE_CLIENT_RULE, config_loader: basic_loader)

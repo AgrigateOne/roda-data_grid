@@ -196,6 +196,7 @@ module Crossbeams
           end
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000 # rubocop:disable Naming/VariableNumber
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4 # rubocop:disable Naming/VariableNumber
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.localCurrencyFormatter' if col.format == :local_currency
           if col.data_type == :boolean
             hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
             hs[:cellClass]    = 'grid-boolean-column'
@@ -285,6 +286,7 @@ module Crossbeams
           end
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000 # rubocop:disable Naming/VariableNumber
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4 # rubocop:disable Naming/VariableNumber
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.localCurrencyFormatter' if col.format == :local_currency
           parts = col.expression.split(' ')
           hs[:valueGetter] = parts.map { |p| %w[* + - /].include?(p) ? p : "data.#{p}" }.join(' ')
           col_defs.insert((col.position || 1), hs)

@@ -270,6 +270,7 @@ module Crossbeams
 
         hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if options[:format] == :delimited_1000 # rubocop:disable Naming/VariableNumber
         hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if options[:format] == :delimited_1000_4 # rubocop:disable Naming/VariableNumber
+        hs[:valueFormatter] = 'crossbeamsGridFormatters.localCurrencyFormatter' if options[:format] == :local_currency
 
         if options[:data_type] == :boolean
           hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'

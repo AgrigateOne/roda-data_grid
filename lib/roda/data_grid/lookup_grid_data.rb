@@ -137,6 +137,7 @@ module Crossbeams
 
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.localCurrencyFormatter' if col.format == :local_currency
 
           if col.data_type == :boolean
             hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
@@ -163,6 +164,7 @@ module Crossbeams
 
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000
           hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4
+          hs[:valueFormatter] = 'crossbeamsGridFormatters.localCurrencyFormatter' if col.format == :local_currency
 
           parts = col.expression.split(' ')
           hs[:valueGetter] = parts.map { |p| %w[* + - /].include?(p) ? p : "data.#{p}" }.join(' ')
