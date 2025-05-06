@@ -8,6 +8,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - New "any" operator can be used to search where an array column contains a value
+- New formatter for grid columns: `local_currency`
 ### Changed
 ### Fixed
 - Search: parameter filter screen shows the grid caption if provided instead of the report caption

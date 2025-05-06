@@ -14,13 +14,13 @@ class DataGridHelpersTest < Minitest::Test
 
   def test_build_operators
     expect = ['is', 'is not', 'greater than', 'less than', 'greater than or equal to', 'less than or equal to', 'is blank', 'is NOT blank']
-    assert_equal expect, build_operators(:list).map(&:first)
+    assert_equal expect, build_operators(:list, :string).map(&:first)
 
     expect = ['between', 'is', 'is not', 'greater than', 'less than', 'greater than or equal to', 'less than or equal to', 'is blank', 'is NOT blank']
-    assert_equal expect, build_operators(:daterange).map(&:first)
+    assert_equal expect, build_operators(:daterange, :string).map(&:first)
 
     expect = ['is', 'is not', 'greater than', 'less than', 'greater than or equal to', 'less than or equal to', 'is blank', 'is NOT blank', 'starts with', 'ends with', 'contains']
-    assert_equal expect, build_operators(:text).map(&:first)
+    assert_equal expect, build_operators(:text, :string).map(&:first)
   end
 
   def test_list_values

@@ -83,12 +83,13 @@ class ColumnDefinerTest < Minitest::Test
   def test_numeric_with_overrides
     cd = Crossbeams::DataGrid::ColumnDefiner.new
     cols = cd.make_columns do |mk|
-      mk.numeric 'afield', 'A Caption', format: nil, width: 400, data_type: :ignored
+      mk.numeric 'afield', 'A Caption', format: :local_currency, width: 400, data_type: :ignored
     end
     col = cols.first
 
     assert_equal col[:width], 400
     assert_nil col[:cellRenderer]
+    assert_equal col[:valueFormatter], 'crossbeamsGridFormatters.localCurrencyFormatter'
   end
 
   def test_boolean_basics
