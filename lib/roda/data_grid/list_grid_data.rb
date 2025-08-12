@@ -140,35 +140,39 @@ module Crossbeams
         edit_columns = (config.edit_rules[:editable_fields] || {}).keys
 
         # TEST: multiselect
-        if config.multiselect
-          hs = {
-            headerName: '',
-            colId: 'theSelector',
-            pinned: 'left',
-            width: 60,
-            headerCheckboxSelection: true,
-            headerCheckboxSelectionFilteredOnly: true,
-            checkboxSelection: true,
-            suppressMenu: true,   sortable: false,   suppressMovable: true,
-            filter: false,
-            enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
-            suppressFiltersToolPanel: true
-          }
-          hs[:enableRowGroup] = false unless config.tree
-          hs[:enablePivot] = false unless config.tree
-          col_defs << hs
-        end
+        # if config.multiselect
+        #   hs = {
+        #     headerName: '',
+        #     colId: 'theSelector',
+        #     pinned: 'left',
+        #     width: 60,
+        #     # headerCheckboxSelection: true,
+        #     # headerCheckboxSelectionFilteredOnly: true,
+        #     # checkboxSelection: true,
+        #     rowSelection: { headerCheckbox: true, selectAll: 'filtered', checkboxes: true },
+        #     suppressMenu: true,   sortable: false,   suppressMovable: true,
+        #     filter: false,
+        #     enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+        #     suppressFiltersToolPanel: true
+        #   }
+        #   hs[:enableRowGroup] = false unless config.tree
+        #   hs[:enablePivot] = false unless config.tree
+        #   col_defs << hs
+        # end
 
         # Actions
         if config.actions
           this_col = make_subitems(config.actions)
+          # TODO: make use of column context to add custom properties
           hs = { headerName: '', pinned: 'left',
                  width: 60,
-                 suppressMenu: true,   sortable: false,   suppressMovable: true,
+                 suppressHeaderMenuButton: true,   sortable: false,   suppressMovable: true,
                  filter: false,
-                 enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+                 enableValue: false,   suppressColumnsToolPanel: true,
+                 suppressCsvExport: true,
                  suppressFiltersToolPanel: true,
                  valueGetter: this_col.to_json.to_s,
+                 # context: { suppressCsvExport: true },
                  colId: 'action_links',
                  cellRenderer: 'crossbeamsGridFormatters.menuActionsRenderer' }
           hs[:enableRowGroup] = false unless config.tree
@@ -188,7 +192,20 @@ module Crossbeams
           hs[:pinned]         = col.pinned if col.pinned
           hs[:rowGroup]       = true if col.group_by_seq
           hs[:aggFunc]        = 'sum' if col.group_sum
+          # 'text', 'number', 'boolean', 'date', 'dateString' and 'object'.
 
+          # hs[:cellDataType] = 'text' # ... test if setting pallet_number to text works on grid export
+          # Array? Icon?
+          hs[:cellDataType] = case col.data_type
+                              when :integer, :number
+                                'number'
+                              when :boolean
+                                'boolean'
+                              when :date, :datetime
+                                'date'
+                              else
+                                'text'
+                              end
           if %i[integer number].include?(col.data_type)
             hs[:type]      = 'numericColumn'
             hs[:width]     = Crossbeams::DataGrid::COLWIDTH_INTEGER if col.width.nil? && col.data_type == :integer
@@ -255,6 +272,7 @@ module Crossbeams
                 else
                   values = select_editor_values(rule)
                   hs[:cellEditorParams] = { values: values }
+                  # Set cell to object? (array)
                 end
               end
             else
