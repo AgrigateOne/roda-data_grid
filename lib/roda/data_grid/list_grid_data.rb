@@ -524,9 +524,32 @@ module Crossbeams
             rec[key] = Array(rec[key]) if @percentage_bars.include?(key) && !rec[key].nil?
             rec[key] = rec[key].to_f if rec[key].is_a?(BigDecimal)
             rec[key] = rec[key].to_s if hstore && rec[key].is_a?(Sequel::Postgres::HStore)
+            rec[key] = row_style(rec[key]) if key == :colour_rule
           end
           rec
         end
+      end
+
+      def row_style(klass)
+        tr_classes = { 'black' => 'text-blue-600',
+                       'blue' => 'text-blue-600',
+                       'brown' => 'text-yellow-800',
+                       'dark-pink' => 'text-fuscia-600',
+                       'error' => 'text-red-600',
+                       'gray' => 'text-stone-400',
+                       'grey' => 'text-stone-400',
+                       'green' => 'text-green-600',
+                       'inactive' => 'text-stone-400 italic',
+                       'inprogress' => 'text-purple-900',
+                       'ok' => 'text-green-600',
+                       'orange' => 'text-orange-500',
+                       'pink' => 'text-fuscia-400',
+                       'purple' => 'text-purple-900',
+                       'ready' => 'text-green-600',
+                       'red' => 'text-red-600',
+                       'warning' => 'text-orange-500',
+                       'yellow' => 'text-yellow-400' }
+        tr_classes[klass] || klass
       end
 
       def limit_from_params(params)
