@@ -542,9 +542,14 @@ module Crossbeams
             rec[key] = rec[key].map { |a, b| [a, b.to_f] } if @multi_dimensional_arrays.include?(key)
             rec[key] = rec[key].to_f if rec[key].is_a?(BigDecimal)
             rec[key] = rec[key].to_s if hstore && rec[key].is_a?(Sequel::Postgres::HStore)
+            rec[key] = row_style(rec[key]) if key == :colour_rule
           end
           rec
         end
+      end
+
+      def row_style(klass)
+        Crossbeams::Layout::StylesConfig.config.grid_row_colours[klass] || klass
       end
 
       def limit_from_params(params)
