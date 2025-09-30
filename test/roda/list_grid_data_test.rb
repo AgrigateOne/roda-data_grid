@@ -492,7 +492,8 @@ class ListGridDataTest < Minitest::Test
     assert col['editable']
 
     col = tester['columnDefs'].find {|c| c['field'] == 'amount' }
-    assert_equal 'numericCellEditor', col['cellEditor']
+    assert_equal 'agNumberCellEditor', col['cellEditor']
+    assert col['cellEditorParams']['showStepperButtons']
     assert_equal 'Amount (editable)', col['headerTooltip']
     assert_equal 'ag-numeric-header gridEditableColumn', col['headerClass']
     assert col['editable']
@@ -507,12 +508,12 @@ class ListGridDataTest < Minitest::Test
     assert col['editable']
 
     col = tester['columnDefs'].find {|c| c['field'] == 'created_at' }
-    assert_equal 'searchableSelectCellEditor', col['cellEditor']
-    assert_equal({ 'values' => ['Now', 'Then', 'Soon'] }, col['cellEditorParams'])
+    assert_equal 'agRichSelectCellEditor', col['cellEditor']
+    assert_equal({ 'values' => ['Now', 'Then', 'Soon'], "allowTyping"=>true, "filterList"=>true, "highlightMatch"=>true, "valueListMaxHeight"=>220 }, col['cellEditorParams'])
     assert col['editable']
 
     col = tester['columnDefs'].find {|c| c['field'] == 'id' }
-    assert_equal 'searchableSelectCellEditor', col['cellEditor']
+    assert_equal 'agRichSelectCellEditor', col['cellEditor']
     assert_equal({ 'lookupUrl' => '/path/$:id$' }, col['cellEditorParams'])
     assert col['editable']
   end

@@ -47,16 +47,26 @@ class Roda
 
           layout = Crossbeams::Layout::Page.new form_object: grid_def.report
           layout.build do |page, _|
-            page.section do |section|
-              section.horizontal_group do |grp|
-                grid_def.page_controls.each do |page_control_def|
-                  grp.add_control(configure_page_control(page_control_def.merge(grid_id: "grid_#{id}"), params))
+            if grid_def.page_controls.empty?
+              g_opts = grid_def.render_options
+            else
+              g_opts = grid_def.render_options.merge(caption: '')
+              page.section do |section|
+                section.horizontal_group do |grp|
+                  grp.add_caption grid_def.render_options[:caption] # Render the caption as part of the horizontal group instead of grid header
+                  grid_def.page_controls.each_with_index do |page_control_def, index|
+                    if index.zero?
+                      grp.add_control(configure_page_control(page_control_def.merge(grid_id: "grid_#{id}", style: :action_button), params))
+                    else
+                      grp.add_control(configure_page_control(page_control_def.merge(grid_id: "grid_#{id}"), params))
+                    end
+                  end
                 end
               end
             end
             page.section do |section|
               section.fit_height! if grid_def.fit_height
-              section.add_grid("grid_#{id}", grid_def.grid_path, grid_def.render_options)
+              section.add_grid("grid_#{id}", grid_def.grid_path, g_opts)
             end
           end
           layout
@@ -71,10 +81,20 @@ class Roda
 
           layout = Crossbeams::Layout::Page.new form_object: grid_def.report
           layout.build do |page, _|
-            page.section do |section|
-              section.horizontal_group do |grp|
-                grid_def.page_controls.each do |page_control_def|
-                  grp.add_control(configure_page_control(page_control_def.merge(grid_id: "grid_#{id}"), params))
+            if grid_def.page_controls.empty?
+              g_opts = grid_def.render_options
+            else
+              g_opts = grid_def.render_options.merge(caption: '')
+              page.section do |section|
+                section.horizontal_group do |grp|
+                  grp.add_caption grid_def.render_options[:caption] # Render the caption as part of the horizontal group instead of grid header
+                  grid_def.page_controls.each_with_index do |page_control_def, index|
+                    if index.zero?
+                      grp.add_control(configure_page_control(page_control_def.merge(grid_id: "grid_#{id}", style: :action_button), params))
+                    else
+                      grp.add_control(configure_page_control(page_control_def.merge(grid_id: "grid_#{id}"), params))
+                    end
+                  end
                 end
               end
             end
@@ -82,7 +102,7 @@ class Roda
               section.fit_height! if grid_def.fit_height
               section.caption = grid_def.multi_grid_caption
               section.hide_caption = grid_def.multi_grid_caption.nil?
-              section.add_grid("grid_#{id}", grid_def.grid_path, grid_def.render_options)
+              section.add_grid("grid_#{id}", grid_def.grid_path, g_opts)
             end
           end
           layout
@@ -191,10 +211,10 @@ class Roda
 
           layout = Crossbeams::Layout::Page.new form_object: grid_def.report
           layout.build do |page, _|
-            page.row do |row|
-              row.column do |col|
-                col.add_control control_type: :link, text: 'Back', url: "#{opt_filter_url.%(id)}?back=y", style: :back_button
-                col.add_text %(<div id="rpt_param_text" data-report-param-display="#{id}" hidden></div>),
+            page.section do |section|
+              section.horizontal_group do |grp|
+                grp.add_control control_type: :link, text: 'Back', url: "#{opt_filter_url.%(id)}?back=y", style: :back_button
+                grp.add_text %(<div id="rpt_param_text" data-report-param-display="#{id}" hidden></div>),
                              toggle_button: true,
                              toggle_element_id: 'rpt_param_text',
                              toggle_caption: 'Chosen parameters'

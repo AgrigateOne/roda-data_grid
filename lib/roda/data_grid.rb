@@ -38,7 +38,7 @@ module Crossbeams
     }.freeze
 
     # Default column widths for different data types
-    COLWIDTH_DATETIME = 140
+    COLWIDTH_DATETIME = 170
     COLWIDTH_BOOLEAN = 100
     COLWIDTH_NUMBER = 120
     COLWIDTH_INTEGER = 100

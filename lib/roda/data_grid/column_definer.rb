@@ -233,15 +233,20 @@ module Crossbeams
         hs[:aggFunc] = 'avg' if options[:group_avg]
 
         if options[:editable]
+          puts "CODE EDITOR: #{col.name}"
           hs[:headerClass] = %i[integer number].include?(options[:data_type]) ? 'ag-numeric-header gridEditableColumn' : 'gridEditableColumn'
           hs[:editable] = true
           if options[:cellEditor]
             hs[:cellEditor] = options[:cellEditor]
             hs[:cellEditor] = 'agRichSelectCellEditor' if hs[:cellEditor] == 'select'
-            hs[:cellEditor] = 'searchableSelectCellEditor' if hs[:cellEditor] == 'search_select'
+            hs[:cellEditor] = 'agRichSelectCellEditor' if hs[:cellEditor] == 'search_select'
           elsif %i[integer number].include?(options[:data_type])
-            hs[:cellEditor] = 'numericCellEditor'
-            hs[:cellEditorType] = 'integer' if options[:data_type] == :integer
+            hs[:cellEditor] = 'agNumberCellEditor'
+            hs[:cellEditorParams] = if options[:data_type] == :integer
+                                      { showStepperButtons: true, precision: 0 }
+                                    else
+                                      { showStepperButtons: true }
+                                    end
           end
           if options[:cellEditorParams]
             case options[:cellEditor]
@@ -253,13 +258,19 @@ module Crossbeams
                 hs[:cellEditorParams] = { lookupUrl: options[:cellEditorParams][:lookup_url] }
               else
                 values = options[:cellEditorParams][:values] # TODO: Convert nil to ''?
-                hs[:cellEditorParams] = { values: values }
+                hs[:cellEditorParams] = { values: values,
+                                          allowTyping: true,
+                                          filterList: true,
+                                          highlightMatch: true,
+                                          searchType: 'matchAny',
+                                          valueListMaxHeight: 220 }
               end
             else
               hs[:cellEditorParams] = options[:cellEditorParams]
             end
           end
           hs[:cellEditorType] = options[:cellEditorType] if options[:cellEditorType]
+          p hs
         end
 
         if %i[integer number].include?(options[:data_type])

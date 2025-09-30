@@ -210,14 +210,21 @@ module Crossbeams
 
           # Rules for editable columns
           if edit_columns.include?(col.name)
+            puts "SRCH EDITOR: #{col.name}"
             hs[:editable] = true
             hs[:headerClass] = hs[:type] && hs[:type] == 'numericColumn' ? 'ag-numeric-header gridEditableColumn' : 'gridEditableColumn'
             hs[:headerTooltip] = "#{col.caption} (editable)"
 
             rule = config.edit_rules[:editable_fields][col.name]
             if rule && rule[:editor]
-              hs[:cellEditor] = 'numericCellEditor' if rule[:editor] == :numeric
-              hs[:cellEditorType] = 'integer' if rule[:editor] == :numeric && col.data_type == :integer
+              if rule[:editor] == :numeric
+                hs[:cellEditor] = 'agNumberCellEditor'
+                hs[:cellEditorParams] = if col.data_type == :integer
+                                          { showStepperButtons: true, precision: 0 }
+                                        else
+                                          { showStepperButtons: true }
+                                        end
+              end
               hs[:cellEditor] = 'agLargeTextCellEditor' if rule[:editor] == :textarea
               if rule[:editor] == :select
                 hs[:cellEditor] = 'agRichSelectCellEditor'
@@ -225,12 +232,17 @@ module Crossbeams
                 hs[:cellEditorParams] = { values: values, selectWidth: rule[:width] || 200 }
               end
               if rule[:editor] == :search_select
-                hs[:cellEditor] = 'searchableSelectCellEditor'
+                hs[:cellEditor] = 'agRichSelectCellEditor'
                 if rule[:lookup_url]
                   hs[:cellEditorParams] = { lookupUrl: rule[:lookup_url] }
                 else
                   values = select_editor_values(rule)
-                  hs[:cellEditorParams] = { values: values }
+                  hs[:cellEditorParams] = { values: values,
+                                            allowTyping: true,
+                                            filterList: true,
+                                            highlightMatch: true,
+                                            searchType: 'matchAny',
+                                            valueListMaxHeight: 220 }
                 end
               end
             else
