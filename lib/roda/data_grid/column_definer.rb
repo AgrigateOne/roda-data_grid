@@ -201,6 +201,7 @@ module Crossbeams
           filter: false, enableRowGroup: false,   enablePivot: false,
           enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
           suppressFiltersToolPanel: true,
+          pinned: options[:pinned],
           valueGetter: link,
           colId: field,
           cellRenderer: options[:cellRenderer] || default_renderer
@@ -232,14 +233,24 @@ module Crossbeams
         hs[:aggFunc] = 'max' if options[:group_max]
         hs[:aggFunc] = 'avg' if options[:group_avg]
 
+        hs[:cellDataType] = case options[:data_type]
+                            when :integer, :number
+                              'number'
+                            when :boolean
+                              'boolean'
+                            when :date, :datetime
+                              'date'
+                            else
+                              'text'
+                            end
+
         if options[:editable]
-          puts "CODE EDITOR: #{col.name}"
+          puts "CODE EDITOR: #{field}"
           hs[:headerClass] = %i[integer number].include?(options[:data_type]) ? 'ag-numeric-header gridEditableColumn' : 'gridEditableColumn'
           hs[:editable] = true
           if options[:cellEditor]
             hs[:cellEditor] = options[:cellEditor]
-            hs[:cellEditor] = 'agRichSelectCellEditor' if hs[:cellEditor] == 'select'
-            hs[:cellEditor] = 'agRichSelectCellEditor' if hs[:cellEditor] == 'search_select'
+            hs[:cellEditor] = 'agRichSelectCellEditor' if %w[select search_select].include?(options[:cellEditor])
           elsif %i[integer number].include?(options[:data_type])
             hs[:cellEditor] = 'agNumberCellEditor'
             hs[:cellEditorParams] = if options[:data_type] == :integer
@@ -247,30 +258,40 @@ module Crossbeams
                                     else
                                       { showStepperButtons: true }
                                     end
+          elsif options[:data_type] == :boolean
+            hs[:cellEditor] = 'agCheckboxCellEditor'
+          elsif options[:data_type] == :date
+            hs[:cellEditor] = 'agDateCellEditor'
+          elsif options[:data_type] == :datetime
+            hs[:cellEditor] = 'agDateCellEditor'
+            hs[:cellEditorParams] = { includeTime: true }
           end
+
           if options[:cellEditorParams]
-            case options[:cellEditor]
-            when 'select'
-              values = options[:cellEditorParams][:values]
-              hs[:cellEditorParams] = { values: values, selectWidth: options[:cellEditorParams][:width] || 200 }
-            when 'search_select'
+            if %w[select search_select].include?(options[:cellEditor])
               if options[:cellEditorParams][:lookup_url]
                 hs[:cellEditorParams] = { lookupUrl: options[:cellEditorParams][:lookup_url] }
               else
-                values = options[:cellEditorParams][:values] # TODO: Convert nil to ''?
-                hs[:cellEditorParams] = { values: values,
-                                          allowTyping: true,
+                values = options[:cellEditorParams][:values]
+                hs[:cellEditorParams] = { allowTyping: true,
                                           filterList: true,
                                           highlightMatch: true,
                                           searchType: 'matchAny',
                                           valueListMaxHeight: 220 }
+                hs[:cellEditorParams][:valueListMaxWidth] = options[:cellEditorParams][:width] if options[:cellEditorParams][:width]
+                if values.first.is_a?(Array) # 2D array of options
+                  values = select_editor_values_for_2d(values)
+                  hs[:cellEditorParams][:values] = values
+                  hs[:cellEditorParams][:format2D] = true
+                else
+                  hs[:cellEditorParams][:values] = values.map { |a| a.nil? ? '' : a }
+                end
               end
             else
               hs[:cellEditorParams] = options[:cellEditorParams]
             end
+            p hs
           end
-          hs[:cellEditorType] = options[:cellEditorType] if options[:cellEditorType]
-          p hs
         end
 
         if %i[integer number].include?(options[:data_type])
@@ -284,8 +305,9 @@ module Crossbeams
         hs[:valueFormatter] = 'crossbeamsGridFormatters.localCurrencyFormatter' if options[:format] == :local_currency
 
         if options[:data_type] == :boolean
-          hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
-          hs[:cellClass]    = 'grid-boolean-column'
+          # hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
+          hs[:cellRenderer] = 'agCheckboxCellRenderer'
+          # hs[:cellClass]    = 'grid-boolean-column'
           hs[:width]        = Crossbeams::DataGrid::COLWIDTH_BOOLEAN if options[:width].nil?
         end
         hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if options[:data_type] == :datetime
@@ -374,6 +396,10 @@ module Crossbeams
         hs[:enablePivot] = false unless @for_tree
 
         [hs]
+      end
+
+      def select_editor_values_for_2d(values)
+        values.map { |f, l| { name: f.nil? || f.empty? ? ' ' : f, code: l || 'C' } }
       end
     end
   end

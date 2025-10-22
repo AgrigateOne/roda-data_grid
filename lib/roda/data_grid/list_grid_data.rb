@@ -252,7 +252,7 @@ module Crossbeams
 
           # Rules for editable columns
           if edit_columns.include?(col.name)
-            puts "LIST EDITOR: #{col.name}"
+            # puts "LIST EDITOR: #{col.name}"
             hs[:editable] = true
             hs[:headerClass] = hs[:type] && hs[:type] == 'numericColumn' ? 'ag-numeric-header gridEditableColumn' : 'gridEditableColumn'
             hs[:headerTooltip] = "#{col.caption} (editable)"
@@ -262,7 +262,6 @@ module Crossbeams
               # agCheckboxCellEditor for boolean columns...
               if rule[:editor] == :numeric
                 hs[:cellEditor] = 'agNumberCellEditor'
-                # hs[:cellEditorType] = 'integer' if rule[:editor] == :numeric && col.data_type == :integer
                 hs[:cellEditorParams] = if col.data_type == :integer
                                           { showStepperButtons: true, precision: 0 }
                                         else
@@ -270,25 +269,12 @@ module Crossbeams
                                         end
               end
               hs[:cellEditor] = 'agLargeTextCellEditor' if rule[:editor] == :textarea
-              if rule[:editor] == :select
-                hs[:cellEditor] = 'agRichSelectCellEditor'
-                values = select_editor_values(rule)
-                hs[:cellEditorParams] = { values: values, selectWidth: rule[:width] || 200 }
-              end
-              if rule[:editor] == :select2d
-                hs[:cellEditor] = 'searchableSelectCellEditor'
-                values = select_editor_values(rule)
-                hs[:cellEditorParams] = { values: values,
-                                          allowTyping: true,
-                                          filterList: true,
-                                          highlightMatch: true,
-                                          searchType: 'matchAny',
-                                          valueListMaxHeight: 220 }
-              end
-              if rule[:editor] == :search_select
+
+              if %i[search_select select].include?(rule[:editor])
                 hs[:cellEditor] = 'agRichSelectCellEditor'
                 if rule[:lookup_url]
-                  hs[:cellEditorParams] = { lookupUrl: rule[:lookup_url] }
+                  hs[:cellEditor] = 'searchableSelectCellEditor'
+                  hs[:cellEditorParams] = { lookupUrl: rule[:lookup_url], selectWidth: rule[:width] || 200 } # use a func to handle this?
                 else
                   values = select_editor_values(rule)
                   hs[:cellEditorParams] = { values: values,
@@ -297,13 +283,19 @@ module Crossbeams
                                             highlightMatch: true,
                                             searchType: 'matchAny',
                                             valueListMaxHeight: 220 }
-                  # Set cell to object? (array)
+                  if values.first.is_a?(Array) # 2D array of options
+                    values = select_editor_values_for_2d(values)
+                    hs[:cellEditorParams][:values] = values
+                    hs[:cellEditorParams][:format2D] = true
+                  else
+                    hs[:cellEditorParams][:values] = values.map { |a| a.nil? ? '' : a }
+                  end
+                  hs[:cellEditorParams][:valueListMaxWidth] = rule[:width] if rule[:width]
                 end
               end
             else
-              hs[:cellEditor] = 'agPopupTextCellEditor'
+              hs[:cellEditor] = 'agTextCellEditor'
             end
-            p hs
           end
 
           if options[:expands_nested_grid] && options[:expands_nested_grid] == col.name
@@ -579,6 +571,10 @@ module Crossbeams
 
       def multiselect_ids
         config.multiselect ? preselect_ids : []
+      end
+
+      def select_editor_values_for_2d(values)
+        values.map { |f, l| { name: f.nil? || f.empty? ? ' ' : f, code: l || 'C' } }
       end
 
       def select_editor_values(rule) # rubocop:disable Metrics/AbcSize
