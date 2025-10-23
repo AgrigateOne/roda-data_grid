@@ -78,9 +78,10 @@ module Crossbeams
         @columns << {
           headerName: '', pinned: 'left',
           width: 60,
-          suppressMenu: true,   sortable: false,   suppressMovable: true,
+          suppressHeaderMenuButton: true,   sortable: false,   suppressMovable: true,
           filter: false, enableRowGroup: false,   enablePivot: false,
-          enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+          enableValue: false, suppressColumnsToolPanel: true,
+          context: { suppressCsvExport: true },
           suppressFiltersToolPanel: true,
           valueGetter: @actions.to_json.to_s,
           colId: 'action_links',
@@ -197,9 +198,10 @@ module Crossbeams
         @columns << {
           headerName: '',
           width: options[:width] || 60,
-          suppressMenu: true,   sortable: false,   suppressMovable: true,
+          suppressHeaderMenuButton: true,   sortable: false,   suppressMovable: true,
           filter: false, enableRowGroup: false,   enablePivot: false,
-          enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+          enableValue: false, suppressColumnsToolPanel: true,
+          context: { suppressCsvExport: true },
           suppressFiltersToolPanel: true,
           pinned: options[:pinned],
           valueGetter: link,
@@ -213,44 +215,20 @@ module Crossbeams
       end
 
       def col(field, caption = nil, options = {}) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
-        header_name = caption || field.to_s.tr('_', ' ').capitalize
-        hs = { headerName: header_name,
-               field: field.to_s,
-               hide: options[:hide] || false,
-               headerTooltip: options[:tooltip] || header_name }
-        hs[:width] = options[:width] unless options[:width].nil?
-        hs[:width] = Crossbeams::DataGrid::COLWIDTH_DATETIME if options[:width].nil? && options[:data_type] == :datetime
-        hs[:enableValue] = true if %i[integer number].include?(options[:data_type])
-        hs[:enableRowGroup] = true unless hs[:enableValue] && !options[:groupable]
-        hs[:enablePivot] = true unless hs[:enableValue] && !options[:groupable]
-        hs[:rowGroupIndex] = options[:group_by_seq] if options[:group_by_seq]
-        hs[:rowGroup] = true if options[:group_by_seq]
-        hs[:pinned] = options[:pinned] if options[:pinned]
-        hs[:cellRenderer] = 'crossbeamsGridFormatters.iconFormatter' if options[:icon]
-        hs[:group_sum] = options[:group_sum] if options[:group_sum]
-        hs[:aggFunc] = 'sum' if options[:group_sum]
-        hs[:aggFunc] = 'min' if options[:group_min]
-        hs[:aggFunc] = 'max' if options[:group_max]
-        hs[:aggFunc] = 'avg' if options[:group_avg]
+        grid_config = OpenStruct.new(hide_for_client: [], tree: false)
+        column_definition = ColumnDefinition.new(grid_config)
+        col = options.merge(name: field, caption: caption || field.to_s.tr('_', ' ').capitalize)
+        hs = column_definition.column_hash(OpenStruct.new(col))
 
-        hs[:cellDataType] = case options[:data_type]
-                            when :integer, :number
-                              'number'
-                            when :boolean
-                              'boolean'
-                            when :date, :datetime
-                              'date'
-                            else
-                              'text'
-                            end
-
+        # Rules for editable columns
         if options[:editable]
-          puts "CODE EDITOR: #{field}"
           hs[:headerClass] = %i[integer number].include?(options[:data_type]) ? 'ag-numeric-header gridEditableColumn' : 'gridEditableColumn'
+          hs[:headerTooltip] = "#{hs[:headerTooltip]} (editable)"
           hs[:editable] = true
           if options[:cellEditor]
             hs[:cellEditor] = options[:cellEditor]
             hs[:cellEditor] = 'agRichSelectCellEditor' if %w[select search_select].include?(options[:cellEditor])
+            hs[:cellEditor] = 'agLargeTextCellEditor' if options[:cellEditor] == 'textarea'
           elsif %i[integer number].include?(options[:data_type])
             hs[:cellEditor] = 'agNumberCellEditor'
             hs[:cellEditorParams] = if options[:data_type] == :integer
@@ -265,12 +243,16 @@ module Crossbeams
           elsif options[:data_type] == :datetime
             hs[:cellEditor] = 'agDateCellEditor'
             hs[:cellEditorParams] = { includeTime: true }
+          else
+            hs[:cellEditor] = 'agTextCellEditor'
           end
 
           if options[:cellEditorParams]
             if %w[select search_select].include?(options[:cellEditor])
               if options[:cellEditorParams][:lookup_url]
-                hs[:cellEditorParams] = { lookupUrl: options[:cellEditorParams][:lookup_url] }
+                hs[:cellEditor] = 'searchableSelectCellEditor'
+                hs[:cellEditorParams] = { lookupUrl: options[:cellEditorParams][:lookup_url],
+                                          selectWidth: options[:cellEditorParams][:width] || 200 }
               else
                 values = options[:cellEditorParams][:values]
                 hs[:cellEditorParams] = { allowTyping: true,
@@ -290,61 +272,16 @@ module Crossbeams
             else
               hs[:cellEditorParams] = options[:cellEditorParams]
             end
-            p hs
           end
         end
 
-        if %i[integer number].include?(options[:data_type])
-          hs[:cellClass] = 'grid-number-column'
-          hs[:width]     = Crossbeams::DataGrid::COLWIDTH_INTEGER  if options[:width].nil? && options[:data_type] == :integer
-          hs[:width]     = Crossbeams::DataGrid::COLWIDTH_NUMBER if options[:width].nil? && options[:data_type] == :number
-        end
-
-        hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if options[:format] == :delimited_1000 # rubocop:disable Naming/VariableNumber
-        hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if options[:format] == :delimited_1000_4 # rubocop:disable Naming/VariableNumber
-        hs[:valueFormatter] = 'crossbeamsGridFormatters.localCurrencyFormatter' if options[:format] == :local_currency
-
-        if options[:data_type] == :boolean
-          # hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
-          hs[:cellRenderer] = 'agCheckboxCellRenderer'
-          # hs[:cellClass]    = 'grid-boolean-column'
-          hs[:width]        = Crossbeams::DataGrid::COLWIDTH_BOOLEAN if options[:width].nil?
-        end
-        hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if options[:data_type] == :datetime
-        hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutZoneFormatter' if options[:format] == :datetime_with_secs
-        hs[:cellRenderer] = 'crossbeamsGridFormatters.barColourFormatter' if options[:format] == :bar_colour
-
-        # Sparkline chart formats
-        if SPARKTYPES.keys.include?(options[:format])
-          hs[:cellRenderer] = 'agSparklineCellRenderer'
-          hs[:cellRendererParams] = { sparklineOptions: { type: SPARKTYPES[options[:format]] } }
-          @multi_dimensional_arrays << field.to_sym if options[:format].to_s.end_with?('_text')
-
-          if options[:format] == :sparkbar_perc
-            @percentage_bars << field.to_sym
-            hs[:cellRendererParams] = {
-              sparklineOptions: {
-                type: SPARKTYPES[options[:format]],
-                valueAxisDomain: [0, 100],
-                label: {
-                  enabled: true,
-                  placement: 'outsideEnd'
-                },
-                padding: {
-                  top: 0,
-                  bottom: 0
-                }
-              }
-            }
-          end
-        end
-
-        if options[:expands_nested_grid] && options[:expands_nested_grid] == field.to_s
-          hs[:cellRenderer]       = 'group' # This column will have the expand/contract controls.
-          hs[:cellRendererParams] = { suppressCount: true } # There is always one child (a sub-grid), so hide the count.
-          hs.delete(:enableRowGroup) # ... see if this helps?????
-          hs.delete(:enablePivot) # ... see if this helps?????
-        end
+        # Outdated (nested grids)
+        # if options[:expands_nested_grid] && options[:expands_nested_grid] == field.to_s
+        #   hs[:cellRenderer]       = 'group' # This column will have the expand/contract controls.
+        #   hs[:cellRendererParams] = { suppressCount: true } # There is always one child (a sub-grid), so hide the count.
+        #   hs.delete(:enableRowGroup) # ... see if this helps?????
+        #   hs.delete(:enablePivot) # ... see if this helps?????
+        # end
         @columns << hs
       end
 
@@ -387,9 +324,10 @@ module Crossbeams
           headerCheckboxSelection: true,
           headerCheckboxSelectionFilteredOnly: true,
           checkboxSelection: true,
-          suppressMenu: true,   sortable: false,   suppressMovable: true,
+          suppressHeaderMenuButton: true,   sortable: false,   suppressMovable: true,
           filter: false,
-          enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
+          enableValue: false, suppressColumnsToolPanel: true,
+          context: { suppressCsvExport: true },
           suppressFiltersToolPanel: true
         }
         hs[:enableRowGroup] = false unless @for_tree

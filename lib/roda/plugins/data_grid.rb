@@ -216,9 +216,13 @@ class Roda
                 grp.add_control control_type: :link, text: 'Back', url: "#{opt_filter_url.%(id)}?back=y", style: :back_button
                 grp.add_text %(<div id="rpt_param_text" data-report-param-display="#{id}" hidden></div>),
                              toggle_button: true,
-                             toggle_element_id: 'rpt_param_text',
+                             external_toggle_element: true,
+                             toggle_element_id: 'rpt_param_sel',
                              toggle_caption: 'Chosen parameters'
               end
+              section.add_text %(<div id="rpt_param_text" data-report-param-display="#{id}"></div>),
+                               dom_id: 'rpt_param_sel',
+                               initially_visible: false
             end
             page.section do |section|
               section.fit_height! if grid_def.fit_height

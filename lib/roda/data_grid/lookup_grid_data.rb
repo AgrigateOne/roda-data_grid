@@ -54,7 +54,7 @@ module Crossbeams
         in_keys
       end
 
-      def params_to_parms(params) # rubocop:disable Metrics/AbcSize
+      def params_to_parms(params) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
         input_parameters = ::JSON.parse(params[:json_var]) || []
         parms = []
         # Check if this should become an IN parmeter (list of equal checks for a column.
@@ -94,7 +94,7 @@ module Crossbeams
         begin
           report.apply_params(parms)
         rescue StandardError => e
-          return "ERROR: #{e.message}"
+          "ERROR: #{e.message}"
         end
       end
 
@@ -110,65 +110,20 @@ module Crossbeams
                  "'#{place_params_in_url(config.select_url)}/'+data.id+'|select'"
                end
         Crossbeams::DataGrid::ColumnDefiner.new.make_columns do |mk|
-          mk.href link, 'sel_link', fetch_renderer: true
+          mk.href link, 'sel_link', fetch_renderer: true, width: 100
         end.first
       end
 
-      def column_definitions(options = {}) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
+      def column_definitions(options = {})
         col_defs = []
         col_defs << select_link_column
+        column_definition = ColumnDefinition.new(config)
 
-        (options[:column_set] || report.ordered_columns).each do |col|
-          hs                  = { headerName: col.caption, field: col.name, hide: col.hide, headerTooltip: col.caption }
-          hs[:width]          = col.width unless col.width.nil?
-          hs[:width]          = Crossbeams::DataGrid::COLWIDTH_DATETIME if col.width.nil? && col.data_type == :datetime
-          hs[:enableValue]    = true if %i[integer number].include?(col.data_type)
-          hs[:enableRowGroup] = true unless config.tree || hs[:enableValue] && !col.groupable
-          hs[:enablePivot]    = true unless config.tree || hs[:enableValue] && !col.groupable
-          hs[:rowGroupIndex]  = col.group_by_seq if col.group_by_seq
-          hs[:pinned]         = col.pinned if col.pinned
-          hs[:rowGroup]       = true if col.group_by_seq
-
-          if %i[integer number].include?(col.data_type)
-            hs[:type]      = 'numericColumn'
-            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_INTEGER if col.width.nil? && col.data_type == :integer
-            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_NUMBER if col.width.nil? && col.data_type == :number
-          end
-
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.localCurrencyFormatter' if col.format == :local_currency
-
-          if col.data_type == :boolean
-            hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
-            hs[:cellClass]    = 'grid-boolean-column'
-            hs[:width]        = Crossbeams::DataGrid::COLWIDTH_BOOLEAN if col.width.nil?
-          end
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if col.data_type == :datetime
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutZoneFormatter' if col.format == :datetime_with_secs
-
-          col_defs << hs
-        end
+        (options[:column_set] || report.ordered_columns).each { |col| col_defs << column_definition.column_hash(col) }
 
         (config.calculated_columns || []).each do |raw|
-          col = OpenStruct.new(raw)
-          hs                  = { headerName: col.caption, field: col.name, headerTooltip: col.caption }
-          hs[:width]          = col.width unless col.width.nil?
-          hs[:enableValue]    = true if %i[integer number].include?(col.data_type)
-
-          if %i[integer number].include?(col.data_type)
-            hs[:type]      = 'numericColumn'
-            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_INTEGER if col.width.nil? && col.data_type == :integer
-            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_NUMBER if col.width.nil? && col.data_type == :number
-          end
-
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.localCurrencyFormatter' if col.format == :local_currency
-
-          parts = col.expression.split(' ')
-          hs[:valueGetter] = parts.map { |p| %w[* + - /].include?(p) ? p : "data.#{p}" }.join(' ')
-          col_defs.insert((col.position || 1), hs)
+          pos, hs = column_definition.calculated_column(raw)
+          col_defs.insert(pos, hs)
         end
         col_defs
       end
