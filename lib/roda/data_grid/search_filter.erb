@@ -18,12 +18,12 @@
           <div class="flex flex-wrap gap-6">
             <div id="crossbeams_limit_field_wrapper" class="flex flex-grow flex-col">
               <label for="limit" class="text-sm text-slate-500">Limit</label>
-              <input class="w-full rounded border border-slate-300 bg-white outline outline-2 outline-transparent outline-offset-2 px-3 py-2 appearance-none text-base leading-6 focus:outline focus:outline-2 focus:ring-steel-blue-500 focus:border-steel-blue-500 text-slate-800" type="number" min="1" value="<%= presenter.rpt.limit %>" name="limit" id="limit">
+              <input class="w-full rounded border border-slate-300 bg-white outline outline-2 outline-transparent outline-offset-2 px-3 py-2 appearance-none text-base leading-6 focus:outline focus:outline-2 focus:ring-ocean-700 focus:border-ocean-700 text-slate-800" type="number" min="1" value="<%= presenter.rpt.limit %>" name="limit" id="limit">
 
       </div>
             <div id="crossbeams_offset_field_wrapper" class="flex flex-grow flex-col">
               <label for="offset" class="text-sm text-slate-500">Start from (offset)</label>
-              <input class="w-full rounded border border-slate-300 bg-white outline outline-2 outline-transparent outline-offset-2 px-3 py-2 appearance-none text-base leading-6 focus:outline focus:outline-2 focus:ring-steel-blue-500 focus:border-steel-blue-500 text-slate-800" type="number" min="1" value="<%= presenter.rpt.offset %>" name="offset" id="offset">
+              <input class="w-full rounded border border-slate-300 bg-white outline outline-2 outline-transparent outline-offset-2 px-3 py-2 appearance-none text-base leading-6 focus:outline focus:outline-2 focus:ring-ocean-700 focus:border-ocean-700 text-slate-800" type="number" min="1" value="<%= presenter.rpt.offset %>" name="offset" id="offset">
             </div>
       </div>
 
@@ -43,7 +43,7 @@
                 type="button"
                 id="add_param_btn"
                 disabled
-                class="rounded-md border-slate-200 bg-slate-200 p-3 text-slate-800 hover:border-french-blue-50 hover:bg-french-blue-50 hover:text-french-blue-600  disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:border-slate-200 disabled:hover:bg-slate-200 disabled:hover:border-slate-200"
+                class="rounded-md border-slate-200 bg-slate-200 p-3 text-slate-800 hover:border-ocean-50 hover:bg-ocean-50 hover:text-ocean-700  disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:border-slate-200 disabled:hover:bg-slate-200 disabled:hover:border-slate-200"
                 onclick="crossbeamsDataMinerParams.addQpFormParam(); crossbeamsDataMinerParams.clearSelections()"
               >
                 <svg

@@ -27,8 +27,10 @@ module Crossbeams
                               'number'
                             when :boolean
                               'boolean'
-                            when :date, :datetime
-                              'date'
+                            when :date
+                              'dateString'
+                            when :datetime
+                              'dateTimeString'
                             else
                               'text'
                             end
