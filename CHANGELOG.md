@@ -10,6 +10,10 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 
+## [1.5.3] - 2025-11-12
+### Changed
+- Upgrade to Ruby 3.4.7
+
 ## [1.5.2] - 2025-05-06
 ### Added
 - New "any" operator can be used to search where an array column contains a value
