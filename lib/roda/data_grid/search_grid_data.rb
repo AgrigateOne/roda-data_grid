@@ -5,6 +5,8 @@ require 'rack'
 module Crossbeams
   module DataGrid
     class SearchGridData
+      include GridColdefBuilder
+
       attr_reader :config, :params
 
       def initialize(options)
@@ -129,147 +131,6 @@ module Crossbeams
         end
       end
 
-      def column_definitions(options = {}) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
-        col_defs = []
-        # edit_columns = (config.edit_rules[:editable_fields] || {}).keys
-        edit_columns = []
-
-        # TEST: multiselect
-        if config.multiselect
-          hs = {
-            headerName: '',
-            colId: 'theSelector',
-            pinned: 'left',
-            width: 60,
-            headerCheckboxSelection: true,
-            headerCheckboxSelectionFilteredOnly: true,
-            checkboxSelection: true,
-            suppressMenu: true,   sortable: false,   suppressMovable: true,
-            filter: false,
-            enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
-            suppressFiltersToolPanel: true
-          }
-          hs[:enableRowGroup] = false unless config.tree
-          hs[:enablePivot] = false unless config.tree
-          col_defs << hs
-        end
-
-        # Actions
-        if config.actions
-          this_col = make_subitems(config.actions)
-          hs = { headerName: '', pinned: 'left',
-                 width: 60,
-                 suppressMenu: true,   sortable: false,   suppressMovable: true,
-                 filter: false,
-                 enableValue: false,   suppressCsvExport: true, suppressColumnsToolPanel: true,
-                 suppressFiltersToolPanel: true,
-                 valueGetter: this_col.to_json.to_s,
-                 colId: 'action_links',
-                 cellRenderer: 'crossbeamsGridFormatters.menuActionsRenderer' }
-          hs[:enableRowGroup] = false unless config.tree
-          hs[:enablePivot] = false unless config.tree
-          col_defs << hs
-        end
-
-        (options[:column_set] || report.ordered_columns).each do |col|
-          hs                  = { headerName: col.caption, field: col.name, hide: col.hide, headerTooltip: col.caption }
-          hs[:hide]           = true if config.hide_for_client.include?(col.name)
-          hs[:width]          = col.width unless col.width.nil?
-          hs[:width]          = Crossbeams::DataGrid::COLWIDTH_DATETIME if col.width.nil? && col.data_type == :datetime
-          hs[:enableValue]    = true if %i[integer number].include?(col.data_type)
-          hs[:enableRowGroup] = true unless config.tree || hs[:enableValue] && !col.groupable
-          hs[:enablePivot]    = true unless config.tree || hs[:enableValue] && !col.groupable
-          hs[:rowGroupIndex]  = col.group_by_seq if col.group_by_seq
-          hs[:pinned]         = col.pinned if col.pinned
-          hs[:rowGroup]       = true if col.group_by_seq
-
-          if %i[integer number].include?(col.data_type)
-            hs[:type]      = 'numericColumn'
-            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_INTEGER if col.width.nil? && col.data_type == :integer
-            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_NUMBER if col.width.nil? && col.data_type == :number
-          end
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000 # rubocop:disable Naming/VariableNumber
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4 # rubocop:disable Naming/VariableNumber
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.localCurrencyFormatter' if col.format == :local_currency
-          if col.data_type == :boolean
-            hs[:cellRenderer] = 'crossbeamsGridFormatters.booleanFormatter'
-            hs[:cellClass]    = 'grid-boolean-column'
-            hs[:width]        = Crossbeams::DataGrid::COLWIDTH_BOOLEAN if col.width.nil?
-          end
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' if col.data_type == :datetime
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.dateTimeWithoutZoneFormatter' if col.format == :datetime_with_secs
-          hs[:cellRenderer] = 'crossbeamsGridFormatters.iconFormatter' if col.name == 'icon'
-          hs[:cellRenderer] = 'crossbeamsGridFormatters.barColourFormatter' if col.format == :bar_colour
-
-          # Sparkline chart formats
-          if SPARKTYPES.keys.include?(col.format)
-            hs[:cellRenderer] = 'agSparklineCellRenderer'
-            hs[:cellRendererParams] = { sparklineOptions: { type: SPARKTYPES[col.format] } }
-            @multi_dimensional_arrays << col.name.to_sym if col.format.to_s.end_with?('_text')
-          end
-
-          # Rules for editable columns
-          if edit_columns.include?(col.name)
-            hs[:editable] = true
-            hs[:headerClass] = hs[:type] && hs[:type] == 'numericColumn' ? 'ag-numeric-header gridEditableColumn' : 'gridEditableColumn'
-            hs[:headerTooltip] = "#{col.caption} (editable)"
-
-            rule = config.edit_rules[:editable_fields][col.name]
-            if rule && rule[:editor]
-              hs[:cellEditor] = 'numericCellEditor' if rule[:editor] == :numeric
-              hs[:cellEditorType] = 'integer' if rule[:editor] == :numeric && col.data_type == :integer
-              hs[:cellEditor] = 'agLargeTextCellEditor' if rule[:editor] == :textarea
-              if rule[:editor] == :select
-                hs[:cellEditor] = 'agRichSelectCellEditor'
-                values = select_editor_values(rule)
-                hs[:cellEditorParams] = { values: values, selectWidth: rule[:width] || 200 }
-              end
-              if rule[:editor] == :search_select
-                hs[:cellEditor] = 'searchableSelectCellEditor'
-                if rule[:lookup_url]
-                  hs[:cellEditorParams] = { lookupUrl: rule[:lookup_url] }
-                else
-                  values = select_editor_values(rule)
-                  hs[:cellEditorParams] = { values: values }
-                end
-              end
-            else
-              hs[:cellEditor] = 'agPopupTextCellEditor'
-            end
-          end
-
-          if options[:expands_nested_grid] && options[:expands_nested_grid] == col.name
-            hs[:cellRenderer]       = 'group' # This column will have the expand/contract controls.
-            hs[:cellRendererParams] = { suppressCount: true } # There is always one child (a sub-grid), so hide the count.
-            hs.delete(:enableRowGroup) # ... see if this helps?????
-            hs.delete(:enablePivot) # ... see if this helps?????
-          end
-
-          # hs[:cellClassRules] = { "grid-row-red": "x === 'Fred'" } if col.name == 'author'
-          col_defs << hs
-        end
-
-        (config.calculated_columns || []).each do |raw|
-          col = OpenStruct.new(raw)
-          hs = { headerName: col.caption, field: col.name, headerTooltip: col.caption }
-          hs[:width] = col.width unless col.width.nil?
-          hs[:enableValue] = true if %i[integer number].include?(col.data_type)
-
-          if %i[integer number].include?(col.data_type)
-            hs[:type]      = 'numericColumn'
-            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_INTEGER if col.width.nil? && col.data_type == :integer
-            hs[:width]     = Crossbeams::DataGrid::COLWIDTH_NUMBER if col.width.nil? && col.data_type == :number
-          end
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas2' if col.format == :delimited_1000 # rubocop:disable Naming/VariableNumber
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.numberWithCommas4' if col.format == :delimited_1000_4 # rubocop:disable Naming/VariableNumber
-          hs[:valueFormatter] = 'crossbeamsGridFormatters.localCurrencyFormatter' if col.format == :local_currency
-          parts = col.expression.split(' ')
-          hs[:valueGetter] = parts.map { |p| %w[* + - /].include?(p) ? p : "data.#{p}" }.join(' ')
-          col_defs.insert((col.position || 1), hs)
-        end
-        col_defs
-      end
-
       def conditions
         return nil if config.conditions.empty?
 
@@ -343,94 +204,6 @@ module Crossbeams
 
           Crossbeams::Dataminer::QueryParameter.new(col, Crossbeams::Dataminer::OperatorValue.new(fp[:op], fp[:val], param_def.data_type))
         end
-      end
-
-      def assert_actions_ok! # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
-        return unless config.actions
-
-        config.actions.each do |action|
-          action.each_key do |key|
-            raise ArgumentError, "#{key} is not a valid action attribute" unless %i[
-              auth
-              has_permission
-              hide_if_false
-              hide_if_null
-              hide_if_present
-              hide_if_true
-              hide_if_env_var
-              show_if_env_var
-              hide_for_client_rule
-              show_for_client_rule
-              icon
-              is_delete
-              remote
-              loading_window
-              popup
-              prompt
-              separator
-              submenu
-              text
-              title
-              title_field
-              url
-            ].include?(key)
-          end
-
-          raise ArgumentError, 'A grid action cannot be both a popup and a loading_window' if action[:popup] && action[:loading_window]
-          raise ArgumentError, 'A remote grid action must also be defined as a popup' if action[:remote] && !action[:popup]
-        end
-      end
-
-      # Build action column items recursively.
-      def make_subitems(actions, level = 0) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
-        this_col = []
-        cnt = 0
-        actions.each do |action|
-          if action[:separator]
-            cnt += 1
-            this_col << { text: "sep#{level}#{cnt}", is_separator: true }
-            next
-          end
-          if action[:submenu]
-            this_col << { text: action[:submenu][:text], is_submenu: true, items: make_subitems(action[:submenu][:items], level + 1) }
-            next
-          end
-
-          # Check if user is authorised for this action:
-          next if action[:auth] && @deny_access.call(action[:auth][:function], action[:auth][:program], action[:auth][:permission])
-          next if env_var_prevents_action?(action[:hide_if_env_var], action[:show_if_env_var])
-          next if client_rule_prevents_action?(action[:hide_for_client_rule], action[:show_for_client_rule])
-
-          # Check if user has permission for this action:
-          next if action[:has_permission] && !@has_permission.call(action[:has_permission].map(&:to_sym))
-
-          keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
-          url  = action[:url]
-          keys.each_with_index { |key, index| url.gsub!("$#{key}$", "$col#{index}$") }
-          link_h = {
-            text: action[:text] || 'link',
-            url: url
-          }
-          keys.each_with_index { |key, index| link_h["col#{index}".to_sym] = key.sub(':', '') }
-          if action[:is_delete]
-            link_h[:prompt] = 'Are you sure?'
-            link_h[:method] = 'delete'
-          end
-          link_h[:method] = 'post' if action[:remote]
-
-          link_h[:icon] = action[:icon] if action[:icon]
-          link_h[:prompt] = action[:prompt] if action[:prompt]
-          link_h[:title] = action[:title] if action[:title]
-          link_h[:title_field] = action[:title_field] if action[:title_field]
-          link_h[:popup] = action[:popup] if action[:popup]
-          link_h[:loading_window] = action[:loading_window] if action[:loading_window]
-          link_h[:hide_if_null] = action[:hide_if_null] if action[:hide_if_null]
-          link_h[:hide_if_present] = action[:hide_if_present] if action[:hide_if_present]
-          link_h[:hide_if_true] = action[:hide_if_true] if action[:hide_if_true]
-          link_h[:hide_if_false] = action[:hide_if_false] if action[:hide_if_false]
-          this_col << link_h
-        end
-        this_col
       end
 
       # The hide_ and show_ env var settings contain a list of env vars and values:
@@ -542,9 +315,14 @@ module Crossbeams
             rec[key] = rec[key].map { |a, b| [a, b.to_f] } if @multi_dimensional_arrays.include?(key)
             rec[key] = rec[key].to_f if rec[key].is_a?(BigDecimal)
             rec[key] = rec[key].to_s if hstore && rec[key].is_a?(Sequel::Postgres::HStore)
+            rec[key] = row_style(rec[key]) if key == :colour_rule
           end
           rec
         end
+      end
+
+      def row_style(klass)
+        Crossbeams::Layout::StylesConfig.config.grid_row_colours[klass] || klass
       end
 
       def limit_from_params(params)

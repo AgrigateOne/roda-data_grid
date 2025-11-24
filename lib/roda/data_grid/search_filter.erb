@@ -1,38 +1,80 @@
-<h1>Fill in parameters</h1>
-<h2><%= presenter.caption %></h2>
+<% style_conf = Crossbeams::Layout::StylesConfig %>
+<div class="flex flex-col gap-3">
+  <h1 class="<%= style_conf.css_class(:h1)%> px-6 mt-3">Fill in parameters</h1>
 
-<form action='<%= run_search_url %>' id="rp_form" method=post class="crossbeams-form"
-  onsubmit="crossbeamsDataMinerParams.storeCurrentParams('<%=presenter.rpt_id%>'); crossbeamsUtils.addJSONVarToForm('rp_form', crossbeamsDataMinerParams.current_values);">
+  <div class="flex flex-col gap-3 mx-14 px-6 py-4">
+    <h2 class="<%= style_conf.css_class(:h2)%>"><%= presenter.caption %></h2>
+
+    <form action='<%= run_search_url %>' id="rp_form" method=post class="crossbeams-form" onsubmit="crossbeamsDataMinerParams.checkUnappliedParam(this); crossbeamsDataMinerParams.storeCurrentParams('<%=presenter.rpt_id%>'); crossbeamsUtils.addJSONVarToForm('rp_form', crossbeamsDataMinerParams.current_values);">
   <input type="hidden" name="id" value="<%=presenter.rpt_id%>">
+
+
   <%= csrf_tag %>
   <div class="crossbeams-row">
-    <div class="crossbeams-col">
+        <div class="crossbeams-col flex flex-col gap-3">
       <div class="crossbeams-field">
-        <a href="#" id="reloadParams" style="display:none" onclick="crossbeamsDataMinerParams.loadCurrentParams()">get previous parameters</a>
+        <a class="<%= style_conf.css_class(:link)%>" href="#" id="reloadParams" style="display:none" onclick="crossbeamsDataMinerParams.loadCurrentParams()">get previous parameters</a>
       </div>
-      <div class="crossbeams-field">
-        <label for="limit">Limit</label>
-        <input id="limit" class="cbl-input" style="flex-grow:initial" type="number" name='limit' min="1" size="20" value="<%= presenter.rpt.limit %>" />
+          <div class="flex flex-wrap gap-6">
+            <div id="crossbeams_limit_field_wrapper" class="flex flex-grow flex-col">
+              <label for="limit" class="text-sm text-slate-500">Limit</label>
+              <input class="w-full rounded border border-slate-300 bg-white outline outline-2 outline-transparent outline-offset-2 px-3 py-2 appearance-none text-base leading-6 focus:outline focus:outline-2 focus:ring-ocean-700 focus:border-ocean-700 text-slate-800" type="number" min="1" value="<%= presenter.rpt.limit %>" name="limit" id="limit">
+
       </div>
-      <div class="crossbeams-field">
-        <label for="offset">Start from (offset)</label>
-        <input id="offset" class="cbl-input" style="flex-grow:initial" type="number" name='offset' min="1" size="20" value="<%= presenter.rpt.offset %>" />
+            <div id="crossbeams_offset_field_wrapper" class="flex flex-grow flex-col">
+              <label for="offset" class="text-sm text-slate-500">Start from (offset)</label>
+              <input class="w-full rounded border border-slate-300 bg-white outline outline-2 outline-transparent outline-offset-2 px-3 py-2 appearance-none text-base leading-6 focus:outline focus:outline-2 focus:ring-ocean-700 focus:border-ocean-700 text-slate-800" type="number" min="1" value="<%= presenter.rpt.offset %>" name="offset" id="offset">
+            </div>
       </div>
 
-      <h3>Choose parameters</h3>
+        <div class="flex flex-col gap-8 mt-5">
+          <h2 class="<%= style_conf.css_class(:h2)%>">Choose parameters</h2>
+          <div class="flex flex-wrap items-end gap-3">
       <select id="select_param">
-        <%= make_options(presenter.qps.map { |qp| [qp.caption, qp.column] }.unshift(["Select a parameter to apply", nil])) %>
+        <option value="" disabled selected>Select parameter</option>
+        <%#= make_options(presenter.qps.map { |qp| [qp.caption, qp.column] }.unshift(["Select a parameter to apply", nil])) %>
+        <%= make_options(presenter.qps.map { |qp| [qp.caption, qp.column] }) %>
       </select>
-      <div id="qp_form" style="display:inline-block"></div>
-      <div id="param_display"></div>
 
-      <div class="crossbeams-actions">
-        <input type="submit" name="btnSubmit" value="Run report" data-disable-with="Running..." class="white bg-green br2 dim pa3 ba b--near-white">
-        <button type='submit' id="run_excel" name="btnSubmit" formaction="<%= run_to_excel_url %>" data-briefly-disable-with="Create Excel report" class="near-white bg-green br2 dim pa3 ml4 ba b--near-white disabled"><%= Crossbeams::Layout::Icon.render(:excel) %> Download Excel report</button>
-      </div>
+            <div id="qp_form" class="contents"></div>
     </div>
+          <div id="add-param-btn-wrapper" class="flex items-baseline">
+              <button
+                type="button"
+                id="add_param_btn"
+                disabled
+                class="rounded-md border-slate-200 bg-slate-200 p-3 text-slate-800 hover:border-ocean-50 hover:bg-ocean-50 hover:text-ocean-700  disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:border-slate-200 disabled:hover:bg-slate-200 disabled:hover:border-slate-200"
+                onclick="crossbeamsDataMinerParams.addQpFormParam(); crossbeamsDataMinerParams.clearSelections()"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+                <%= Crossbeams::Layout::Notice.new({}, 'Message about the plus button', show_caption: false).render %>
   </div>
+
+          <div id="param_display" class="max-h-[20rem] pr-2 py-1 overflow-y-auto"></div>
+        </div>
+        </div>
+      </div>
+
+  <div class="flex flex-row gap-2 justify-end mt-4">
+  <input type="submit" name="btnSubmit" value="Run report" data-disable-with="Running..." class="<%= style_conf.css_class(:button_primary)%>">
+    <button type='submit' id="run_excel" name="btnSubmit" formaction="<%= run_to_excel_url %>" data-briefly-disable-with="Create Excel report" class="<%= style_conf.css_class(:button_secondary)%>"><%= Crossbeams::Layout::Icon.render(:excel) %> Download Excel report</button>
+  </div>
+
 </form>
+  </div>
+</div>
 
 <% content_for :late_javascript do %>
 <script>
