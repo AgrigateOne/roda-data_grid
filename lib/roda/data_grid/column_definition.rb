@@ -34,6 +34,7 @@ module Crossbeams
                             else
                               'text'
                             end
+
         if %i[integer number].include?(col.data_type)
           hs[:type]      = 'numericColumn'
           hs[:width]     = Crossbeams::DataGrid::COLWIDTH_INTEGER if col.width.nil? && col.data_type == :integer
