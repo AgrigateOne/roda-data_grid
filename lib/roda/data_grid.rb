@@ -7,6 +7,8 @@ require 'roda/data_grid/data_grid_helpers'
 require 'roda/data_grid/client_rule_check'
 require 'roda/data_grid/base_grid_config'
 require 'roda/data_grid/column_definer'
+require 'roda/data_grid/grid_coldef_builder'
+require 'roda/data_grid/column_definition'
 require 'roda/data_grid/list_grid_config'
 require 'roda/data_grid/list_grid_data'
 require 'roda/data_grid/list_grid_definition'
@@ -38,7 +40,7 @@ module Crossbeams
     }.freeze
 
     # Default column widths for different data types
-    COLWIDTH_DATETIME = 140
+    COLWIDTH_DATETIME = 170
     COLWIDTH_BOOLEAN = 100
     COLWIDTH_NUMBER = 120
     COLWIDTH_INTEGER = 100

@@ -182,8 +182,8 @@ class ColumnDefinerTest < Minitest::Test
     col = cols.first
 
     assert col[:editable]
-    assert_equal col[:cellEditor], 'searchableSelectCellEditor'
-    assert_equal col[:cellEditorParams], { values: ['true', 'false'] }
+    assert_equal col[:cellEditor], 'agRichSelectCellEditor'
+    assert_equal col[:cellEditorParams], { values: ['true', 'false'], :allowTyping=>true, :filterList=>true, :highlightMatch=>true, :valueListMaxHeight=>220 }
 
     cols = cd.make_columns do |mk|
       mk.col 'afield', nil, editable: true,
@@ -202,8 +202,9 @@ class ColumnDefinerTest < Minitest::Test
     col = cols.first
 
     assert col[:editable]
-    assert_equal 'numericCellEditor', col[:cellEditor]
-    assert_nil col[:cellEditorType]
+    assert_equal 'agNumberCellEditor', col[:cellEditor]
+    assert col[:cellEditorParams][:showStepperButtons]
+    assert_nil col[:cellEditorParams][:precision]
 
     cols = cd.make_columns do |mk|
       mk.integer 'afield', nil, editable: true
@@ -211,8 +212,9 @@ class ColumnDefinerTest < Minitest::Test
     col = cols.first
 
     assert col[:editable]
-    assert_equal 'numericCellEditor', col[:cellEditor]
-    assert_equal 'integer',  col[:cellEditorType]
+    assert_equal 'agNumberCellEditor', col[:cellEditor]
+    assert col[:cellEditorParams][:showStepperButtons]
+    assert_equal 0, col[:cellEditorParams][:precision]
   end
 
   def test_multiselect_column
