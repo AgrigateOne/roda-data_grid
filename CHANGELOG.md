@@ -10,6 +10,10 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Fixed
 
+## [1.5.4] - 2025-11-24
+### Changed
+- Upgrade AG Grid and move to Tailwind CSS
+
 ## [1.5.3] - 2025-11-12
 ### Changed
 - Upgrade to Ruby 3.4.7
