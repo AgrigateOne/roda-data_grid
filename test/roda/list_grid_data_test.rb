@@ -224,12 +224,17 @@ class ListGridDataTest < Minitest::Test
     assert_equal BASIC_EXPECTED, tester['rowDefs']
     assert_equal BASIC_EXPECTED.first.keys, tester['columnDefs'].map {|a| a['field'] }
     cols = [
-      { 'headerName' => 'Id', 'field' => 'id', 'hide' => false, 'headerTooltip' => 'Id', 'enableValue' => true, 'type' => 'numericColumn', 'width' => Crossbeams::DataGrid::COLWIDTH_INTEGER },
-      { 'headerName' => 'First name', 'field' => 'user_name', 'hide' => false, 'headerTooltip' => 'First name', 'width' => 150, 'enableRowGroup' => true, 'enablePivot' => true, 'pinned' => 'left' },
-      { 'headerName' => 'Department name', 'field' => 'department_name', 'hide' => false, 'headerTooltip' => 'Department name', 'enableRowGroup' => true, 'enablePivot' => true },
-      { 'headerName' => 'Created at', 'field' => 'created_at', 'hide' => false, 'headerTooltip' => 'Created at', 'width' => Crossbeams::DataGrid::COLWIDTH_DATETIME, 'enableRowGroup' => true, 'enablePivot' => true, 'valueFormatter' => 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter' },
-      { 'headerName' => 'Amount', 'field' => 'amount', 'hide' => false, 'headerTooltip' => 'Amount', 'enableValue' => true, 'type' => 'numericColumn', 'width' => Crossbeams::DataGrid::COLWIDTH_NUMBER, 'valueFormatter' => 'crossbeamsGridFormatters.numberWithCommas2' },
-      { 'headerName' => 'Active', 'field' => 'active', 'hide' => false, 'headerTooltip' => 'Active', 'enableRowGroup' => true, 'enablePivot' => true, 'cellRenderer' => 'crossbeamsGridFormatters.booleanFormatter', 'cellClass' => 'grid-boolean-column', 'width' => Crossbeams::DataGrid::COLWIDTH_BOOLEAN }
+      {'headerName' => 'Id', 'field' => 'id', 'hide' => false, 'headerTooltip' => 'Id', 'context' => {}, 'enableValue' => true, 'cellDataType' => 'number', 'type' => 'numericColumn', 'width' => 100},
+      {'headerName' => 'First name', 'field' => 'user_name', 'hide' => false, 'headerTooltip' => 'First name', 'context' => {}, 'width' => 160, 'enableRowGroup' => true,
+       'enablePivot' => true, 'pinned' => 'left', 'cellDataType' => 'text'},
+      {'headerName' => 'Department name', 'field' => 'department_name', 'hide' => false, 'headerTooltip' => 'Department name', 'context' => {}, 'enableRowGroup' => true,
+       'enablePivot' => true, 'cellDataType' => 'text'},
+      {'headerName' => 'Created at', 'field' => 'created_at', 'hide' => false, 'headerTooltip' => 'Created at', 'context' => {}, 'width' => 170, 'enableRowGroup' => true,
+       'enablePivot' => true, 'cellDataType' => 'dateTimeString', 'valueFormatter' => 'crossbeamsGridFormatters.dateTimeWithoutSecsOrZoneFormatter'},
+      {'headerName' => 'Amount', 'field' => 'amount', 'hide' => false, 'headerTooltip' => 'Amount', 'context' => {}, 'enableValue' => true, 'cellDataType' => 'number',
+       'type' => 'numericColumn', 'width' => 120, 'valueFormatter' => 'crossbeamsGridFormatters.numberWithCommas2'},
+      {'headerName' => 'Active', 'field' => 'active', 'hide' => false, 'headerTooltip' => 'Active', 'context' => {}, 'enableRowGroup' => true, 'enablePivot' => true,
+       'cellDataType' => 'boolean', 'cellRenderer' => 'agCheckboxCellRenderer', 'width' => 100}
     ]
     assert_equal cols, tester['columnDefs']
   end
@@ -243,7 +248,6 @@ class ListGridDataTest < Minitest::Test
       rows = data.list_rows
     end
     tester = JSON.parse(rows)
-    assert tester['columnDefs'].any? { |r| r['colId'] == 'theSelector' }
     assert_equal BASIC_EXPECTED, tester['rowDefs']
     assert_equal [], tester['multiselect_ids']
 
@@ -291,19 +295,21 @@ class ListGridDataTest < Minitest::Test
     expected = { 'headerName' => '',
                  'pinned' => 'left',
                  'width' => 60,
-                 'suppressMenu' => true,
+                 'suppressHeaderMenuButton' => true,
                  'sortable' => false,
                  'suppressMovable' => true,
                  'filter' => false,
-                 'enableRowGroup' => false,
-                 'enablePivot' => false,
                  'enableValue' => false,
-                 'suppressCsvExport' => true,
                  'suppressColumnsToolPanel' => true,
                  'suppressFiltersToolPanel' => true,
                  'valueGetter' => "[{\"text\":\"view\",\"url\":\"/development/masterfiles/users/$col0$\",\"col0\":\"id\",\"icon\":\"view-show\",\"title\":\"View\",\"popup\":true},{\"text\":\"edit\",\"url\":\"/development/masterfiles/users/$col0$/edit\",\"col0\":\"id\",\"icon\":\"edit\",\"title\":\"Edit\"},{\"text\":\"sep01\",\"is_separator\":true},{\"text\":\"delete\",\"url\":\"/development/masterfiles/users/$col0$\",\"col0\":\"id\",\"prompt\":\"Are you sure?\",\"method\":\"delete\",\"icon\":\"delete\",\"popup\":true}]",
+                 'context' => {'suppressCsvExport' => true},
                  'colId' => 'action_links',
-                 'cellRenderer' => 'crossbeamsGridFormatters.menuActionsRenderer'
+                 'cellStyle' => {'padding-left' => '0px',
+                 'padding-right' => '0px'},
+                 'cellRenderer' => 'crossbeamsGridFormatters.menuActionsRenderer',
+                 'enableRowGroup' => false,
+                 'enablePivot' => false
     }
     assert_equal expected, actions_col
   end
@@ -486,7 +492,7 @@ class ListGridDataTest < Minitest::Test
     assert_equal '/path/to/$:id$/inline_save', tester['fieldUpdateUrl']
     col = tester['columnDefs'].find {|c| c['field'] == 'user_name' }
 
-    assert_equal 'agPopupTextCellEditor', col['cellEditor']
+    assert_equal 'agTextCellEditor', col['cellEditor']
     assert_equal 'First name (editable)', col['headerTooltip']
     assert_equal 'gridEditableColumn', col['headerClass']
     assert col['editable']
@@ -504,17 +510,17 @@ class ListGridDataTest < Minitest::Test
 
     col = tester['columnDefs'].find {|c| c['field'] == 'active' }
     assert_equal 'agRichSelectCellEditor', col['cellEditor']
-    assert_equal({ 'values' => ['Yes', 'No'], 'selectWidth' => 200 }, col['cellEditorParams'])
+    assert_equal({'values' => ['Yes', 'No'], 'allowTyping' => true, 'filterList' => true, 'highlightMatch' => true, 'searchType' => 'matchAny', 'valueListMaxHeight' => 220}, col['cellEditorParams'])
     assert col['editable']
 
     col = tester['columnDefs'].find {|c| c['field'] == 'created_at' }
     assert_equal 'agRichSelectCellEditor', col['cellEditor']
-    assert_equal({ 'values' => ['Now', 'Then', 'Soon'], "allowTyping"=>true, "filterList"=>true, "highlightMatch"=>true, "valueListMaxHeight"=>220 }, col['cellEditorParams'])
+    assert_equal({ 'values' => ['Now', 'Then', 'Soon'], 'allowTyping'=>true, 'filterList'=>true, 'highlightMatch'=>true, 'valueListMaxHeight'=>220, 'searchType' => 'matchAny' }, col['cellEditorParams'])
     assert col['editable']
 
     col = tester['columnDefs'].find {|c| c['field'] == 'id' }
-    assert_equal 'agRichSelectCellEditor', col['cellEditor']
-    assert_equal({ 'lookupUrl' => '/path/$:id$' }, col['cellEditorParams'])
+    assert_equal 'searchableSelectCellEditor', col['cellEditor']
+    assert_equal({ 'lookupUrl' => '/path/$:id$', 'selectWidth' => 200 }, col['cellEditorParams'])
     assert col['editable']
   end
 
@@ -532,7 +538,8 @@ class ListGridDataTest < Minitest::Test
 
     col = tester['columnDefs'].find {|c| c['field'] == 'active' }
     assert_equal 'agRichSelectCellEditor', col['cellEditor']
-    assert_equal({ 'values' => ['Yes', 'No'], 'selectWidth' => 350 }, col['cellEditorParams'])
+    assert_equal({ 'values' => ['Yes', 'No'], 'allowTyping' => true, 'filterList' => true, 'highlightMatch' => true, 'searchType' => 'matchAny', 'valueListMaxHeight' => 220, 'valueListMaxWidth' => 350 }, col['cellEditorParams'])
+
     assert col['editable']
   end
 

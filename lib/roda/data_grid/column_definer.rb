@@ -85,6 +85,7 @@ module Crossbeams
           suppressFiltersToolPanel: true,
           valueGetter: @actions.to_json.to_s,
           colId: 'action_links',
+          cellStyle: { 'padding-left': '0px', 'padding-right': '0px' }, # Remove padding so the button fills the cell, presenting a better target
           cellRenderer: 'crossbeamsGridFormatters.menuActionsRenderer'
         }
       end
@@ -219,6 +220,9 @@ module Crossbeams
         column_definition = ColumnDefinition.new(grid_config)
         col = options.merge(name: field, caption: caption || field.to_s.tr('_', ' ').capitalize)
         hs = column_definition.column_hash(OpenStruct.new(col))
+
+        hs[:cellRenderer] = 'crossbeamsGridFormatters.iconFormatter' if options[:icon]
+        hs[:headerTooltip] = options[:tooltip] if options[:tooltip]
 
         # Rules for editable columns
         if options[:editable]

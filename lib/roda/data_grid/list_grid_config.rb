@@ -36,7 +36,7 @@ module Crossbeams
         return if s.nil?
 
         qs_params = Rack::Utils.parse_nested_query(@params[:query_string])
-        qs_params.each { |k, v| s.gsub!("$:#{k}$", v) }
+        qs_params.each { |k, v| s = s.gsub("$:#{k}$", v) }
         @grid_caption = s
       end
 

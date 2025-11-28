@@ -24,6 +24,7 @@ module Crossbeams
                  valueGetter: this_col.to_json.to_s,
                  context: { suppressCsvExport: true },
                  colId: 'action_links',
+                 cellStyle: { 'padding-left': '0px', 'padding-right': '0px' }, # Remove padding so the button fills the cell, presenting a better target
                  cellRenderer: 'crossbeamsGridFormatters.menuActionsRenderer' }
           hs[:enableRowGroup] = false unless config.tree
           hs[:enablePivot] = false unless config.tree
@@ -132,7 +133,7 @@ module Crossbeams
 
           keys = action[:url].split(/\$/).select { |key| key.start_with?(':') }
           url  = action[:url]
-          keys.each_with_index { |key, index| url.gsub!("$#{key}$", "$col#{index}$") }
+          keys.each_with_index { |key, index| url = url.gsub("$#{key}$", "$col#{index}$") }
           link_h = {
             text: action[:text] || 'link',
             url: url
