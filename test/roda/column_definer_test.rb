@@ -51,7 +51,8 @@ class ColumnDefinerTest < Minitest::Test
     assert_equal col[:headerName], 'A Caption'
     assert_equal col[:headerTooltip], 'A Caption'
     assert_equal col[:field], 'afield'
-    assert_equal col[:cellClass], 'grid-number-column'
+    assert_equal col[:cellDataType], 'number'
+    assert_equal col[:type], 'numericColumn'
     assert_equal col[:width], 100
   end
 
@@ -62,7 +63,7 @@ class ColumnDefinerTest < Minitest::Test
     end
     col = cols.first
 
-    assert_equal col[:width], 400
+    assert_equal col[:width], 410
   end
 
   def test_numeric_basics
@@ -75,7 +76,9 @@ class ColumnDefinerTest < Minitest::Test
     assert_equal col[:headerName], 'A Caption'
     assert_equal col[:headerTooltip], 'A Caption'
     assert_equal col[:field], 'afield'
-    assert_equal col[:cellClass], 'grid-number-column'
+    # assert_equal col[:cellClass], 'grid-number-column'
+    assert_equal col[:cellDataType], 'number'
+    assert_equal col[:type], 'numericColumn'
     assert_equal col[:width], 120
     assert_equal col[:valueFormatter], 'crossbeamsGridFormatters.numberWithCommas2'
   end
@@ -87,7 +90,7 @@ class ColumnDefinerTest < Minitest::Test
     end
     col = cols.first
 
-    assert_equal col[:width], 400
+    assert_equal col[:width], 410
     assert_nil col[:cellRenderer]
     assert_equal col[:valueFormatter], 'crossbeamsGridFormatters.localCurrencyFormatter'
   end
@@ -102,9 +105,9 @@ class ColumnDefinerTest < Minitest::Test
     assert_equal col[:headerName], 'A Caption'
     assert_equal col[:headerTooltip], 'A Caption'
     assert_equal col[:field], 'afield'
-    assert_equal col[:cellClass], 'grid-boolean-column'
+    assert_equal col[:cellDataType], 'boolean'
     assert_equal col[:width], 100
-    assert_equal col[:cellRenderer], 'crossbeamsGridFormatters.booleanFormatter'
+    assert_equal col[:cellRenderer], 'agCheckboxCellRenderer'
   end
 
   def test_bar_colour_cell_renderer
@@ -127,7 +130,7 @@ class ColumnDefinerTest < Minitest::Test
     end
     col = cols.first
 
-    assert_equal col[:width], 400
+    assert_equal col[:width], 410
   end
 
   def test_icon_column
@@ -151,7 +154,7 @@ class ColumnDefinerTest < Minitest::Test
     col = cols.first
 
     assert col[:editable]
-    assert_nil col[:cellEditor]
+    assert_equal 'agTextCellEditor', col[:cellEditor]
     assert_nil col[:cellEditorParams]
 
     cols = cd.make_columns do |mk|
@@ -163,7 +166,7 @@ class ColumnDefinerTest < Minitest::Test
 
     assert col[:editable]
     assert_equal col[:cellEditor], 'agRichSelectCellEditor'
-    assert_equal col[:cellEditorParams], { values: ['true', 'false'], selectWidth: 200 }
+    assert_equal col[:cellEditorParams], {allowTyping: true, filterList: true, highlightMatch: true, searchType: "matchAny", valueListMaxHeight: 220, values: ['true', 'false']}
 
     cols = cd.make_columns do |mk|
       mk.col 'afield', nil, editable: true,
@@ -172,7 +175,7 @@ class ColumnDefinerTest < Minitest::Test
     end
     col = cols.first
 
-    assert_equal col[:cellEditorParams], { values: ['true', 'false'], selectWidth: 350 }
+    assert_equal col[:cellEditorParams], { allowTyping: true, filterList: true, highlightMatch: true, searchType: 'matchAny', valueListMaxHeight: 220, valueListMaxWidth: 350, values: ['true', 'false'] }
 
     cols = cd.make_columns do |mk|
       mk.col 'afield', nil, editable: true,
@@ -183,7 +186,7 @@ class ColumnDefinerTest < Minitest::Test
 
     assert col[:editable]
     assert_equal col[:cellEditor], 'agRichSelectCellEditor'
-    assert_equal col[:cellEditorParams], { values: ['true', 'false'], :allowTyping=>true, :filterList=>true, :highlightMatch=>true, :valueListMaxHeight=>220 }
+    assert_equal col[:cellEditorParams], { allowTyping: true, filterList: true, highlightMatch: true, searchType: 'matchAny', valueListMaxHeight: 220, values: ['true', 'false'] }
 
     cols = cd.make_columns do |mk|
       mk.col 'afield', nil, editable: true,
@@ -194,7 +197,7 @@ class ColumnDefinerTest < Minitest::Test
 
     assert col[:editable]
     assert_equal col[:cellEditor], 'searchableSelectCellEditor'
-    assert_equal col[:cellEditorParams], { lookupUrl: '/path/$:id$' }
+    assert_equal col[:cellEditorParams], { lookupUrl: "/path/$:id$", selectWidth: 200 }
 
     cols = cd.make_columns do |mk|
       mk.numeric 'afield', nil, editable: true

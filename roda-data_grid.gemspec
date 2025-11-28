@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'crossbeams-dataminer'
   spec.add_dependency 'crossbeams-layout'
   spec.add_dependency 'json'
+  spec.add_dependency 'ostruct'
   spec.add_dependency 'roda'
 
   spec.add_development_dependency 'minitest'

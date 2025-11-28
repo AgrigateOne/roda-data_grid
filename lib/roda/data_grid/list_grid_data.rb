@@ -213,7 +213,7 @@ module Crossbeams
 
       def parameterize_value(condition)
         val = condition[:val]
-        @params.each { |k, v| val.gsub!("$:#{k}$", v.nil? ? '' : v) }
+        @params.each { |k, v| val = val.gsub("$:#{k}$", v.nil? ? '' : v) }
         val = translate_special_variables(val)
         condition[:val] = val
         condition[:val] = condition_value_as_array(val) if condition[:op].match?(/in/i)
@@ -248,7 +248,7 @@ module Crossbeams
         return [] if config.multiselect_opts[:preselect].nil? || params.nil?
 
         sql = config.multiselect_opts[:preselect]
-        params.each { |k, v| sql.gsub!("$:#{k}$", v.to_s) }
+        params.each { |k, v| sql = sql.gsub("$:#{k}$", v.to_s) }
         assert_sql_is_select!('preselect', sql)
         DB[sql].map { |r| r.values.first }
       end
