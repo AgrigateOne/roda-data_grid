@@ -207,6 +207,7 @@ module Crossbeams
           pinned: options[:pinned],
           valueGetter: link,
           colId: field,
+          cellStyle: { 'padding-left': '0px', 'padding-right': '0px' }, # Remove padding so the button fills the cell, presenting a better target
           cellRenderer: options[:cellRenderer] || default_renderer
         }
       end
