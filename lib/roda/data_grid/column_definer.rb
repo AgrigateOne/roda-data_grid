@@ -44,7 +44,7 @@ module Crossbeams
       # @yield [mk] self - the object on which other DSL methodds can be called in the block.
       # @return [Array] all the column definitions created inside the block.
       def make_columns
-        @columns = initialize_columns
+        @columns = []
         yield self
         @columns
       end
@@ -316,30 +316,6 @@ module Crossbeams
       end
 
       private
-
-      # If the grid is a multiselect, include a column for checkboxes.
-      def initialize_columns
-        return [] unless @for_multiselect
-
-        hs = {
-          headerName: '',
-          colId: 'theSelector',
-          pinned: 'left',
-          width: 60,
-          headerCheckboxSelection: true,
-          headerCheckboxSelectionFilteredOnly: true,
-          checkboxSelection: true,
-          suppressHeaderMenuButton: true,   sortable: false,   suppressMovable: true,
-          filter: false,
-          enableValue: false, suppressColumnsToolPanel: true,
-          context: { suppressCsvExport: true },
-          suppressFiltersToolPanel: true
-        }
-        hs[:enableRowGroup] = false unless @for_tree
-        hs[:enablePivot] = false unless @for_tree
-
-        [hs]
-      end
 
       def select_editor_values_for_2d(values)
         values.map { |f, l| { name: f.nil? || f.empty? ? ' ' : f, code: l || 'C' } }
