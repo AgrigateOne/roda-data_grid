@@ -259,6 +259,7 @@ module Crossbeams
                 hs[:cellEditorParams] = { lookupUrl: options[:cellEditorParams][:lookup_url],
                                           selectWidth: options[:cellEditorParams][:width] || 200 }
               else
+                hs[:cellEditor] = 'agRichSelectCellEditor'
                 values = options[:cellEditorParams][:values]
                 hs[:cellEditorParams] = { allowTyping: true,
                                           filterList: true,
