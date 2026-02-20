@@ -30,7 +30,7 @@ module Crossbeams
                             when :date
                               'dateString'
                             when :datetime
-                              'dateString'
+                              'dateTimeString'
                             else
                               'text'
                             end
