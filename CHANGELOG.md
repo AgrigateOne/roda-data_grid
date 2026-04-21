@@ -7,6 +7,7 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Favourite column type for ColumnDefiner - used to render a boolean value as a favourite or non-favourite
 ### Changed
 ### Fixed
 

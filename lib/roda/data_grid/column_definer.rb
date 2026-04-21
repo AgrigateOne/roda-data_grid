@@ -216,6 +216,23 @@ module Crossbeams
         href(link, field, options.merge(cellRenderer: 'crossbeamsGridFormatters.hrefPromptFormatter'))
       end
 
+      def favourite(field, resource_key, options = {})
+        @columns << {
+          headerName: '',
+          width: options[:width] || 60,
+          suppressHeaderMenuButton: true,   sortable: true,   suppressMovable: true,
+          filter: false, enableRowGroup: false,   enablePivot: false,
+          enableValue: false, suppressColumnsToolPanel: true,
+          context: { suppressCsvExport: true },
+          suppressFiltersToolPanel: true,
+          pinned: 'left',
+          cellDataType: 'boolean',
+          cellRenderer: 'favouriteToggleFormatter',
+          cellRendererParams: options[:display_only] ? { displayOnly: true } : { displayOnly: false, favouriteKey: resource_key, toggleUrlBase: '/toggle/favourite', id_field: options[:id] || 'id', gridId: options[:grid_id] },
+          field: field
+        }
+      end
+
       def col(field, caption = nil, options = {}) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
         grid_config = OpenStruct.new(hide_for_client: [], tree: false)
         column_definition = ColumnDefinition.new(grid_config)
