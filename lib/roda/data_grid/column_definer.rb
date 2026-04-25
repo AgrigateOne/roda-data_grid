@@ -194,8 +194,22 @@ module Crossbeams
         @actions << soft_opts.merge(options).merge(url: url)
       end
 
-      def href(link, field, options = {})
+      def href(link, field, options = {}) # rubocop:disable Metrics/AbcSize
         default_renderer = options[:fetch_renderer] ? 'crossbeamsGridFormatters.hrefSimpleFetchFormatter' : 'crossbeamsGridFormatters.hrefSimpleFormatter'
+        elems, text = link.delete_prefix("'").delete_suffix("'").split('|')
+        cnt = 0
+        tokens = {}
+        link_pieces = elems.split("'").map.each do |elem|
+          if elem.start_with?('+')
+            cnt += 1
+            tokens["$#{cnt}"] = elem.gsub('+', '').delete_prefix('data.')
+            "$#{cnt}"
+          else
+            elem
+          end
+        end
+        url = link_pieces.join
+
         @columns << {
           headerName: '',
           width: options[:width] || 60,
@@ -205,15 +219,41 @@ module Crossbeams
           context: { suppressCsvExport: true },
           suppressFiltersToolPanel: true,
           pinned: options[:pinned],
-          valueGetter: link,
           colId: field,
           cellStyle: { 'padding-left': '0px', 'padding-right': '0px' }, # Remove padding so the button fills the cell, presenting a better target
-          cellRenderer: options[:cellRenderer] || default_renderer
+          cellRenderer: options[:cellRenderer] || default_renderer,
+          cellRendererParams: { hrefLink: url, tokens: tokens, text: text }
         }
       end
 
-      def href_prompt(link, field, options = {})
-        href(link, field, options.merge(cellRenderer: 'crossbeamsGridFormatters.hrefPromptFormatter'))
+      def href_prompt(link, field, text, options = {})
+        # mk.href_prompt "/dataminer/admin/#{id}/parameter/delete/$:column$", 'delete_link', 'delete', prompt: 'Are you sure?', method: 'delete', width: 100, pinned: 'left'
+        cnt = 0
+        tokens = {}
+        link_pieces = link.split('$').map.each do |elem|
+          if elem.start_with?(':')
+            cnt += 1
+            tokens["$#{cnt}"] = elem.gsub(':', '')
+            "$#{cnt}"
+          else
+            elem
+          end
+        end
+        url = link_pieces.join
+        @columns << {
+          headerName: '',
+          width: options[:width] || 60,
+          suppressHeaderMenuButton: true,   sortable: false,   suppressMovable: true,
+          filter: false, enableRowGroup: false,   enablePivot: false,
+          enableValue: false, suppressColumnsToolPanel: true,
+          context: { suppressCsvExport: true },
+          suppressFiltersToolPanel: true,
+          pinned: options[:pinned],
+          colId: field,
+          cellStyle: { 'padding-left': '0px', 'padding-right': '0px' }, # Remove padding so the button fills the cell, presenting a better target
+          cellRenderer: 'crossbeamsGridFormatters.hrefPromptFormatter',
+          cellRendererParams: { hrefLink: url, tokens: tokens, text: text, method: (options[:method] || 'post').downcase, prompt: options[:prompt] || 'Are you sure?' }
+        }
       end
 
       def favourite(field, resource_key, options = {})
