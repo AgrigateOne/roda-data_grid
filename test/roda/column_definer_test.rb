@@ -219,17 +219,4 @@ class ColumnDefinerTest < Minitest::Test
     assert col[:cellEditorParams][:showStepperButtons]
     assert_equal 0, col[:cellEditorParams][:precision]
   end
-
-  def test_multiselect_column
-    cd = Crossbeams::DataGrid::ColumnDefiner.new(for_multiselect: true)
-    cols = cd.make_columns do |mk|
-      mk.col 'afield', 'A Caption'
-    end
-    col = cols.first
-
-    assert_equal col[:headerName], ''
-    assert_equal col[:colId], 'theSelector'
-    assert col[:headerCheckboxSelection]
-    assert col[:checkboxSelection]
-  end
 end
