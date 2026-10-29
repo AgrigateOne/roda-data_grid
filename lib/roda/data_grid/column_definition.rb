@@ -8,6 +8,8 @@ module Crossbeams
 
       def initialize(config)
         @config = config
+        @multi_dimensional_arrays = []
+        @percentage_bars = []
       end
 
       def column_hash(col) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity

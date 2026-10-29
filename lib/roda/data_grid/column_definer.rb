@@ -33,7 +33,8 @@ module Crossbeams
       # @param for_multiselect [bool] do we need a checkbox column for multiselect? Default is false.
       # @param for_tree [bool] is this a tree? Default is false. Only required if `for_multiselect` is true.
       def initialize(for_multiselect: false, for_tree: false)
-        @for_multiselect = for_multiselect
+        warn 'Deprecated option: ColumnDefiner.new no longer needs a `for_multiselect` argument', uplevel: 1 if for_multiselect
+
         @for_tree = for_tree
         @multi_dimensional_arrays = []
         @percentage_bars = []

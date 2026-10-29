@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'axlsx'
 require 'roda/data_grid/data_grid_helpers'
 
 class Roda
@@ -23,7 +22,7 @@ class Roda
         end
 
         # Modify the url by applying querystring parameters.
-        def configure_page_control(page_control_def, params) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity , Metrics/PerceivedComplexity
+        def configure_page_control(page_control_def, params) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
           return page_control_def if params.nil? || params[:query_string].nil?
 
           url = page_control_def[:url]
@@ -243,7 +242,7 @@ class Roda
           data.list_rows
         end
 
-        def render_excel_rows(id, params)
+        def render_excel_rows(id, params, builder)
           always_pass = ->(_) { true }
           data = Crossbeams::DataGrid::SearchGridData.new(id: id,
                                                           root_path: opt_path,
@@ -252,7 +251,7 @@ class Roda
                                                           client_rule_check: always_pass,
                                                           params: params)
           data.list_rows
-          [data.report.caption, data.excel_rows]
+          [data.report.caption, data.excel_rows(builder)]
         end
       end
     end
