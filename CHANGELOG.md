@@ -7,9 +7,15 @@ and this project adheres roughly to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Favourite column type for ColumnDefiner - used to render a boolean value as a favourite or non-favourite
 ### Changed
 ### Fixed
+
+## [1.6.0] - 2026-10-29
+### Added
+- Favourite column type for ColumnDefiner - used to render a boolean value as a favourite or non-favourite
+### Changed
+- Upgrade to Ruby 4.0.7
+- Remove reference to (c)axlsx and hand-off excel-building to the calling code
 
 ## [1.5.4] - 2025-11-24
 ### Changed

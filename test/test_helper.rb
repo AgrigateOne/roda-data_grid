@@ -2,6 +2,8 @@ $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'roda/data_grid'
 
 require 'minitest/autorun'
+require 'minitest/mock'
+require 'minitest/rg'
 
 # Simple override for Postgres DB connection constant.
 class PgDb
