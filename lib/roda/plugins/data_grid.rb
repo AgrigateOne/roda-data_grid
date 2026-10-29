@@ -250,7 +250,7 @@ class Roda
                                                           has_permission: always_pass,
                                                           client_rule_check: always_pass,
                                                           params: params)
-          data.list_rows
+          # data.list_rows
           [data.report.caption, data.excel_rows(builder)]
         end
       end
